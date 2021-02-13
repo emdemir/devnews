@@ -15,7 +15,13 @@ in Redis. The backend database is PostgreSQL.
 
 ## Running
 
-Simply clone the repository and run:
+Simply clone the repository. Afterwards, you need to either generate
+certificates for the Nginx container, or add your own. To generate self-signed
+certificates for development, run in the `nginx/` directory:
+
+- `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365`
+
+Finally, in the project root run:
 
 - `docker-compose build`
 - `docker-compose up`
