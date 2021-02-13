@@ -1,5 +1,4 @@
 # DevNews
----
 
 A technology-focused community website for shating interesting news online.
 
