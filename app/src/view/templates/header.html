@@ -1,0 +1,29 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<header>
+    <div class="header-logo">
+        <div class="logo">
+            <a href="/">
+                DevNews
+            </a>
+        </div>
+        <div class="slogan">
+            The best place for technology news
+        </div>
+    </div>
+    <nav role="navigation" class="header-nav">
+        <a class="header-nav-link" href="/">Home</a>
+        <a class="header-nav-link" href="/recent/">Recent Stories</a>
+        <a class="header-nav-link" href="/comments/">Newest Comments</a>
+        <a class="header-nav-link" href="/threads/">Your Threads</a>
+        <a class="header-nav-link submit-link" href="/submit">Submit a Story!</a>
+
+        <a class="header-nav-link right" href="/m/">Messages</a>
+        <a class="header-nav-link right"
+           href="{% if user %}/settings/{% else %}/auth/login/{% endif %}">
+            {% if user %}{{ user.username }}{% else %}Login{% endif %}
+        </a>
+    </nav>
+</header>
+    

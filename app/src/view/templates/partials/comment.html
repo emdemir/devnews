@@ -1,0 +1,24 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<div class="comment" id="c_{{ comment.short_url }}">
+    <form method="POST" action="/c/{{ comment.short_url }}/vote">
+        <button type="submit" class="vote-button {% if story.user_voted %}voted{% endif %}">
+            {% if story.user_voted %}Unvote{% else %}Vote{% endif %}
+        </button>
+    </form>
+    <div class="comment-info">
+        <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
+        <!-- TODO: date difference -->
+        TODO hours ago
+    </div>
+    <div class="comment-contents">
+        {{ comment.comment_html | safe }}
+    </div>
+
+    <div class="comment-children">
+        {% for c in comment.children %}
+            {% include "partials/comment.html" %}
+        {% endfor %}
+    </div>
+</div>

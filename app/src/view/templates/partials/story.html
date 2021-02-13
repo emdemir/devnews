@@ -1,0 +1,29 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<div class="story {% if story.url %}is-url{% else %}is-text{% endif %}">
+    <form method="POST" action="/s/{{ story.short_url }}/vote">
+        <button type="submit" class="vote-button {% if story.user_voted %}voted{% endif %}">
+            {% if story.user_voted %}Unvote{% else %}Vote{% endif %}
+        </button>
+    </form>
+
+    <a href="{% if story.url %}{{ story.url }}{% else %}/s/{{ story.short_url }}{% endif %}">{{ story.title }}</a>
+    <div class="story-info">
+        <span class="story-score">
+            {{ story.score }} point{% if story.score !== 1 %}s{% endif %}
+        </span>
+        <span class="story-submitter">
+            {% if story.is_authored %}authored by{% else %}via{% endif %}
+            <a href="/u/{{ story.submitter_username }}">{{ story.submitter_username }}</a>
+        </span>
+        |
+        <a href="/s/{{ story.short_url }}">
+            {% if story.comment_count %}
+                {{ story.comment_count }} comment{% if story.comment_count !== 1 %}s{% endif %}
+            {% else %}
+                discuss
+            {% endif %}
+        </a>
+    </div>
+</div>

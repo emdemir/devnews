@@ -1,0 +1,12 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="stories">
+    {% for story in stories %}
+        {% include "partials/story.html" %}
+    {% endfor %}
+</div>
+{% endblock %}

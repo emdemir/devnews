@@ -1,0 +1,19 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="login box">
+    <h3 class="box-title">Login</h3>
+
+    <form method="POST">
+        <label>Username: <input type="text" name="username" /></label>
+        <label>Password: <input type="password" name="password" /></label>
+        <button type="submit" class="button">Login</button>
+    </form>
+
+    <p>Forgot your password? <a href="/auth/reset/">Reset your password here</a>.</p>
+    <p>Don't have an account? <a href="/auth/register/">Register here!</a></p>
+</div>
+{% endblock %}

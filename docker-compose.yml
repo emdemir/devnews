@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  app:
+    build: ./app
+    networks:
+      - app
+    volumes:
+      - ./app/src/:/app/src
+    depends_on:
+      - db
+      - redis
+    environment:
+      - PGHOST=db
+      - PGUSER=devnews
+      - PGPASSWORD=devnews
+      - PGDATABASE=devnews
+  db:
+    image: postgres:13-alpine
+    networks:
+      - app
+    volumes:
+      - ./db/:/docker-entrypoint-initdb.d:ro
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=devnews
+      - POSTGRES_USER=devnews
+  redis:
+    image: redis:6-alpine
+    networks:
+      - app
+  nginx:
+    image: nginx:alpine
+    networks:
+      - app
+    depends_on:
+      - app
+    ports:
+      - 8080:80
+      - 8443:443 # This is used because Firefox really wants you to use HTTPS for forms.
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d:ro
+
+networks:
+  app:
+    driver: bridge
+volumes:
+  db-data:
+    driver: local

@@ -1,0 +1,17 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>{% if title %}{{ title }} - {% endif %}DevNews</title>
+    </head>
+    <body>
+        {% include "header.html" %}
+        {% block content %}
+            You must extend content!
+        {% endblock %}
+        {% include "footer.html" %}
+    </body>
+</html>
