@@ -26,8 +26,9 @@ Finally, in the project root run:
 - `docker-compose build`
 - `docker-compose up`
 
-The database will be seeded with the user `admin` (password `admin`) and some
-test stories and tags, which you can then modify as you wish.
+The nginx server will be listening on port 8080 for HTTP and port 8443 for
+HTTPS. The database will be seeded with the user `admin` (password `admin`) and
+some test stories and tags, which you can then modify as you wish.
 
 ## Copyright
 
