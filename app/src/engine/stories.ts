@@ -80,8 +80,7 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
     const getStoryByShortURL = (
         url: string,
         options: StoryOptions
-    ): Promise<Story | null> =>
-        dataSource.getStoryByShortURL(url, options);
+    ) => dataSource.getStoryByShortURL(url, options);
 
     /**
      * Gives a vote on a story by user, or retracts the vote if it already exists.
@@ -90,7 +89,7 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
      * @param user - The user voting on the story.
      * @return false if the story was missing, true otherwise.
      */
-    const voteOnStory = async (short_url: string, user: User) =>
+    const voteOnStory = (short_url: string, user: User) =>
         dataSource.voteOnStory(short_url, user.id);
 
     /**
