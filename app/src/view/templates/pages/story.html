@@ -4,8 +4,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="story-page">
+<div class="story-page {% if story.text %}has-text{% endif %}">
     {% include "partials/story.html" %}
+
+    {% if story.text %}
+    <div class="story-content">
+        {{ story.text_html | safe }}
+    </div>
+    {% endif %}
 
     {% if user %}
     <div class="story-create-comment box">
