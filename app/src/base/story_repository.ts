@@ -42,11 +42,15 @@ export interface StoryListOptions extends StoryOptions {
 };
 
 /**
- * All the fields that are required for a story.
+ * All the fields that are required for a story on the repository side.
  */
 export interface StoryCreate {
     // The ID of the submitter.
     submitter_id: number;
+    // Whether the story was authored by the story author.
+    is_authored: boolean;
+    // The short URL for this story.
+    short_url: string;
     // The story's title.
     title: string;
     // The URL of the story, can be null.

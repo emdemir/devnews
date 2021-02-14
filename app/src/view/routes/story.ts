@@ -2,14 +2,18 @@ import Router = require("koa-router");
 
 import type { AppContext } from "../";
 import type StoryManager from "../../base/story_manager";
+import type { StoryCreate } from "../../base/story_manager";
 import type CommentManager from "../../base/comment_manager";
+import type TagManager from "../../base/tag_manager";
+import ValidationError from "../../base/validation";
 
 interface Dependencies {
     storyManager: StoryManager;
     commentManager: CommentManager;
+    tagManager: TagManager;
 }
 
-export default function({ storyManager, commentManager }: Dependencies) {
+export default function({ storyManager, commentManager, tagManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
     // --- Actions ---
@@ -70,7 +74,7 @@ export default function({ storyManager, commentManager }: Dependencies) {
         }
     );
 
-    // --- View ---
+    // --- Detail View ---
 
     router.get("/:short_url/:slug?", async ctx => {
         const user = ctx.state.user;
@@ -92,7 +96,68 @@ export default function({ storyManager, commentManager }: Dependencies) {
                 checkRead: user ? user.id : undefined,
                 checkVoter: user ? user.id : undefined
             });
-            await ctx.render("pages/story.html", { story, comments, user });
+            const tags = await tagManager.getStoryTags(story.id);
+            await ctx.render("pages/story.html", { story, comments, tags, user });
+        }
+    });
+
+    // --- Create View ---
+
+    router.get("/", async ctx => {
+        const user = ctx.state.user;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const tags = await tagManager.getAllTags();
+        await ctx.render("pages/create_story.html", { tags, user });
+    });
+    router.post("/", async ctx => {
+        const user = ctx.state.user;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const formData = ctx.request.body;
+        const { title, url, text, is_authored } = formData;
+        const tags = ((
+            "tags" in formData
+                ? (Array.isArray(formData.tags)
+                    ? formData.tags
+                    : [formData.tags])
+                : []
+        ) as string[]).map(tag => parseInt(tag));
+
+        const data: StoryCreate = {
+            is_authored: !!is_authored,
+            tags,
+            text: text,
+            title: title || null,
+            url: url || null
+        };
+
+        try {
+            const story = await storyManager.createStory(data, user);
+            return ctx.redirect(`/s/${story.short_url}/`);
+        } catch (err) {
+            const allTags = await tagManager.getAllTags();
+
+            if (err instanceof ValidationError) {
+                await ctx.render("pages/create_story.html", {
+                    error: err,
+                    tags: allTags,
+                    formData,
+                    user
+                });
+            } else {
+                console.error(err);
+                await ctx.render("pages/create_story.html", {
+                    error: new Error("An unknown error occurred."),
+                    tags: allTags,
+                    formData,
+                    user
+                });
+            }
         }
     });
 

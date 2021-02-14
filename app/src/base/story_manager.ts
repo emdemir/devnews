@@ -3,6 +3,22 @@
 import type { StoryListOptions, StoryOptions, Story } from "./story_repository";
 import type { User } from "./user_repository";
 
+/**
+ * All the fields that are required for a story on the repository side.
+ */
+export interface StoryCreate {
+    // Whether the story was authored by the story author.
+    is_authored: boolean;
+    // The story's title.
+    title: string;
+    // The URL of the story, can be null.
+    url: string | null;
+    // The text of the story (unprocessed), can be null.
+    text: string | null;
+    // The tags for this story as an array of IDs.
+    tags: number[];
+};
+
 interface StoryManager {
     /**
      * Returns paginated stories.
@@ -25,6 +41,13 @@ interface StoryManager {
      * @return false if the story was missing, true otherwise.
      */
     voteOnStory(short_url: string, user: User): Promise<boolean>;
+    /**
+     * Create a new story with the given parameters for the user.
+     *
+     * @param story - The story parameters.
+     * @param user - The user creating the story.
+     */
+    createStory(story: StoryCreate, user: User): Promise<Story>;
 };
 
 export default StoryManager;

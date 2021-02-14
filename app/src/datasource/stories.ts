@@ -140,14 +140,66 @@ export default function({ }): StoryRepository {
         }
     }
 
-    // @ts-ignore TODO
+    /**
+     * Creates a story with the given parameters and returns the new story.
+     *
+     * @param _story - The story parameters.
+     */
     const createStory = async (_story: StoryCreate): Promise<Story> => {
         const client = await getClient();
 
         try {
+            await client.query("BEGIN");
+
             // Create the story.
-            //const storyResult =
+            const storyResult = await client.query<Story>(`\
+            INSERT INTO stories
+                (submitter_id, is_authored, short_url, title, url, text, text_html)
+            VALUES
+                ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *`, [
+                _story.submitter_id,
+                _story.is_authored,
+                _story.short_url,
+                _story.title,
+                _story.url,
+                _story.text,
+                _story.text_html
+            ]);
+
+            if (storyResult.rowCount !== 1)
+                throw new Error("Couldn't fetch story after insert?!");
+
+            const story = storyResult.rows[0];
+
+            // Create relationship between story and its tags.
+            // We are using multiple-insert syntax here for PostgreSQL so we
+            // need to generate sequential parameter numbers.
+            let i = 1;
+            const values = [];
+            for (let _ of _story.tags) {
+                values.push(`($${i}, $${i + 1})`);
+                i += 2;
+            }
+            const tagParams = _story.tags.reduce((acc, tag_id) => {
+                acc.push(story.id);
+                acc.push(tag_id);
+                return acc;
+            }, [] as number[])
+
+            // Insert the tag relationships.
+            await client.query(`\
+                INSERT INTO story_tags (story_id, tag_id)
+                VALUES ${values.join(", ")}`,
+                tagParams);
+
+            // Cast initial vote on this story by submitter.
+            await client.query(`\
+                INSERT INTO story_votes (story_id, user_id)
+                VALUES ($1, $2)`, [story.id, _story.submitter_id]);
+
             await client.query("COMMIT");
+            return story;
         } catch (e) {
             await client.query("ROLLBACK");
             throw e;

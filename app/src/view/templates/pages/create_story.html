@@ -1,0 +1,56 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="create-story-page">
+    <div class="box">
+        <h3 class="box-title">Submit a Story</h3>
+
+        {% include "partials/errors.html" %}
+
+        <form method="POST">
+            <label>Title: <input type="text" name="title" required
+                                 maxlength="100" value="{{ formData.title }}" />
+            </label>
+            <p><small>Please do not editorialize titles.</small></p>
+
+            <label>Story URL: <input type="url" name="url"
+                                     maxlength="200" value="{{ formData.url }}" />
+            </label>
+            <p>...or...</p>
+            <label>Story text:<br />
+                <textarea name="text">{{ formData.text }}</textarea>
+            </label>
+
+            <p>Tags: (at least one and at most three. Select any that apply)</p>
+            <div class="story-tags">
+                {% for tag in tags %}
+                    <p><label>
+                        <input type="checkbox" name="tags" value="{{ tag.id }}"
+                               {% if formData.tags and (
+                                   formData.tags == tag.id or (
+                                       formData.tags.length and
+                                       formData.tags.includes(tag.id.toString())
+                                   )
+                               ) %}checked{% endif %} />
+                        {{ tag.name }} &mdash; {{ tag.description }}
+                    </label></p>
+                {% endfor %}
+            </div>
+
+            <br />
+
+            <label><input type="checkbox" name="is_authored"
+                          {% if formData.is_authored %}checked{% endif %} />
+                I am the author of this story
+            </label>
+
+            <p>Before submitting, please review our <a href="/auth/rules/">site rules</a>.</p>
+
+            <button type="submit" class="button">Submit Story</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
