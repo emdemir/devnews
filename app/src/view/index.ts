@@ -9,8 +9,8 @@ import logger = require("koa-logger");
 // @ts-ignore
 import RedisStore = require("koa-redis");
 
+// Templating
 import nunjucks, { NunjucksContext } from "./render";
-
 // Authentication
 import type { Authenticator } from "passport";
 
@@ -104,7 +104,9 @@ app
         watch: isDev
     }, {
         // Globals
-        now: function now() { return new Date(); }
+        // TODO: move this to a separate "context_processors.ts"
+        now: function now() { return new Date(); },
+        getDomain: function getDomain(url: string) { return (new URL(url)).hostname }
     }))
     .use(router.routes())
     .use(router.allowedMethods());

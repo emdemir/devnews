@@ -2,12 +2,14 @@ import Router = require("koa-router");
 
 import type { AppContext } from "../";
 import type StoryManager from "../../base/story_manager";
+import type TagManager from "../../base/tag_manager";
 
 interface Dependencies {
-    storyManager: StoryManager
+    storyManager: StoryManager;
+    tagManager: TagManager;
 };
 
-export default function({ storyManager }: Dependencies) {
+export default function({ storyManager, tagManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
     router.get("/", async ctx => {
@@ -22,8 +24,10 @@ export default function({ storyManager }: Dependencies) {
 
             checkVoter: user ? user.id : undefined
         });
+        const storyIDs = stories.map(story => story.id);
+        const storyTags = await tagManager.getTagsForStories(storyIDs);
 
-        await ctx.render("pages/home.html", { stories, user });
+        await ctx.render("pages/home.html", { stories, storyTags, user });
     });
 
     return router;

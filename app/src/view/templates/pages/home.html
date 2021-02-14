@@ -6,6 +6,7 @@
 {% block content %}
 <div class="stories">
     {% for story in stories %}
+        {% set tags = storyTags[story.id] %}
         {% include "partials/story.html" %}
     {% endfor %}
 </div>

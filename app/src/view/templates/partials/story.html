@@ -8,22 +8,35 @@
         </button>
     </form>
 
-    <a href="{% if story.url %}{{ story.url }}{% else %}/s/{{ story.short_url }}{% endif %}">{{ story.title }}</a>
-    <div class="story-info">
-        <span class="story-score">
-            {{ story.score }} point{% if story.score !== 1 %}s{% endif %}
-        </span>
-        <span class="story-submitter">
-            {% if story.is_authored %}authored by{% else %}via{% endif %}
-            <a href="/u/{{ story.submitter_username }}">{{ story.submitter_username }}</a>
-        </span>
-        |
-        <a href="/s/{{ story.short_url }}">
-            {% if story.comment_count %}
-                {{ story.comment_count }} comment{% if story.comment_count !== 1 %}s{% endif %}
-            {% else %}
-                discuss
+    <div class="story-lines">
+        <div class="story-title">
+            <a href="{% if story.url %}{{ story.url }}{% else %}/s/{{ story.short_url }}{% endif %}">
+                {{ story.title }}</a>
+
+            {% for tag in tags %}
+                <a class="tag tag-{{ tag.name }}" href="/t/{{ tag.name }}">{{ tag.name }}</a>
+            {% endfor %}
+
+            {% if story.url %}
+                <span class="story-domain">({{ getDomain(story.url) }})</span>
             {% endif %}
-        </a>
+        </div>
+        <div class="story-info">
+            <span class="story-score">
+                {{ story.score }} point{% if story.score !== 1 %}s{% endif %}
+            </span>
+            <span class="story-submitter">
+                {% if story.is_authored %}authored by{% else %}via{% endif %}
+                <a href="/u/{{ story.submitter_username }}">{{ story.submitter_username }}</a>
+            </span>
+            |
+            <a href="/s/{{ story.short_url }}">
+                {% if story.comment_count %}
+                    {{ story.comment_count }} comment{% if story.comment_count !== 1 %}s{% endif %}
+                {% else %}
+                    discuss
+                {% endif %}
+            </a>
+        </div>
     </div>
 </div>
