@@ -1,3 +1,5 @@
+import validUrl = require("valid-url");
+
 import { buildGravatarURL } from "./utils";
 import ValidationError from "../base/validation";
 import { hashPassword } from "./auth";
@@ -8,8 +10,6 @@ import type UserManager from "../base/user_manager";
 
 // Regexp for e-mail validation.
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
-// Regexp for homepage URL validation.
-const HOMEPAGE_REGEX = /[-\w\d]+\.[\w\d]+(?:\/[\w\d-\.])*\/?/;
 
 // The validators for the user model.
 const validators = {
@@ -29,8 +29,8 @@ const validators = {
         }
     },
     homepage: (errors: string[], homepage: string) => {
-        if (!HOMEPAGE_REGEX.test(homepage)) {
-            errors.push("Invalid homepage URL");
+        if (!validUrl.isWebUri(homepage)) {
+            errors.push("Invalid homepage URL.");
         }
     }
 };
