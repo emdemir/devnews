@@ -1,6 +1,3 @@
-import marked = require("marked");
-import createDOMPurify = require("dompurify");
-
 import type CommentRepository from "../base/comment_repository";
 import type {
     CommentOptions, CommentCreate as RepositoryCommentCreate
@@ -8,8 +5,7 @@ import type {
 import type CommentManager from "../base/comment_manager";
 import type { Comment, CommentCreate } from "../base/comment_manager";
 
-import { generateShortID } from "./utils";
-import { JSDOM } from "jsdom";
+import { generateShortID, markdown } from "./utils";
 
 interface Dependencies {
     commentRepository: CommentRepository;
@@ -59,10 +55,6 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         return roots;
     }
 
-    // Please work with me here.
-    const window = new JSDOM("").window;
-    const domPurify = createDOMPurify(window as unknown as Window);
-
     /**
      * Creates a new comment in a story.
      *
@@ -73,9 +65,7 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         comment: CommentCreate
     ): Promise<Comment> => {
         // Process Markdown
-        const commentHTML = marked(domPurify.sanitize(comment.comment, {
-            ALLOWED_TAGS: []
-        }));
+        const commentHTML = markdown(comment.comment);
 
         // Generate short URL for comment
         const shortID = generateShortID(6);
