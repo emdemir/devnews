@@ -1,10 +1,13 @@
 import Router = require("koa-router");
+
 import type { AppContext } from "../";
 
-const router = new Router<any, AppContext>();
+export default function({ }) {
+    const router = new Router<any, AppContext>();
 
-router.get("/", async ctx => {
-    ctx.body = "TEST";
-});
+    router.get("/", async ctx => {
+        ctx.body = "TEST";
+    });
 
-export default router;
+    return router;
+}

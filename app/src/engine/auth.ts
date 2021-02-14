@@ -5,7 +5,9 @@ import type { Authenticator } from "passport";
 import local = require("passport-local");
 import crypto = require("crypto");
 
-import * as dataSource from "../datasource/users";
+import type UserRepository from "../base/user_repository";
+import type { User } from "../base/user_repository";
+import type AuthManager from "../base/auth_manager";
 
 // The amount of hash iterations we currently do.
 const HASH_ITERATIONS = 10_000;
@@ -57,53 +59,61 @@ export const isPasswordValid = async (
 // error message regardless of whether the user exists on the site or not.
 const ERR_MESSAGE = "Invalid user/password";
 
-const strategy = new local.Strategy(async (username, password, done) => {
-    try {
-        const user = await dataSource.getUserByUsername(username);
-        if (user === null) {
-            return done(null, false, { message: ERR_MESSAGE });
-        }
-
-        const valid = await isPasswordValid(user!.password, password);
-        if (!valid) {
-            return done(null, false, { message: ERR_MESSAGE });
-        }
-
-        return done(null, user);
-    } catch (e) {
-        done(e);
-    }
-});
-
-/// --- Serialization ---
-
-type SerializeCallback = (user: Express.User, done: (err: any, id?: number) => void) => void;
-type DeserializeCallback = (id: number, done: (err: any, user?: Express.User) => void) => void;
-
-const serialize: SerializeCallback = (user, done) => {
-    done(null, (user as dataSource.User).id);
+interface Dependencies {
+    userRepository: UserRepository;
 };
 
-const deserialize: DeserializeCallback = async (id, done) => {
-    try {
-        const user = await dataSource.getUserByID(id);
-        done(null, user || undefined);
-    } catch (e) {
-        done(e);
+export default function({ userRepository: dataSource }: Dependencies): AuthManager {
+    const strategy = new local.Strategy(async (username, password, done) => {
+        try {
+            const user = await dataSource.getUserByUsername(username);
+            if (user === null) {
+                return done(null, false, { message: ERR_MESSAGE });
+            }
+
+            const valid = await isPasswordValid(user!.password, password);
+            if (!valid) {
+                return done(null, false, { message: ERR_MESSAGE });
+            }
+
+            return done(null, user);
+        } catch (e) {
+            done(e);
+        }
+    });
+
+    /// --- Serialization ---
+
+    type SerializeCallback = (user: Express.User, done: (err: any, id?: number) => void) => void;
+    type DeserializeCallback = (id: number, done: (err: any, user?: Express.User) => void) => void;
+
+    const serialize: SerializeCallback = (user, done) => {
+        done(null, (user as User).id);
+    };
+
+    const deserialize: DeserializeCallback = async (id, done) => {
+        try {
+            const user = await dataSource.getUserByID(id);
+            done(null, user || undefined);
+        } catch (e) {
+            done(e);
+        }
+    };
+
+    // --- Initialization ---
+
+    /**
+    * Initialize the authentication layer.
+    */
+    const initialize = (passport: Authenticator) => {
+        // Register the authentication strategy with Passport.
+        passport.use("local", strategy);
+        // Register the callbacks with passport.
+        passport.serializeUser(serialize);
+        passport.deserializeUser(deserialize);
     }
+
+    return {
+        initialize
+    };
 };
-
-// --- Initialization ---
-
-/**
- * Initialize the authentication layer.
- */
-const initialize = (passport: Authenticator) => {
-    // Register the authentication strategy with Passport.
-    passport.use("local", strategy);
-    // Register the callbacks with passport.
-    passport.serializeUser(serialize);
-    passport.deserializeUser(deserialize);
-}
-
-export default initialize;

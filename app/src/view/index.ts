@@ -11,14 +11,11 @@ import RedisStore = require("koa-redis");
 
 import nunjucks, { NunjucksContext } from "./render";
 
-// Routes
-import indexRoutes from "./routes/index";
-import authRoutes from "./routes/auth";
-import userRoutes from "./routes/user";
-import storyRoutes from "./routes/story";
 // Authentication
-import initAuth from "../engine/auth";
 import type { Authenticator } from "passport";
+
+// The dependency manager.
+import container from "./container";
 
 // The app context that is available to routers.
 // Koa modules export their context type, however this can't be picked up by
@@ -44,10 +41,14 @@ const app = new Koa();
 export const router = new Router<any, AppContext>();
 
 // Register routes
+const indexRoutes: Router<any, AppContext> = container.resolve("indexRoutes");
+const authRoutes: Router<any, AppContext> = container.resolve("authRoutes");
+const storyRoutes: Router<any, AppContext> = container.resolve("storyRoutes");
+const userRoutes: Router<any, AppContext> = container.resolve("userRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/auth", authRoutes.routes(), authRoutes.allowedMethods());
-router.use("/u", userRoutes.routes(), userRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
+router.use("/u", userRoutes.routes(), userRoutes.allowedMethods());
 
 // Sessions
 const sessionConfig: session.SessionOptions = {
@@ -79,7 +80,9 @@ const tmplPath = __dirname.replace("/dist", "") + "/templates/";
 // so we have to do the `as unknown' shenanigans here.
 //
 // Typescript needs to improve.
-initAuth(passport as unknown as Authenticator);
+import type AuthManager from "../base/auth_manager";
+const authManager: AuthManager = container.resolve("authManager");
+authManager.initialize(passport as unknown as Authenticator);
 
 // Add middleware
 app

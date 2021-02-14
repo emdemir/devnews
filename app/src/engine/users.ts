@@ -1,9 +1,10 @@
-import * as dataSource from "../datasource/users";
-export type { User } from "../datasource/users";
-
 import { buildGravatarURL } from "./utils";
-import ValidationError from "./validation";
+import ValidationError from "../base/validation";
 import { hashPassword } from "./auth";
+
+import type UserRepository from "../base/user_repository";
+import type { User } from "../base/user_repository";
+import type UserManager from "../base/user_manager";
 
 // Regexp for e-mail validation.
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
@@ -34,38 +35,48 @@ const validators = {
     }
 };
 
-export const createUser = async (
-    username: string,
-    password: string,
-    email: string
-): Promise<dataSource.User> => {
-    const avatarImage = buildGravatarURL(email);
+interface Dependencies {
+    userRepository: UserRepository;
+};
 
-    const errors: string[] = [];
-    validators.username(errors, username);
-    validators.password(errors, password);
-    validators.email(errors, email);
+export default function({ userRepository: dataSource }: Dependencies): UserManager {
+    const createUser = async (
+        username: string,
+        password: string,
+        email: string
+    ): Promise<User> => {
+        const avatarImage = buildGravatarURL(email);
 
-    if (errors.length) {
-        throw new ValidationError(errors);
+        const errors: string[] = [];
+        validators.username(errors, username);
+        validators.password(errors, password);
+        validators.email(errors, email);
+
+        if (errors.length) {
+            throw new ValidationError(errors);
+        }
+
+        try {
+            const hashedPassword = await hashPassword(password);
+            const user = await dataSource.createUser(
+                username, hashedPassword, email, avatarImage);
+            return user;
+        } catch (err) {
+            if (!(err instanceof Error))
+                throw err;
+
+            if (err.message.includes("username")) {
+                // Username already exists.
+                throw new ValidationError(["This username is taken."]);
+            } else {
+                // Another error we're not aware of.
+                console.error(err);
+                throw new Error("An unknown error occurred. Please try again later.");
+            }
+        }
     }
 
-    try {
-        const hashedPassword = await hashPassword(password);
-        const user = await dataSource.createUser(
-            username, hashedPassword, email, avatarImage);
-        return user;
-    } catch (err) {
-        if (!(err instanceof Error))
-            throw err;
-
-        if (err.message.includes("username")) {
-            // Username already exists.
-            throw new ValidationError(["This username is taken."]);
-        } else {
-            // Another error we're not aware of.
-            console.error(err);
-            throw new Error("An unknown error occurred. Please try again later.");
-        }
+    return {
+        createUser
     }
 }
