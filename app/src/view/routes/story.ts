@@ -28,6 +28,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
             const storyFound = await storyManager.voteOnStory(
                 ctx.params.short_url, ctx.state.user);
             if (!storyFound) {
+                ctx.status = 404;
                 return await ctx.render("pages/404.html", {
                     reason: "nostory", user: ctx.state.user
                 });
@@ -52,6 +53,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
             const story = await storyManager.getStoryByShortURL(
                 ctx.params.short_url, {});
             if (story === null) {
+                ctx.status = 404;
                 return await ctx.render("pages/404.html", {
                     reason: "nostory", user: ctx.state.user
                 });
@@ -88,6 +90,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
         });
 
         if (story === null) {
+            ctx.status = 404;
             await ctx.render("pages/404.html", { reason: "nostory", user });
         } else {
             const comments = await commentManager.getCommentTreeByStory(story.id, {

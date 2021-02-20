@@ -1,0 +1,17 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="not-found-page">
+    <div class="box">
+        <h3 class="box-title">Forbidden</h3>
+
+        <p>You do not have permission to access this resource. If you believe
+            this is in error, please contact the admins.</p>
+
+        <a href="/">Return to index</a> | <a href="javascript:history.go(-1)">
+            Go back</a>
+    </div>
+{% endblock %}

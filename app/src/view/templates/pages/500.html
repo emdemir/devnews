@@ -1,0 +1,17 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="not-found-page">
+    <div class="box">
+        <h3 class="box-title">Internal Server Error</h3>
+
+        <p>An unexpected error occured in the application.
+            Our top men are working on it.</p>
+
+        <a href="/">Return to index</a> | <a href="javascript:history.go(-1)">
+            Go back</a>
+    </div>
+{% endblock %}

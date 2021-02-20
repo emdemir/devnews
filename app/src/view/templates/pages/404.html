@@ -1,0 +1,24 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="not-found-page">
+    <div class="box">
+        <h3 class="box-title">Not Found</h3>
+
+        {% if reason == "nostory" %}
+            <p>The story you're looking for can't be found. It may have been
+                deleted by the author or the moderators.</p>
+        {% elif reason == "nomessage" %}
+            <p>No such message thread.</p>
+        {% else %}
+            <p>The requested page could not be found. If you believe this is
+                in error, contact the admins.</p>
+        {% endif %}
+
+        <a href="/">Return to index</a> | <a href="javascript:history.go(-1)">
+            Go back</a>
+    </div>
+{% endblock %}

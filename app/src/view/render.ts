@@ -10,11 +10,15 @@ export type NunjucksContext = {
     addGlobal(name: string, value: any): void;
 };
 
+export type NunjucksState = {
+    rendered?: boolean;
+};
+
 const nunjucksMiddleware = (
     path: string,
     opts?: nunjucks.ConfigureOptions,
     globals?: { [name: string]: any }
-): Koa.Middleware<{}, NunjucksContext> => {
+): Koa.Middleware<NunjucksState, NunjucksContext> => {
     const njk = nunjucks.configure(path, opts);
     if (globals) {
         Object.entries(globals).forEach(([name, value]) => njk.addGlobal(name, value));
@@ -28,6 +32,7 @@ const nunjucksMiddleware = (
                         reject(err);
                     } else {
                         ctx.body = template;
+                        ctx.state.rendered = true;
                         resolve(template!);
                     }
                 });

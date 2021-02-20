@@ -108,6 +108,24 @@ app
         now: function now() { return new Date(); },
         getDomain: function getDomain(url: string) { return (new URL(url)).hostname }
     }))
+    .use(async (ctx, next) => {
+        // Handle 403, 404, 500
+        try {
+            await next();
+            // Don't do anything if the view rendered something
+            if (ctx.state.rendered) return;
+
+            const status = ctx.status || 404;
+            if (status == 404) {
+                await ctx.render("pages/404.html", { user: ctx.state.user });
+            } else if (status === 403) {
+                await ctx.render("pages/403.html", { user: ctx.state.user });
+            }
+        } catch (err) {
+            console.error(err);
+            await ctx.render("pages/500.html", { user: ctx.state.user });
+        }
+    })
     .use(router.routes())
     .use(router.allowedMethods());
 
