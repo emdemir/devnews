@@ -76,7 +76,24 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         }
     }
 
+    /**
+     * Returns a user by username if it exists, or null if it doesn't.
+     *
+     * @param username - The username for this user.
+     */
+    const getUserByUsername = (username: string) =>
+        dataSource.getUserByUsername(username);
+    /**
+     * Returns a user by ID if it exists, or null if it doesn't.
+     *
+     * @param id - The ID for this user.
+     */
+    const getUserByID = (id: number) =>
+        dataSource.getUserByID(id);
+
     return {
-        createUser
+        createUser,
+        getUserByID,
+        getUserByUsername
     }
 }

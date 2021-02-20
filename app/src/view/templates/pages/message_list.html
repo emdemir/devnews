@@ -1,0 +1,45 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="message-list-page">
+    <div class="box">
+        <h3 class="box-title">Messages</h3>
+        {% for message in messages %}
+            <div class="message-stub">
+                <a href="/m/{{ message.id }}" class="message-stub-link">
+                    {{ message.message | truncate(25, true, "...") }}</a>
+
+                <span class="message-stub-byline">
+                    {# TODO: date formatting #}
+                    TODO hours ago by {{ message.author }}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="box" id="create-message-box">
+        <h3 class="box-title">Create a new Message</h3>
+
+        {% include "partials/errors.html" %}
+
+        <form method="POST" enctype="application/x-www-form-urlencoded">
+            <p>
+                <label>Recipient: <input type="text" name="recipient"
+                                        maxlength="32"
+                                        value="{{ formData.recipient }}" /></label>
+            </p>
+
+            <p>
+                <label>Message:<br />
+                    <textarea name="message">{{ formData.message }}</textarea>
+                </label>
+            </p>
+
+            <button type="submit" class="button">Send Message</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

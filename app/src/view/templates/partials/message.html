@@ -1,0 +1,23 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<div class="message box" id="m{{ message.id }}">
+    <div class="message-byline box-title">
+        <span class="message-author">
+            <a href="/u/{{ message.author }}">{{ message.author }}</a>
+        </span>
+        to
+        <span class="message-recipient">
+            <a href="/u/{{ message.recipient }}">{{ message.recipient }}</a>
+        </span>
+
+        {# TODO: duration #}
+        TODO hours ago
+
+        <a class="message-thread-id" href="#m{{ message.id }}">#{{ message.thread_id }}</a>
+    </div>
+
+    <div class="message-contents">
+        {{ message.message_html | safe }}
+    </div>
+</div>

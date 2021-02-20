@@ -12,6 +12,18 @@ interface UserManager {
      * @param email - The e-mail address of the user.
      */
     createUser(username: string, password: string, email: string): Promise<User>;
+    /**
+     * Returns a user by username if it exists, or null if it doesn't.
+     *
+     * @param username - The username for this user.
+     */
+    getUserByUsername(username: string): Promise<User | null>;
+    /**
+     * Returns a user by ID if it exists, or null if it doesn't.
+     *
+     * @param id - The ID for this user.
+     */
+    getUserByID(id: number): Promise<User | null>;
 };
 
 export default UserManager;

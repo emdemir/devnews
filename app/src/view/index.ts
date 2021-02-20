@@ -45,10 +45,12 @@ const indexRoutes: Router<any, AppContext> = container.resolve("indexRoutes");
 const authRoutes: Router<any, AppContext> = container.resolve("authRoutes");
 const storyRoutes: Router<any, AppContext> = container.resolve("storyRoutes");
 const userRoutes: Router<any, AppContext> = container.resolve("userRoutes");
+const messageRoutes: Router<any, AppContext> = container.resolve("messageRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/auth", authRoutes.routes(), authRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
 router.use("/u", userRoutes.routes(), userRoutes.allowedMethods());
+router.use("/m", messageRoutes.routes(), messageRoutes.allowedMethods());
 
 // Sessions
 const sessionConfig: session.SessionOptions = {
@@ -89,7 +91,7 @@ app
     // Request logging
     .use(logger())
     // Request protection
-    .use(helmet({ hsts: false }))
+    .use(helmet({ hsts: false, contentSecurityPolicy: isDev ? false : undefined }))
     // Request body parsing
     .use(bodyParser())
     // Sessions with redis
