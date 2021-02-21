@@ -46,11 +46,13 @@ const authRoutes: Router<any, AppContext> = container.resolve("authRoutes");
 const storyRoutes: Router<any, AppContext> = container.resolve("storyRoutes");
 const userRoutes: Router<any, AppContext> = container.resolve("userRoutes");
 const messageRoutes: Router<any, AppContext> = container.resolve("messageRoutes");
+const commentRoutes: Router<any, AppContext> = container.resolve("commentRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/auth", authRoutes.routes(), authRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
 router.use("/u", userRoutes.routes(), userRoutes.allowedMethods());
 router.use("/m", messageRoutes.routes(), messageRoutes.allowedMethods());
+router.use("/c", commentRoutes.routes(), commentRoutes.allowedMethods());
 
 // Sessions
 const sessionConfig: session.SessionOptions = {

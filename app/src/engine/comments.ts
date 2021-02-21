@@ -4,6 +4,7 @@ import type {
 } from "../base/comment_repository";
 import type CommentManager from "../base/comment_manager";
 import type { Comment, CommentCreate } from "../base/comment_manager";
+import type { User } from "../base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
 
@@ -55,6 +56,23 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         return roots;
     }
 
+    const getCommentByShortURL = async (
+        short_url: string,
+        options: CommentOptions
+    ): Promise<Comment | null> => {
+        const comment = await dataSource.getCommentByShortURL(short_url, options);
+        if (comment === null)
+            return null;
+
+        return {
+            ...comment,
+            children: []
+        };
+    }
+
+    const voteOnComment = (short_url: string, user: User) =>
+        dataSource.voteOnComment(short_url, user.id);
+
     /**
      * Creates a new comment in a story.
      *
@@ -81,6 +99,8 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
 
     return {
         createComment,
+        voteOnComment,
+        getCommentByShortURL,
         getCommentTreeByStory
     };
 };

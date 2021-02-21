@@ -94,6 +94,45 @@ export default function({ }): StoryRepository {
     }
 
     /**
+     * Returns a story by ID.
+     *
+     * @param id - The story ID.
+     * @param options - What to fetch.
+     */
+    const getStoryByID = async (
+        id: number,
+        _options: StoryOptions
+    ): Promise<Story | null> => {
+        const options = Object.assign({}, defaultOptions, _options);
+
+        const params: any[] = [id];
+        if (options.checkVoter !== undefined)
+            params.push(options.checkVoter);
+
+        const result = await query<Story>(`\
+            SELECT S.*
+                ${options.submitterUsername ? ", U.username AS submitter_username" : ""}
+                ${options.score ? ", SS.score::integer" : ""}
+                ${options.commentCount ? ", SS.comment_count::integer" : ""}
+                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean AS user_voted" : ""}
+            FROM stories S
+                ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
+                ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
+                ${options.checkVoter !== undefined
+                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $2"
+                : ""}
+            WHERE S.id = $1
+            GROUP BY S.id
+                ${options.submitterUsername ? ", U.username" : ""}
+                ${options.score ? ", SS.score" : ""}
+                ${options.commentCount ? ", SS.comment_count" : ""}`, params);
+
+        if (result.rowCount === 0)
+            return null;
+        return result.rows[0];
+    }
+
+    /**
      * Either casts or retracts a vote on the story for the user.
      *
      * @param short_url - The short URL for the story.
@@ -212,6 +251,7 @@ export default function({ }): StoryRepository {
         getStories,
         createStory,
         getStoryByShortURL,
+        getStoryByID,
         voteOnStory
     };
 }

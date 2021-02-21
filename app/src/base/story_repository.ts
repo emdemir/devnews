@@ -74,8 +74,16 @@ interface StoryRepository {
      * Fetch a story by its short URL. Returns the story if it exists, null otherwise.
      *
      * @param url - The short url.
+     * @param options - What to fetch.
      */
-    getStoryByShortURL(url: string, _options: StoryOptions): Promise<Story | null>;
+    getStoryByShortURL(url: string, options: StoryOptions): Promise<Story | null>;
+    /**
+     * Returns a story by ID.
+     *
+     * @param id - The story ID.
+     * @param options - What to fetch.
+     */
+    getStoryByID(id: number, options: StoryOptions): Promise<Story | null>;
     /**
      * Either casts or retracts a vote on the story for the user.
      *

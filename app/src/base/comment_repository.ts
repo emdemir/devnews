@@ -15,6 +15,7 @@ export interface Comment {
     score?: number;
     user_voted?: boolean;
     read?: boolean;
+    username?: string;
 };
 
 // Optional fetches during the query.
@@ -53,6 +54,21 @@ interface CommentRepository {
      * @param options - Additional things to fetch.
      */
     getCommentsByStory(storyID: number, options: CommentOptions): Promise<Comment[]>;
+    /**
+     * Return a comment by its short URL.
+     *
+     * @param short_url - The short URL of the comment
+     * @param options - What to fetch
+     */
+    getCommentByShortURL(short_url: string, options: CommentOptions): Promise<Comment | null>;
+    /**
+     * Either casts or retracts a vote on the comment for the user.
+     *
+     * @param short_url - The short URL for the comment.
+     * @param user - The user casting the vote
+     * @return true if comment exists in db
+     */
+    voteOnComment(short_url: string, user_id: number): Promise<boolean>;
     /**
      * Create a new comment with the specified parameters.
      *

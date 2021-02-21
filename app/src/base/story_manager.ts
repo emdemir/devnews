@@ -30,9 +30,17 @@ interface StoryManager {
     /**
      * Returns a story by its short URL.
      *
+     * @param url - The short URL.
      * @param options - What to fetch.
      */
     getStoryByShortURL(url: string, options: StoryOptions): Promise<Story | null>;
+    /**
+     * Returns a story by ID.
+     *
+     * @param id - The story ID.
+     * @param options - What to fetch.
+     */
+    getStoryByID(id: number, options: StoryOptions): Promise<Story | null>;
     /**
      * Gives a vote on a story by user, or retracts the vote if it already exists.
      *

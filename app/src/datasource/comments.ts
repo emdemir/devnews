@@ -1,4 +1,4 @@
-import { query } from "./index";
+import { query, getClient } from "./index";
 import type CommentRepository from "../base/comment_repository";
 import type { Comment, CommentOptions, CommentCreate } from "../base/comment_repository";
 
@@ -54,6 +54,101 @@ export default function({ }): CommentRepository {
     };
 
     /**
+     * Return a comment by its short URL.
+     *
+     * @param short_url - The short URL of the comment
+     * @param options - What to fetch
+     */
+    const getCommentByShortURL = async (
+        short_url: string,
+        _options: CommentOptions
+    ): Promise<Comment | null> => {
+        const options = Object.assign({}, defaultOptions, _options);
+
+        const params: any[] = [short_url];
+
+        const result = await query<Comment>(`\
+            SELECT C.*
+                ${options.score ? ", S.score" : ""}
+                ${options.username ? ", U.username" : ""}
+                ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
+                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}
+            FROM comments C
+                ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
+                ${options.score ? "INNER JOIN comment_score S ON S.id = C.id" : ""}
+                ${options.checkRead !== undefined
+                ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
+                : ""}
+                ${options.checkVoter !== undefined
+                ? `LEFT OUTER JOIN comment_votes V ON V.comment_id = C.id AND V.user_id = $${params.push(options.checkVoter)}`
+                : ""}
+            WHERE C.short_url = $1
+            GROUP BY C.id
+                ${options.username ? ", U.username" : ""}
+                ${options.score ? ", S.score" : ""}`, params);
+
+        if (result.rowCount === 0)
+            return null;
+        return result.rows[0];
+    };
+
+    /**
+     * Either casts or retracts a vote on the comment for the user.
+     *
+     * @param short_url - The short URL for the comment.
+     * @param user - The user casting the vote
+     * @return true if comment exists in db
+     */
+    const voteOnComment = async (
+        short_url: string,
+        user_id: number
+    ): Promise<boolean> => {
+        const client = await getClient();
+
+        try {
+            await client.query("BEGIN");
+
+            // Get the comment ID
+            const idResult = await client.query<{ id: number }>(
+                "SELECT C.id FROM comments C WHERE C.short_url = $1",
+                [short_url]
+            );
+            if (idResult.rowCount === 0)
+                return false;
+            const comment_id = idResult.rows[0].id;
+
+            // Check if the user casted a vote
+            const checkResult = await client.query(
+                `SELECT COUNT(*)::integer AS count FROM comment_votes
+                 WHERE user_id = $1 AND comment_id = $2`,
+                [user_id, comment_id]
+            );
+            if (!checkResult.rows[0].count) {
+                // User didn't vote, cast
+                await client.query(`\
+                    INSERT INTO comment_votes
+                        (user_id, comment_id)
+                    VALUES ($1, $2)`, [user_id, comment_id]);
+            } else {
+                // User already voted, retract
+                await client.query(`\
+                    DELETE FROM comment_votes
+                    WHERE user_id = $1 AND comment_id = $2`,
+                    [user_id, comment_id]
+                );
+            }
+
+            await client.query("COMMIT");
+            return true;
+        } catch (err) {
+            await client.query("ROLLBACK");
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    /**
      * Create a new comment with the specified parameters.
      *
      * @param comment - The comment parameters
@@ -83,6 +178,8 @@ export default function({ }): CommentRepository {
 
     return {
         createComment,
+        voteOnComment,
+        getCommentByShortURL,
         getCommentsByStory
     }
 };

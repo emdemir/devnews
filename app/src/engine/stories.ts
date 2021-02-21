@@ -83,6 +83,15 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
     ) => dataSource.getStoryByShortURL(url, options);
 
     /**
+     * Returns a story by ID.
+     *
+     * @param id - The story ID.
+     * @param options - What to fetch.
+     */
+    const getStoryByID = (id: number, options: StoryOptions) =>
+        dataSource.getStoryByID(id, options);
+
+    /**
      * Gives a vote on a story by user, or retracts the vote if it already exists.
      *
      * @param short_url - The short URL for the story.
@@ -133,6 +142,7 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
     return {
         getStories,
         getStoryByShortURL,
+        getStoryByID,
         voteOnStory,
         createStory
     }

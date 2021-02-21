@@ -3,11 +3,15 @@
 
 <div class="comment" id="c_{{ comment.short_url }}">
     <form method="POST" action="/c/{{ comment.short_url }}/vote">
-        <button type="submit" class="vote-button {% if story.user_voted %}voted{% endif %}">
-            {% if story.user_voted %}Unvote{% else %}Vote{% endif %}
+        <button type="submit" class="vote-button {% if comment.user_voted %}voted{% endif %}">
+            {% if comment.user_voted %}Unvote{% else %}Vote{% endif %}
         </button>
     </form>
     <div class="comment-info">
+        <span class="comment-score">
+            {{ comment.score }} point{% if comment.score !== 1 %}s{% endif %}
+        </span>
+        by
         <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
         <!-- TODO: date difference -->
         TODO hours ago
