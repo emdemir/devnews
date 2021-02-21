@@ -14,6 +14,7 @@ services:
       - PGUSER=devnews
       - PGPASSWORD=devnews
       - PGDATABASE=devnews
+      - USE_ORM
   db:
     image: postgres:13-alpine
     networks:

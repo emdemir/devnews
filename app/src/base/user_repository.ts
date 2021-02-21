@@ -6,11 +6,20 @@ export interface User {
     username: string;
     password: string;
     email: string;
+    homepage: string | null;
     about: string;
     about_html: string;
     avatar_image: string;
     registered_at: Date;
     updated_at: Date;
+};
+
+// The parameters needed to create a user.
+export interface UserCreate {
+    username: string;
+    password: string;
+    email: string;
+    avatar_image: string;
 };
 
 interface UserRepository {

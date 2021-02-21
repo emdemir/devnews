@@ -16,7 +16,7 @@ export interface Story {
     submitter_username?: string
     score?: number
     comment_count?: number
-    user_voted: boolean
+    user_voted?: boolean
 };
 
 // The options that are available to fetch a single story.

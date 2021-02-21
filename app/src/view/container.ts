@@ -6,6 +6,12 @@ import commentRepositoryFactory from "../datasource/comments";
 import tagRepositoryFactory from "../datasource/tags";
 import messageRepositoryFactory from "../datasource/messages";
 
+import ormUserRepositoryFactory from "../orm/users";
+import ormStoryRepositoryFactory from "../orm/stories";
+import ormCommentRepositoryFactory from "../orm/comments";
+import ormTagRepositoryFactory from "../orm/tags";
+import ormMessageRepositoryFactory from "../orm/messages";
+
 import authManagerFactory from "../engine/auth";
 import userManagerFactory from "../engine/users";
 import storyManagerFactory from "../engine/stories";
@@ -31,7 +37,11 @@ if (!process.env.USE_ORM) {
     container.register("tagRepository", awilix.asFunction(tagRepositoryFactory));
     container.register("messageRepository", awilix.asFunction(messageRepositoryFactory));
 } else {
-    throw new Error("The ORM repository layer has not been implemented yet.");
+    container.register("userRepository", awilix.asFunction(ormUserRepositoryFactory));
+    container.register("storyRepository", awilix.asFunction(ormStoryRepositoryFactory));
+    container.register("commentRepository", awilix.asFunction(ormCommentRepositoryFactory));
+    container.register("tagRepository", awilix.asFunction(ormTagRepositoryFactory));
+    container.register("messageRepository", awilix.asFunction(ormMessageRepositoryFactory));
 }
 
 // Register the managers
