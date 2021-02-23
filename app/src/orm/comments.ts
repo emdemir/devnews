@@ -116,6 +116,14 @@ const unwrapComment = (
     if (options.checkVoter !== undefined)
         comment.user_voted = votedComments.includes(comment.id);
 
+    // Clean up object from nested values
+    if (options.username)
+        delete cc.user;
+    if (options.score)
+        delete cc.votes;
+    if (options.checkRead !== undefined)
+        delete cc.viewers;
+
     return comment;
 }
 

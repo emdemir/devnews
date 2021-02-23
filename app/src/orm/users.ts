@@ -25,7 +25,7 @@ export default function({ }): UserRepository {
             avatar_image: avatarImage
         });
 
-        return user;
+        return user.get({ plain: true });
     }
 
     /**
@@ -37,7 +37,7 @@ export default function({ }): UserRepository {
         const user = await User.findOne({ where: { username } });
         if (user === null)
             return null;
-        return user;
+        return user.get({ plain: true });
     }
 
     /**
@@ -49,7 +49,7 @@ export default function({ }): UserRepository {
         const user = await User.findByPk(id);
         if (user === null)
             return null;
-        return user;
+        return user.get({ plain: true });
     }
 
     return {

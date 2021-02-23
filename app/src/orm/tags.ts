@@ -15,7 +15,7 @@ export default function({ storyRepository }: Dependencies): TagRepository {
      */
     const getAllTags = async (): Promise<RepoTag[]> => {
         const tags = await Tag.findAll();
-        return tags;
+        return tags.map(model => model.get({ plain: true }));
     };
     /**
      * Given a story ID, get all its tags.
@@ -28,7 +28,7 @@ export default function({ storyRepository }: Dependencies): TagRepository {
             return [];
 
         const realStory = story as Story;
-        return await realStory.getTags();
+        return (await realStory.getTags()).map(model => model.get({ plain: true }));
     };
     /**
      * Return all the tags for the given IDs along with the story ID that each

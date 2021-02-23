@@ -41,13 +41,19 @@ const collectJoins = (options: MessageOptions): Includeable[] => {
  * @param options - Message fetch options
  */
 const unwrapMessage = (m: Message, options: MessageOptions): RepoMessage => {
-    const message = m as RepoMessage;
+    const message = m.get({ plain: true });
     const mm = m as any;
 
     if (options.author)
         message.author = mm.sender.username;
     if (options.recipient)
         message.recipient = mm.recipient.username;
+
+    // Clean up object from nested values
+    if (options.author)
+        delete mm.sender;
+    if (options.recipient)
+        delete mm.recipient;
 
     return message;
 }

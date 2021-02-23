@@ -72,30 +72,38 @@ const collectJoins = (options: StoryOptions): Includeable[] => {
 /**
  * Flatten the story object to fit the Story interface.
  *
- * @param s - Sequelize object from .get()
+ * @param s - Sequelize object
  * @param options - The options
  */
 const unwrapStory = (s: Story, options: StoryOptions): RepoStory => {
-    // Shut up, TS.
-    const ss = s as any;
+    const story = s.get({ plain: true });
+    const ss = story as any;
 
     if (options.submitterUsername) {
-        s.submitter_username = ss.user.username;
+        story.submitter_username = ss.user.username;
     }
 
     if (options.score) {
-        s.score = +ss.stats.score;
+        story.score = +ss.stats.score;
     }
 
     if (options.commentCount) {
-        s.comment_count = +ss.stats.comment_count;
+        story.comment_count = +ss.stats.comment_count;
     }
 
     if (options.checkVoter !== undefined) {
-        s.user_voted = ss.votes.length;
+        story.user_voted = ss.votes.length;
     }
 
-    return s;
+    // Clean up object
+    if (options.submitterUsername)
+        delete ss.user;
+    if (options.score || options.commentCount)
+        delete ss.stats;
+    if (options.checkVoter !== undefined)
+        delete ss.votes;
+
+    return story;
 }
 
 // --- Repository Implementation ---
@@ -129,7 +137,15 @@ export default function({ }): StoryRepository {
             subQuery: false
         });
 
-        const result = data.map(model => unwrapStory(model, options));
+        const result = data.map(model => {
+            const story = unwrapStory(model, options);
+
+            // If we ordered by story rank, we don't want to display the rank.
+            if (options.rankOrder)
+                delete (story as any).rank;
+
+            return story;
+        });
         return result;
     };
 
