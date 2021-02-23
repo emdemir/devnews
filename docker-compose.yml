@@ -1,7 +1,10 @@
 version: "3.7"
 services:
-  app:
-    build: ./app
+  # The app running the web presentation layer.
+  web:
+    build:
+      context: ./app
+      target: web
     networks:
       - app
     volumes:
@@ -15,6 +18,24 @@ services:
       - PGPASSWORD=devnews
       - PGDATABASE=devnews
       - USE_ORM
+  # The app running the API presentation layer.
+  api:
+    build:
+      context: ./app
+      target: api
+    networks:
+      - app
+    volumes:
+      - ./app/src/:/app/src
+    depends_on:
+      - db
+    environment:
+      - PGHOST=db
+      - PGUSER=devnews
+      - PGPASSWORD=devnews
+      - PGDATABASE=devnews
+      - USE_ORM
+  # PostgreSQL database.
   db:
     image: postgres:13-alpine
     networks:
@@ -25,19 +46,26 @@ services:
     environment:
       - POSTGRES_PASSWORD=devnews
       - POSTGRES_USER=devnews
+  # Redis for sessions.
   redis:
     image: redis:6-alpine
     networks:
       - app
+  # Nginx for serving with HTTPS.
   nginx:
     image: nginx:alpine
     networks:
       - app
     depends_on:
-      - app
+      - web
+      - api
     ports:
+      # Web ports
       - 8080:80
-      - 8443:443 # This is used because Firefox really wants you to use HTTPS for forms.
+      - 8443:443
+      # API ports
+      - 8081:81
+      - 8444:444
     volumes:
       - ./nginx/:/etc/nginx/conf.d:ro
 

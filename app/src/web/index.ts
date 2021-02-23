@@ -112,8 +112,8 @@ app
         now: function now() { return new Date(); },
         getDomain: function getDomain(url: string) { return (new URL(url)).hostname }
     }))
-    .use(async (ctx, next) => {
-        // Handle 403, 404, 500
+    // Handle 403, 404, 500
+    .use(async function errorHandler(ctx, next) {
         try {
             await next();
             // Don't do anything if the view rendered something

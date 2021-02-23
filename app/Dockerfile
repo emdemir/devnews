@@ -1,4 +1,5 @@
-FROM node:lts
+# --- Base image ---
+FROM node:lts AS base
 EXPOSE 8080
 
 WORKDIR /app
@@ -6,6 +7,7 @@ WORKDIR /app
 # Copy just the dependency files. Avoids running yarn everytime src changes
 COPY package.json .
 COPY yarn.lock .
+
 # Fetch dependencies
 RUN yarn
 
@@ -18,4 +20,11 @@ RUN npx tsc
 
 ENV DEBUG="koa:* devnews:*"
 ENV DEBUG_COLORS=true
-CMD ["yarn", "watch"]
+
+# --- Web image ---
+FROM base AS web
+CMD ["yarn", "watch-web"]
+
+# --- API image ---
+FROM base AS api
+CMD ["yarn", "watch-api"]
