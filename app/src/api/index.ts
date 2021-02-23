@@ -20,7 +20,11 @@ export const router = new Router();
 
 // Register routes
 const indexRoutes: Router = container.resolve("indexRoutes");
+const storyRoutes: Router = container.resolve("storyRoutes");
+const commentRoutes: Router = container.resolve("commentRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
+router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
+router.use("/c", commentRoutes.routes(), commentRoutes.allowedMethods());
 
 // Add middleware
 app
