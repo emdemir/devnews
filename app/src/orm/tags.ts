@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { Tag, Story, story_tags } from "./tables";
+import { Tag, story_tags } from "./tables";
 
 import type TagRepository from "../base/tag_repository";
 import type { Tag as RepoTag, TagWithStoryID } from "../base/tag_repository";
@@ -23,12 +23,19 @@ export default function({ storyRepository }: Dependencies): TagRepository {
      * @param storyID - The ID of the story
      */
     const getStoryTags = async (storyID: number): Promise<RepoTag[]> => {
-        const story = await storyRepository.getStoryByID(storyID, {});
-        if (story === null)
-            return [];
+        const tags = await story_tags.findAll({
+            include: {
+                model: Tag as any,
+                as: "tag"
+            },
+            where: {
+                story_id: storyID
+            }
+        });
 
-        const realStory = story as Story;
-        return (await realStory.getTags()).map(model => model.get({ plain: true }));
+        return tags.map(({ tag: { id, name, description } }: any) => ({
+            id, name, description
+        }));
     };
     /**
      * Return all the tags for the given IDs along with the story ID that each
