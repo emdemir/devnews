@@ -38,5 +38,5 @@ some test stories and tags, which you can then modify as you wish.
 
 ## Copyright
 
-&copy; 2020 Efe Mert Demir. This software is licensed under the GNU General
+&copy; 2021 Efe Mert Demir. This software is licensed under the GNU General
 Public License, version 3.
