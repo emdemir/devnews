@@ -3,7 +3,9 @@
 import type { Authenticator } from "passport";
 
 import local = require("passport-local");
+import passportJwt = require("passport-jwt");
 import crypto = require("crypto");
+import jwt = require("jsonwebtoken");
 
 import type UserRepository from "../base/user_repository";
 import type { User } from "../base/user_repository";
@@ -64,21 +66,57 @@ interface Dependencies {
 };
 
 export default function({ userRepository: dataSource }: Dependencies): AuthManager {
-    const strategy = new local.Strategy(async (username, password, done) => {
-        try {
-            const user = await dataSource.getUserByUsername(username);
-            if (user === null) {
-                return done(null, false, { message: ERR_MESSAGE });
-            }
+    /**
+     * Authenticate a user by his username and password.
+     *
+     * @param username - The given username
+     * @param password - The given password
+     */
+    const authenticate = async (username: string, password: string): Promise<User | null> => {
+        const user = await dataSource.getUserByUsername(username);
+        if (user === null) {
+            return null;
+        }
 
-            const valid = await isPasswordValid(user!.password, password);
-            if (!valid) {
+        const valid = await isPasswordValid(user!.password, password);
+        if (!valid) {
+            return null;
+        }
+
+        return user;
+    }
+
+    const localStrategy = new local.Strategy(async (username, password, done) => {
+        try {
+            const user = authenticate(username, password);
+            if (user === null)
                 return done(null, false, { message: ERR_MESSAGE });
-            }
 
             return done(null, user);
-        } catch (e) {
-            done(e);
+        } catch (err) {
+            done(err);
+        }
+    });
+
+    const jwtOptions: passportJwt.StrategyOptions = {
+        jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // TODO: use Docker secrets, same as web/index
+        secretOrKey: "changeme",
+        issuer: "accounts.devnews.org",
+        // TODO: environment variables? .env file???
+        audience: "devnews.org"
+    };
+
+    const jwtStrategy = new passportJwt.Strategy(jwtOptions, async (jwt, done) => {
+        const subject = jwt.sub;
+        try {
+            const user = await dataSource.getUserByUsername(subject);
+            if (user === null)
+                return done(null, false);
+
+            done(null, user);
+        } catch (err) {
+            done(err, false);
         }
     });
 
@@ -105,15 +143,37 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
     /**
     * Initialize the authentication layer.
     */
-    const initialize = (passport: Authenticator) => {
+    const initialize = (passport: Authenticator, strategy: "local" | "jwt") => {
         // Register the authentication strategy with Passport.
-        passport.use("local", strategy);
+        if (strategy === "local")
+            passport.use("local", localStrategy);
+        else
+            passport.use("jwt", jwtStrategy);
         // Register the callbacks with passport.
         passport.serializeUser(serialize);
         passport.deserializeUser(deserialize);
     }
 
+    /**
+     * Generate a JWT authentication token.
+     * This function only generates a JWT and does not validate whether the
+     * user was successfully authenticated.
+     *
+     * @param username - The username for the user
+     */
+    const generateJWT = (username: string): string => {
+        const token = jwt.sign({ sub: username }, jwtOptions.secretOrKey!, {
+            issuer: jwtOptions.issuer!,
+            audience: jwtOptions.audience!,
+            expiresIn: "7d"
+        });
+
+        return token;
+    }
+
     return {
-        initialize
+        initialize,
+        authenticate,
+        generateJWT
     };
 };

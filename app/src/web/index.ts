@@ -86,7 +86,7 @@ const tmplPath = __dirname.replace("/dist", "") + "/templates/";
 // Typescript needs to improve.
 import type AuthManager from "../base/auth_manager";
 const authManager: AuthManager = container.resolve("authManager");
-authManager.initialize(passport as unknown as Authenticator);
+authManager.initialize(passport as unknown as Authenticator, "local");
 
 // Add middleware
 app

@@ -2,12 +2,13 @@ import Koa = require("koa");
 import Router = require("koa-router");
 import bodyParser = require("koa-bodyparser");
 import helmet = require("koa-helmet");
-// TODO: Passport JWT
-// import passport = require("koa-passport");
+import passport = require("koa-passport");
 import logger = require("koa-logger");
 
 // The dependency manager.
 import container from "./container";
+// Authentication
+import type { Authenticator } from "passport";
 
 /// --- Initialization code ---
 
@@ -26,6 +27,17 @@ router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
 router.use("/c", commentRoutes.routes(), commentRoutes.allowedMethods());
 
+// Authentication setup
+//
+// Authenticator _is_ compatible with KoaPassport, however Typescript worries
+// about the `this' return type magically becoming something else for some reason,
+// so we have to do the `as unknown' shenanigans here.
+//
+// Typescript needs to improve.
+import type AuthManager from "../base/auth_manager";
+const authManager: AuthManager = container.resolve("authManager");
+authManager.initialize(passport as unknown as Authenticator, "jwt");
+
 // Add middleware
 app
     // Request logging
@@ -35,7 +47,7 @@ app
     // Request body parsing
     .use(bodyParser())
     // Authentication TODO
-    // .use(passport.initialize())
+    .use(passport.initialize())
     // Handle 403, 404, 500
     .use(async function errorHandler(ctx, next) {
         try {
