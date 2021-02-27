@@ -42,6 +42,22 @@ import type AuthManager from "../base/auth_manager";
 const authManager: AuthManager = container.resolve("authManager");
 authManager.initialize(passport as unknown as Authenticator, "jwt");
 
+const errorMessage = (status: number): string => {
+    switch (status) {
+        case 400:
+            return "The request data is invalid.";
+        case 401:
+        case 403:
+            return "You are not authorized to access the specified path.";
+        case 404:
+            return "The speicifed path was not found.";
+        case 405:
+            return "This HTTP method is not allowed for the specified endpoint.";
+        default:
+            return "An internal server error occured. Please try again later.";
+    }
+}
+
 // Add middleware
 app
     // Request logging
@@ -58,14 +74,13 @@ app
             await next();
 
             const status = ctx.status || 404;
-            if (status == 404) {
-                ctx.body = { "error": "The specified path was not found." };
-            } else if (status === 403) {
-                ctx.body = { "error": "You are not authorized to access the specified path." };
-            }
+            if (status >= 400 && !ctx.body)
+                ctx.body = { "error": errorMessage(status) };
         } catch (err) {
-            console.error(err);
-            ctx.body = { "error": "An internal server error occured." };
+            const status = err.status || 500;
+            if (status === 500)
+                console.error(err);
+            ctx.body = { "error": errorMessage(status) };
         }
     })
     .use(router.routes())
