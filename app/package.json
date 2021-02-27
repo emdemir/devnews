@@ -48,7 +48,7 @@
     "@types/passport": "^1.0.5",
     "@types/passport-jwt": "^3.0.5",
     "@types/passport-local": "^1.0.33",
-    "@types/pg": "^7.14.9",
+    "@types/pg": "^7.14.10",
     "@types/sequelize": "^4.28.9",
     "@types/valid-url": "^1.0.3",
     "concurrently": "^5.3.0",
