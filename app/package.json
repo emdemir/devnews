@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
-    "awilix": "^4.3.1",
+    "awilix": "^4.3.3",
     "dompurify": "^2.2.6",
     "jsdom": "^16.4.0",
     "jsonwebtoken": "^8.5.1",
