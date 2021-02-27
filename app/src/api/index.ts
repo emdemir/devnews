@@ -23,9 +23,13 @@ export const router = new Router();
 const indexRoutes: Router = container.resolve("indexRoutes");
 const storyRoutes: Router = container.resolve("storyRoutes");
 const commentRoutes: Router = container.resolve("commentRoutes");
+const authRoutes: Router = container.resolve("authRoutes");
+const messageRoutes: Router = container.resolve("messageRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
 router.use("/c", commentRoutes.routes(), commentRoutes.allowedMethods());
+router.use("/m", messageRoutes.routes(), messageRoutes.allowedMethods());
+router.use("/auth", authRoutes.routes(), authRoutes.allowedMethods());
 
 // Authentication setup
 //
