@@ -6,6 +6,20 @@ import type MessageRepository from "../base/message_repository";
 import type { MessageCreate, MessageOptions } from "../base/message_repository";
 import type MessageManager from "../base/message_manager";
 import type { Message } from "../base/message_manager";
+import ValidationError from "../base/validation";
+
+const MAXIMUM_MESSAGE_LENGTH = 2000;
+
+const validators = {
+    message: (errors: string[], message: string) => {
+        if (!message)
+            errors.push("Message cannot be empty.");
+        else if (message.length > MAXIMUM_MESSAGE_LENGTH)
+            errors.push(`\
+Message length is too long, please shorten to ${MAXIMUM_MESSAGE_LENGTH} characters
+or less.`);
+    }
+}
 
 interface Dependencies {
     messageRepository: MessageRepository;
@@ -26,6 +40,12 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
         content: string,
         parent?: Message
     ): Promise<Message> => {
+        const errors: string[] = [];
+        validators.message(errors, content);
+
+        if (errors.length)
+            throw new ValidationError(errors);
+
         const messageHTML = markdown(content);
 
         // TODO: user block checks.

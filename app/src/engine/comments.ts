@@ -7,6 +7,20 @@ import type { Comment, CommentCreate } from "../base/comment_manager";
 import type { User } from "../base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
+import ValidationError from "../base/validation";
+
+const MAXIMUM_COMMENT_LENGTH = 2000;
+
+const validators = {
+    comment: (errors: string[], comment: string) => {
+        if (!comment)
+            errors.push("Comment cannot be empty.");
+        else if (comment.length > MAXIMUM_COMMENT_LENGTH)
+            errors.push(`\
+Comment length is too long, please shorten to ${MAXIMUM_COMMENT_LENGTH} characters
+or less.`);
+    }
+};
 
 interface Dependencies {
     commentRepository: CommentRepository;
@@ -82,6 +96,14 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
     const createComment = async (
         comment: CommentCreate
     ): Promise<Comment> => {
+        const errors: string[] = [];
+
+        validators.comment(errors, comment.comment);
+
+        if (errors.length) {
+            throw new ValidationError(errors);
+        }
+
         // Process Markdown
         const commentHTML = markdown(comment.comment);
 
