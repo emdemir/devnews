@@ -2341,10 +2341,9 @@ pascal-case@^3.1.2:
     no-case "^3.0.4"
     tslib "^2.0.3"
 
-passport-jwt@^4.0.0:
+passport-jwt@emdemir/passport-jwt:
   version "4.0.0"
-  resolved "https://registry.yarnpkg.com/passport-jwt/-/passport-jwt-4.0.0.tgz#7f0be7ba942e28b9f5d22c2ebbb8ce96ef7cf065"
-  integrity sha512-BwC0n2GP/1hMVjR4QpnvqA61TxenUMlmfNjYNgK0ZAs0HK4SOQkHcSv4L328blNTLtHq7DbmvyNJiH+bn6C5Mg==
+  resolved "https://codeload.github.com/emdemir/passport-jwt/tar.gz/e7ee9854d412f704a3141822e1147d1afb21e349"
   dependencies:
     jsonwebtoken "^8.2.0"
     passport-strategy "^1.0.0"

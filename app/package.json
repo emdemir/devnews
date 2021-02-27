@@ -24,7 +24,7 @@
     "md5": "^2.3.0",
     "nunjucks": "^3.2.2",
     "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0",
+    "passport-jwt": "emdemir/passport-jwt",
     "passport-local": "^1.0.0",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
