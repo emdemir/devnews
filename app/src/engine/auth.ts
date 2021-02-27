@@ -88,7 +88,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
 
     const localStrategy = new local.Strategy(async (username, password, done) => {
         try {
-            const user = authenticate(username, password);
+            const user = await authenticate(username, password);
             if (user === null)
                 return done(null, false, { message: ERR_MESSAGE });
 
