@@ -108,13 +108,14 @@ export default function({ messageManager, userManager }: Dependencies) {
             return ctx.redirect("/auth/login/");
         }
 
+        const { message_id } = ctx.params;
         // Extract form data
         const formData = ctx.request.body;
-        const { thread_id, message } = formData;
+        const { message } = formData;
 
         try {
             // Try to find the thread
-            const thread = await messageManager.getMessageByID(+thread_id, user, {});
+            const thread = await messageManager.getMessageByID(+message_id, user, {});
 
             if (thread === null || thread.in_reply_to !== null) {
                 ctx.status = 404;
