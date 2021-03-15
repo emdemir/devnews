@@ -5,18 +5,7 @@
  * container capability that Awilix has to not duplicate this.
  */
 import awilix = require("awilix");
-
-import userRepositoryFactory from "./datasource/users";
-import storyRepositoryFactory from "./datasource/stories";
-import commentRepositoryFactory from "./datasource/comments";
-import tagRepositoryFactory from "./datasource/tags";
-import messageRepositoryFactory from "./datasource/messages";
-
-import ormUserRepositoryFactory from "./orm/users";
-import ormStoryRepositoryFactory from "./orm/stories";
-import ormCommentRepositoryFactory from "./orm/comments";
-import ormTagRepositoryFactory from "./orm/tags";
-import ormMessageRepositoryFactory from "./orm/messages";
+import debugFactory = require("debug");
 
 import authManagerFactory from "./engine/auth";
 import userManagerFactory from "./engine/users";
@@ -25,21 +14,26 @@ import commentManagerFactory from "./engine/comments";
 import tagManagerFactory from "./engine/tags";
 import messageManagerFactory from "./engine/messages";
 
+const debug = debugFactory("devnews:container");
+
+debug("loading container");
 const container = awilix.createContainer();
 
 // Register the repositories
 if (!process.env.USE_ORM) {
-    container.register("userRepository", awilix.asFunction(userRepositoryFactory));
-    container.register("storyRepository", awilix.asFunction(storyRepositoryFactory));
-    container.register("commentRepository", awilix.asFunction(commentRepositoryFactory));
-    container.register("tagRepository", awilix.asFunction(tagRepositoryFactory));
-    container.register("messageRepository", awilix.asFunction(messageRepositoryFactory));
+    debug("using pg-based repositories");
+    container.register("userRepository", awilix.asFunction(require("./datasource/users").default));
+    container.register("storyRepository", awilix.asFunction(require("./datasource/stories").default));
+    container.register("commentRepository", awilix.asFunction(require("./datasource/comments").default));
+    container.register("tagRepository", awilix.asFunction(require("./datasource/tags").default));
+    container.register("messageRepository", awilix.asFunction(require("./datasource/messages").default));
 } else {
-    container.register("userRepository", awilix.asFunction(ormUserRepositoryFactory));
-    container.register("storyRepository", awilix.asFunction(ormStoryRepositoryFactory));
-    container.register("commentRepository", awilix.asFunction(ormCommentRepositoryFactory));
-    container.register("tagRepository", awilix.asFunction(ormTagRepositoryFactory));
-    container.register("messageRepository", awilix.asFunction(ormMessageRepositoryFactory));
+    debug("using Sequelize-based repositories");
+    container.register("userRepository", awilix.asFunction(require("./orm/users").default));
+    container.register("storyRepository", awilix.asFunction(require("./orm/stories").default));
+    container.register("commentRepository", awilix.asFunction(require("./orm/comments").default));
+    container.register("tagRepository", awilix.asFunction(require("./orm/tags").default));
+    container.register("messageRepository", awilix.asFunction(require("./orm/messages").default));
 }
 
 // Register the managers
