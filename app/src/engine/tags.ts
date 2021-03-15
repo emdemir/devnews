@@ -36,9 +36,17 @@ export default function({ tagRepository: dataSource }: Dependencies): TagManager
         return mapping;
     }
 
+    /**
+     * Return a tag by its name, or null if it doesn't exist.
+     *
+     * @param name - The name of the tag
+     */
+    const getTagByName = (name: string) => dataSource.getTagByName(name);
+
     return {
         getAllTags,
         getStoryTags,
-        getTagsForStories
-    }
+        getTagsForStories,
+        getTagByName
+    };
 }

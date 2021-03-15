@@ -24,6 +24,12 @@ interface TagManager {
      * @param storyIDs - The IDs of the stories to get tags for.
      */
     getTagsForStories(storyIDs: number[]): Promise<StoryTagMapping>;
+    /**
+     * Return a tag by its name, or null if it doesn't exist.
+     *
+     * @param name - The name of the tag
+     */
+    getTagByName(name: string): Promise<Tag | null>;
 };
 
 export { Tag };

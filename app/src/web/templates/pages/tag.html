@@ -1,0 +1,19 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="tag-stories" class="stories">
+    <div class="tag-info">
+        Stories with tag
+        <a class="tag tag-{{ tag.name }}" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
+        &mdash; {{ tag.description }}
+    </div>
+
+    {% for story in stories %}
+        {% set tags = storyTags[story.id] %}
+        {% include "partials/story.html" %}
+    {% endfor %}
+</div>
+{% endblock %}

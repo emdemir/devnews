@@ -14,7 +14,7 @@
                 {{ story.title }}</a>
 
             {% for tag in tags %}
-                <a class="tag tag-{{ tag.name }}" href="/t/{{ tag.name }}">{{ tag.name }}</a>
+                <a class="tag tag-{{ tag.name }}" href="/t/{{ tag.name }}/">{{ tag.name }}</a>
             {% endfor %}
 
             {% if story.url %}

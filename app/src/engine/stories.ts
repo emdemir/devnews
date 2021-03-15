@@ -8,6 +8,7 @@ import type {
 } from "../base/story_repository";
 import type StoryManager from "../base/story_manager";
 import type { StoryCreate } from "../base/story_manager";
+import type { Tag } from "../base/tag_repository";
 import ValidationError from "../base/validation";
 
 import { generateShortID, markdown } from "./utils";
@@ -139,11 +140,31 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
         return await dataSource.createStory(repoStory);
     }
 
+    /**
+     * Return all stories with a given tag.
+     *
+     * @param tag - The tag the stories must include.
+     * @param page - The page the user is viewing.
+     * @param options - What/how to fetch.
+     */
+    const getStoriesWithTag = async (
+        tag: Tag,
+        page: number,
+        options: StoryListOptions
+    ) => {
+        if (page < 1) page = 1;
+        options.limit = STORIES_PER_PAGE;
+        options.offset = (page - 1) * STORIES_PER_PAGE;
+
+        return await dataSource.getStoriesByTagID(tag.id, options);
+    }
+
     return {
         getStories,
         getStoryByShortURL,
         getStoryByID,
         voteOnStory,
-        createStory
+        createStory,
+        getStoriesWithTag
     }
 }

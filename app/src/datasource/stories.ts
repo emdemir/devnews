@@ -17,6 +17,34 @@ const defaultListOptions: StoryListOptions = {
     offset: 0
 };
 
+interface QueryExtras {
+    select: string;
+    joins: string;
+    group: string;
+    params: any[];
+}
+
+const getQueryExtras = (options: StoryOptions, params: any[] = []): QueryExtras => {
+    return {
+        select: `\
+        ${options.submitterUsername ? ", U.username AS submitter_username" : ""}
+        ${options.score ? ", SS.score::integer" : ""}
+        ${options.commentCount ? ", SS.comment_count::integer" : ""}
+        ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean AS user_voted" : ""}`,
+        joins: `\
+        ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
+        ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
+        ${options.checkVoter !== undefined
+                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $${params.push(options.checkVoter)}"
+                : ""}`,
+        group: `\
+        ${options.submitterUsername ? ", U.username" : ""}
+        ${options.score ? ", SS.score" : ""}
+        ${options.commentCount ? ", SS.comment_count" : ""}`,
+        params
+    };
+}
+
 export default function({ }): StoryRepository {
 
     /**
@@ -26,31 +54,19 @@ export default function({ }): StoryRepository {
      */
     const getStories = async (_options: StoryListOptions): Promise<Story[]> => {
         const options = Object.assign({}, defaultListOptions, _options);
-
-        const params: any[] = [];
-        if (options.checkVoter !== undefined)
-            params.push(options.checkVoter);
+        const extras = getQueryExtras(options);
 
         const result: QueryResult<Story> = await query(`\
             SELECT S.*
-                ${options.submitterUsername ? ", U.username AS submitter_username" : ""}
-                ${options.score ? ", SS.score::integer" : ""}
-                ${options.commentCount ? ", SS.comment_count::integer" : ""}
-                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean AS user_voted" : ""}
+                ${extras.select}
             FROM stories S
-                ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
-                ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
+                ${extras.joins}
                 ${options.rankOrder ? "INNER JOIN story_rank R ON R.id = S.id" : ""}
-                ${options.checkVoter !== undefined
-                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $1"
-                : ""}
             GROUP BY S.id
-                ${options.submitterUsername ? ", U.username" : ""}
-                ${options.score ? ", SS.score" : ""}
-                ${options.commentCount ? ", SS.comment_count" : ""}
+                ${extras.group}
                 ${options.rankOrder ? ", R.story_rank" : ""}
             ${options.rankOrder ? "ORDER BY R.story_rank ASC" : ""}
-            LIMIT ${options.limit} OFFSET ${options.offset}`, params);
+            LIMIT ${options.limit} OFFSET ${options.offset}`, extras.params);
 
         return result.rows;
     }
@@ -65,28 +81,16 @@ export default function({ }): StoryRepository {
         _options: StoryOptions
     ): Promise<Story | null> => {
         const options = Object.assign({}, defaultOptions, _options);
-
-        const params: any[] = [url];
-        if (options.checkVoter !== undefined)
-            params.push(options.checkVoter);
+        const extras = getQueryExtras(options, [url]);
 
         const result = await query<Story>(`\
             SELECT S.*
-                ${options.submitterUsername ? ", U.username AS submitter_username" : ""}
-                ${options.score ? ", SS.score::integer" : ""}
-                ${options.commentCount ? ", SS.comment_count::integer" : ""}
-                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean AS user_voted" : ""}
+                ${extras.select}
             FROM stories S
-                ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
-                ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
-                ${options.checkVoter !== undefined
-                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $2"
-                : ""}
+                ${extras.joins}
             WHERE S.short_url = $1
             GROUP BY S.id
-                ${options.submitterUsername ? ", U.username" : ""}
-                ${options.score ? ", SS.score" : ""}
-                ${options.commentCount ? ", SS.comment_count" : ""}`, params);
+                ${extras.group}`, extras.params);
 
         if (result.rowCount === 0)
             return null;
@@ -104,28 +108,16 @@ export default function({ }): StoryRepository {
         _options: StoryOptions
     ): Promise<Story | null> => {
         const options = Object.assign({}, defaultOptions, _options);
-
-        const params: any[] = [id];
-        if (options.checkVoter !== undefined)
-            params.push(options.checkVoter);
+        const extras = getQueryExtras(options, [id]);
 
         const result = await query<Story>(`\
             SELECT S.*
-                ${options.submitterUsername ? ", U.username AS submitter_username" : ""}
-                ${options.score ? ", SS.score::integer" : ""}
-                ${options.commentCount ? ", SS.comment_count::integer" : ""}
-                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean AS user_voted" : ""}
+                ${extras.select}
             FROM stories S
-                ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
-                ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
-                ${options.checkVoter !== undefined
-                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $2"
-                : ""}
+                ${extras.joins}
             WHERE S.id = $1
             GROUP BY S.id
-                ${options.submitterUsername ? ", U.username" : ""}
-                ${options.score ? ", SS.score" : ""}
-                ${options.commentCount ? ", SS.comment_count" : ""}`, params);
+                ${extras.group}`, extras.params);
 
         if (result.rowCount === 0)
             return null;
@@ -247,11 +239,42 @@ export default function({ }): StoryRepository {
         }
     };
 
+    /**
+     * Return stories associated to the given tag ID.
+     *
+     * @param tagID - The ID of the tag the given story must have.
+     * @param _options - What/how to fetch.
+     */
+    const getStoriesByTagID = async (
+        tagID: number,
+        _options: StoryListOptions
+    ): Promise<Story[]> => {
+        const options = Object.assign({}, defaultListOptions, _options);
+        const extras = getQueryExtras(options, [tagID]);
+
+        const result = await query<Story>(`\
+            SELECT S.*
+                ${extras.select}
+            FROM stories S
+                ${extras.joins}
+                ${options.rankOrder ? "INNER JOIN story_rank R ON R.id = S.id" : ""}
+                INNER JOIN story_tags ST ON ST.story_id = S.id
+            WHERE ST.tag_id = $1
+            GROUP BY S.id, ST.story_id
+                ${extras.group}
+                ${options.rankOrder ? ", R.story_rank" : ""}
+            ${options.rankOrder ? "ORDER BY R.story_rank ASC" : ""}
+            LIMIT ${options.limit} OFFSET ${options.offset}`, extras.params);
+        return result.rows;
+    }
+
+
     return {
         getStories,
         createStory,
         getStoryByShortURL,
         getStoryByID,
-        voteOnStory
+        voteOnStory,
+        getStoriesByTagID
     };
 }

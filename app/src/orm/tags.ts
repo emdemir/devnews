@@ -68,9 +68,20 @@ export default function({ storyRepository }: Dependencies): TagRepository {
         });
     };
 
+    /**
+     * Return a tag by its name, or null if it doesn't exist.
+     *
+     * @param name - The name of the tag
+     */
+    const getTagByName = async (name: string): Promise<Tag | null> => {
+        const tag = await Tag.findOne({ where: { name } })
+        return tag;
+    }
+
     return {
         getAllTags,
         getStoryTags,
-        getTagsByStories
+        getTagsByStories,
+        getTagByName
     }
 }

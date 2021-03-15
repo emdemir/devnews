@@ -31,6 +31,12 @@ interface TagRepository {
      * @param storyIDs - The IDs of the stories to fetch tags for.
      */
     getTagsByStories(storyIDs: number[]): Promise<TagWithStoryID[]>;
+    /**
+     * Return a tag by its name, or null if it doesn't exist.
+     *
+     * @param name - The name of the tag
+     */
+    getTagByName(name: string): Promise<Tag | null>;
 };
 
 export default TagRepository;

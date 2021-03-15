@@ -6,6 +6,7 @@ import storyRoutesFactory from "./routes/story";
 import commentRoutesFactory from "./routes/comment";
 import authRoutesFactory from "./routes/auth";
 import messageRoutesFactory from "./routes/message";
+import tagRoutesFactory from "./routes/tag";
 
 const container = awilix.createContainer({}, parentContainer);
 
@@ -15,5 +16,6 @@ container.register("storyRoutes", awilix.asFunction(storyRoutesFactory));
 container.register("commentRoutes", awilix.asFunction(commentRoutesFactory));
 container.register("authRoutes", awilix.asFunction(authRoutesFactory));
 container.register("messageRoutes", awilix.asFunction(messageRoutesFactory));
+container.register("tagRoutes", awilix.asFunction(tagRoutesFactory));
 
 export default container;

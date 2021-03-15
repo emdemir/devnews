@@ -7,7 +7,7 @@ import type {
 } from "../base/story_repository";
 
 import {
-    User, Story, story_rank, story_stats
+    User, Story, story_rank, story_stats, Tag
 } from "./tables";
 
 // --- Helpers and Defaults ----
@@ -259,11 +259,61 @@ export default function({ }): StoryRepository {
         return result.get();
     };
 
+    /**
+     * Return stories associated to the given tag ID.
+     *
+     * @param tagID - The ID of the tag the given story must have.
+     * @param options - What/how to fetch.
+     */
+    const getStoriesByTagID = async (
+        tagID: number,
+        _options: StoryListOptions
+    ): Promise<RepoStory[]> => {
+        const options = Object.assign({}, defaultListOptions, _options);
+        const joins = collectJoins(options);
+
+        joins.push({
+            model: Tag as any,
+            where: { id: tagID },
+            required: true
+        });
+
+        if (options.rankOrder) {
+            joins.push({
+                model: story_rank,
+                as: "rank",
+                required: true
+            });
+        }
+
+        const data = await Story.findAll({
+            include: joins,
+            limit: options.limit,
+            offset: options.offset,
+            order: options.rankOrder
+                ? [[Sequelize.col("rank.story_rank"), "ASC"]]
+                : undefined,
+            subQuery: false
+        });
+
+        const result = data.map(model => {
+            const story = unwrapStory(model, options);
+
+            // If we ordered by story rank, we don't want to display the rank.
+            if (options.rankOrder)
+                delete (story as any).rank;
+
+            return story;
+        });
+        return result;
+    };
+
     return {
         createStory,
         getStories,
         getStoryByShortURL,
         getStoryByID,
-        voteOnStory
+        voteOnStory,
+        getStoriesByTagID
     }
 }

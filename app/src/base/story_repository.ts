@@ -98,6 +98,13 @@ interface StoryRepository {
      * @param story - The story parameters.
      */
     createStory(story: StoryCreate): Promise<Story>;
+    /**
+     * Return stories associated to the given tag ID.
+     *
+     * @param tagID - The ID of the tag the given story must have.
+     * @param options - What/how to fetch.
+     */
+    getStoriesByTagID(tagID: number, options: StoryListOptions): Promise<Story[]>;
 };
 
 export default StoryRepository;

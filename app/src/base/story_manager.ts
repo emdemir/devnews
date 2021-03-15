@@ -2,6 +2,7 @@
 
 import type { StoryListOptions, StoryOptions, Story } from "./story_repository";
 import type { User } from "./user_repository";
+import type { Tag } from "./tag_repository";
 
 /**
  * All the fields that are required for a story on the repository side.
@@ -56,6 +57,15 @@ interface StoryManager {
      * @param user - The user creating the story.
      */
     createStory(story: StoryCreate, user: User): Promise<Story>;
+    /**
+     * Return all stories with a given tag.
+     *
+     * @param tag - The tag the stories must include.
+     * @param page - The page the user is viewing.
+     * @param options - What/how to fetch.
+     */
+    getStoriesWithTag(tag: Tag, page: number, options: StoryListOptions): Promise<Story[]>;
 };
 
+export { Story };
 export default StoryManager;

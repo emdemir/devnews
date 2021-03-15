@@ -39,9 +39,25 @@ export default function({ }): TagRepository {
         return result.rows;
     }
 
+    /**
+     * Return a tag by its name, or null if it doesn't exist.
+     *
+     * @param name - The name of the tag
+     */
+    const getTagByName = async (name: string): Promise<Tag | null> => {
+        const result = await query<Tag>(`\
+            SELECT T.*
+            FROM tags T
+            WHERE T.name = $1`, [name]);
+        if (result.rowCount === 0)
+            return null;
+        return result.rows[0];
+    }
+
     return {
         getAllTags,
         getStoryTags,
-        getTagsByStories
+        getTagsByStories,
+        getTagByName
     };
 }
