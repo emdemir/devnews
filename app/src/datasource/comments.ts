@@ -184,6 +184,11 @@ export default function({ }): CommentRepository {
                 `INSERT INTO comment_votes (comment_id, user_id) VALUES ($1, $2)`,
                 [newComment.id, comment.user_id]);
 
+            // Mark the comment as read by the current user.
+            await client.query(
+                `INSERT INTO read_comments (comment_id, user_id) VALUES ($1, $2)`,
+                [newComment.id, comment.user_id]);
+
             // Finish query.
             await client.query("COMMIT");
             return newComment;

@@ -236,6 +236,8 @@ export default function({ }): CommentRepository {
             const newComment = await Comment.create(comment, { transaction: t });
             // Vote on the comment
             await newComment.addVote(comment.user_id, { transaction: t });
+            // Mark the comment as "viewed"
+            await newComment.addViewer(comment.user_id, { transaction: t });
 
             return newComment;
         });
