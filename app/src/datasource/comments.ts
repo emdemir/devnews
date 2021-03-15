@@ -156,24 +156,43 @@ export default function({ }): CommentRepository {
     const createComment = async (
         comment: CommentCreate
     ): Promise<Comment> => {
-        // Let BLL handle failure.
-        const result = await query<Comment>(
-            `INSERT INTO comments
+        const client = await getClient();
+
+        try {
+            await client.query("BEGIN");
+
+            // Create the comment.
+            const result = await client.query<Comment>(
+                `INSERT INTO comments
                 (story_id, parent_id, user_id, short_url, comment, comment_html)
             VALUES
                 ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
-            [
-                comment.story_id,
-                comment.parent_id,
-                comment.user_id,
-                comment.short_url,
-                comment.comment,
-                comment.comment_html
-            ]
-        );
+                [
+                    comment.story_id,
+                    comment.parent_id,
+                    comment.user_id,
+                    comment.short_url,
+                    comment.comment,
+                    comment.comment_html
+                ]
+            );
+            const newComment = result.rows[0];
 
-        return result.rows[0];
+            // Vote on the comment as the current user.
+            await client.query(
+                `INSERT INTO comment_votes (comment_id, user_id) VALUES ($1, $2)`,
+                [newComment.id, comment.user_id]);
+
+            // Finish query.
+            await client.query("COMMIT");
+            return newComment;
+        } catch (err) {
+            await client.query("ROLLBACK");
+            throw err;
+        } finally {
+            client.release();
+        }
     }
 
     return {
