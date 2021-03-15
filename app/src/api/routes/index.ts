@@ -1,7 +1,10 @@
 import Router = require("koa-router");
+import passport = require("koa-passport");
 
 import type StoryManager from "../../base/story_manager";
 import type TagManager from "../../base/tag_manager";
+
+import { storyProject } from "./story";
 
 interface Dependencies {
     storyManager: StoryManager;
@@ -11,7 +14,9 @@ interface Dependencies {
 export default function({ storyManager, tagManager }: Dependencies) {
     const router = new Router();
 
-    router.get("/", async ctx => {
+    router.get("/",
+               passport.authenticate("jwt", { session: false, failWithError: false }),
+               async ctx => {
         const user = ctx.state.user;
         const page = ctx.query.page || 1;
 
@@ -29,7 +34,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
         ctx.body = {
             "stories": stories.map(story => {
                 return {
-                    ...story,
+                    ...storyProject(story),
                     tags: storyTags[story.id].map(tag => tag.name)
                 };
             })

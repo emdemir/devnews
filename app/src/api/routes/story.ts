@@ -2,12 +2,30 @@ import Router = require("koa-router");
 import passport = require("koa-passport");
 
 import type StoryManager from "../../base/story_manager";
-import type { StoryCreate } from "../../base/story_manager";
+import type { Story, StoryCreate } from "../../base/story_manager";
 import type CommentManager from "../../base/comment_manager";
 import type TagManager from "../../base/tag_manager";
 import ValidationError from "../../base/validation";
 
 import { commentProject } from "./comment";
+
+/**
+ * Apply projection to the comment to hide fields we do not wish to display
+ * to the user.
+ *
+ * @param s - The story
+ */
+export const storyProject = (s: Story): Object => {
+    const {
+        short_url, title, url, text, text_html, submitted_at, submitter_username,
+        score, comment_count, user_voted
+    } = s;
+
+    return {
+        short_url, title, url, text, text_html, submitted_at, submitter_username,
+        score, comment_count, user_voted
+    };
+}
 
 interface Dependencies {
     storyManager: StoryManager;
@@ -68,18 +86,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                 const tags = await tagManager.getStoryTags(story.id);
 
                 ctx.body = {
-                    story: {
-                        short_url: story.short_url,
-                        title: story.title,
-                        url: story.url,
-                        text: story.text,
-                        text_html: story.text_html,
-                        submitted_at: story.submitted_at,
-                        submitter_username: story.submitter_username,
-                        score: story.score,
-                        comment_count: story.comment_count,
-                        user_voted: story.user_voted
-                    },
+                    ...storyProject(story),
                     tags: tags.map(tag => tag.name),
                     comments: comments.map(commentProject)
                 }
