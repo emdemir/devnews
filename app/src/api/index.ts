@@ -80,6 +80,7 @@ app
             const status = err.status || 500;
             if (status === 500)
                 console.error(err);
+            ctx.status = status;
             ctx.body = { "error": errorMessage(status) };
         }
     })
