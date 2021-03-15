@@ -21,7 +21,7 @@
     </div>
 
     <div class="comment-children">
-        {% for c in comment.children %}
+        {% for comment in parent.children %}
             {% include "partials/comment.html" %}
         {% endfor %}
     </div>
