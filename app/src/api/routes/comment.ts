@@ -118,6 +118,11 @@ export default function({ commentManager, storyManager }: Dependencies) {
                     story_id: story.id,
                     user_id: user.id
                 });
+                // Set some parameters that the other end expects.
+                comment.score = 1;
+                comment.username = user.username;
+                comment.user_voted = true;
+                comment.read = true;
 
                 ctx.status = 201;
                 ctx.body = commentProject(comment);
