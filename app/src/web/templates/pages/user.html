@@ -1,0 +1,47 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="user-{{ subject.username }}" class="user-page">
+    <div class="user-details">
+        <h2 class="user-username">{{ subject.username }}</h2>
+
+        <div class="box">
+            <h3 class="box-title">User Information</h3>
+
+            <dl class="user-info-list">
+                <dt>Joined:</dt>
+                <dd>TODO years ago</dd>
+
+                <dt>Karma:</dt>
+                <dd>{{ subject.story_karma + subject.comment_karma }}</dd>
+
+                <dt>Stories Submitted:</dt>
+                <dd>{{ subject.story_count }}</dd>
+
+                <dt>Comments Posted:</dt>
+                <dd>{{ subject.comment_count }}</dd>
+
+                {% if subject.homepage %}
+                    <dt>Homepage:</dt>
+                    <dd>{{ subject.homepage }}</dd>
+                {% endif %}
+
+                <dt>About:</dt>
+                {% if subject.about_html %}
+                    <dd>{{ subject.about_html | safe }}</dd>
+                {% else %}
+                    <dd><em>A mystery...</em></dd>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+    <div class="user-avatar">
+        <div class="avatar large">
+            <img src="{{ subject.avatar_image }}" />
+        </div>
+    </div>
+</div>
+{% endblock %}
