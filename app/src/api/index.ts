@@ -78,8 +78,10 @@ app
             await next();
 
             const status = ctx.status || 404;
-            if (status >= 400 && !ctx.body)
+            if (status >= 400 && !ctx.body) {
+                ctx.status = status;
                 ctx.body = { "error": errorMessage(status) };
+            }
         } catch (err) {
             const status = err.status || 500;
             if (status === 500)
