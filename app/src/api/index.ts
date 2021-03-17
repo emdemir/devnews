@@ -26,11 +26,13 @@ const commentRoutes: Router = container.resolve("commentRoutes");
 const authRoutes: Router = container.resolve("authRoutes");
 const messageRoutes: Router = container.resolve("messageRoutes");
 const tagRoutes: Router = container.resolve("tagRoutes");
+const userRoutes: Router = container.resolve("userRoutes");
 router.use("", indexRoutes.routes(), indexRoutes.allowedMethods());
 router.use("/s", storyRoutes.routes(), storyRoutes.allowedMethods());
 router.use("/c", commentRoutes.routes(), commentRoutes.allowedMethods());
 router.use("/m", messageRoutes.routes(), messageRoutes.allowedMethods());
 router.use("/t", tagRoutes.routes(), tagRoutes.allowedMethods());
+router.use("/u", userRoutes.routes(), userRoutes.allowedMethods());
 router.use("/auth", authRoutes.routes(), authRoutes.allowedMethods());
 
 // Authentication setup
@@ -52,7 +54,7 @@ const errorMessage = (status: number): string => {
         case 403:
             return "You are not authorized to access the specified path.";
         case 404:
-            return "The speicifed path was not found.";
+            return "The specifed path or resource was not found.";
         case 405:
             return "This HTTP method is not allowed for the specified endpoint.";
         default:
