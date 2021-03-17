@@ -18,6 +18,7 @@ services:
       - PGPASSWORD=devnews
       - PGDATABASE=devnews
       - USE_ORM
+      - DEBUG_QUERIES
   # The app running the API presentation layer.
   api:
     build:
