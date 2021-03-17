@@ -34,9 +34,12 @@ export default function({ messageManager, userManager }: Dependencies) {
             const user = ctx.state.user;
 
             const messages = await messageManager.getMessageThreadsForUser(user, {
-                author: true
+                author: true,
+                recipient: true
             });
-            ctx.body = messages.map(messageProject);
+            ctx.body = {
+                "messages": messages.map(messageProject),
+            };
         });
     router.post("/",
         passport.authenticate("jwt", { session: false }),
@@ -69,6 +72,9 @@ export default function({ messageManager, userManager }: Dependencies) {
                 const msg = await messageManager.sendMessage(user, target, message);
                 ctx.status = 201;
                 ctx.body = messageProject(msg);
+                // Set some expected parameters on the body
+                ctx.body.author = user.username;
+                ctx.body.recipient = recipient;
             } catch (err) {
                 if (err instanceof ValidationError) {
                     ctx.status = 400;
@@ -133,8 +139,9 @@ export default function({ messageManager, userManager }: Dependencies) {
                     return;
                 }
 
-                // If we sent the message, then we send to recipient, otherwise
-                // we return to sender.
+                // If the author of the thread is the other party, select the
+                // sender, otherwise we created the thread so select the initial
+                // recipient.
                 const target = thread.sender_id === user.id
                     ? await userManager.getUserByID(thread.receiver_id)
                     : await userManager.getUserByID(thread.sender_id);
@@ -142,7 +149,11 @@ export default function({ messageManager, userManager }: Dependencies) {
                 // Target can't be null, we got this ID from the data store.
                 const msg = await messageManager.sendMessage(user, target!, message, thread);
 
+                ctx.status = 201;
                 ctx.body = messageProject(msg);
+                // Set some expected parameters on the body
+                ctx.body.author = user.username;
+                ctx.body.recipient = target!.username;
             } catch (err) {
                 if (err instanceof ForbiddenError) {
                     ctx.throw(403);

@@ -10,7 +10,7 @@ import ValidationError from "../../base/validation";
 import { commentProject } from "./comment";
 
 /**
- * Apply projection to the comment to hide fields we do not wish to display
+ * Apply projection to the story to hide fields we do not wish to display
  * to the user.
  *
  * @param s - The story
