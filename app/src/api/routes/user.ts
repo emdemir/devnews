@@ -16,13 +16,13 @@ interface Dependencies {
  */
 export const userProject = (u: User): Object => {
     const {
-        username, registered_at, about, about_html, homepage, comment_count,
-        comment_karma, story_count, story_karma
+        username, registered_at, about, about_html, homepage, avatar_image,
+        comment_count, comment_karma, story_count, story_karma
     } = u;
 
     return {
-        username, registered_at, about, about_html, homepage, comment_count,
-        story_count,
+        username, registered_at, about, about_html, homepage, avatar_image,
+        comment_count, story_count,
         karma: (comment_karma || 0) + (story_karma || 0)
     };
 };
