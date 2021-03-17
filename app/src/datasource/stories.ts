@@ -35,7 +35,7 @@ const getQueryExtras = (options: StoryOptions, params: any[] = []): QueryExtras 
         ${options.submitterUsername ? "INNER JOIN users U ON U.id = S.submitter_id" : ""}
         ${options.score || options.commentCount ? "INNER JOIN story_stats SS ON SS.id = S.id" : ""}
         ${options.checkVoter !== undefined
-                ? "LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $${params.push(options.checkVoter)}"
+                ? `LEFT OUTER JOIN story_votes V ON V.story_id = S.id AND V.user_id = $${params.push(options.checkVoter)}`
                 : ""}`,
         group: `\
         ${options.submitterUsername ? ", U.username" : ""}
