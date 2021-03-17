@@ -112,7 +112,7 @@ const unwrapComment = (
     if (options.score)
         comment.score = cc.votes.length;
     if (options.checkRead !== undefined)
-        comment.read = !!cc.viewers.length;
+        comment.user_read = !!cc.viewers.length;
     if (options.checkVoter !== undefined)
         comment.user_voted = votedComments.includes(comment.id);
 

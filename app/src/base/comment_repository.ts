@@ -14,7 +14,7 @@ export interface Comment {
     // Aggregated fields
     score?: number;
     user_voted?: boolean;
-    read?: boolean;
+    user_read?: boolean;
     username?: string;
 };
 
