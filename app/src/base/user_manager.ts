@@ -1,6 +1,6 @@
 /** @file The interface for a user manager. */
 
-import type { User } from "./user_repository";
+import type { User, UserOptions } from "./user_repository";
 
 interface UserManager {
     /**
@@ -16,14 +16,17 @@ interface UserManager {
      * Returns a user by username if it exists, or null if it doesn't.
      *
      * @param username - The username for this user.
+     * @param options - What to fetch.
      */
-    getUserByUsername(username: string): Promise<User | null>;
+    getUserByUsername(username: string, options: UserOptions): Promise<User | null>;
     /**
      * Returns a user by ID if it exists, or null if it doesn't.
      *
      * @param id - The ID for this user.
+     * @param options - What to fetch.
      */
-    getUserByID(id: number): Promise<User | null>;
+    getUserByID(id: number, options: UserOptions): Promise<User | null>;
 };
 
+export { UserOptions };
 export default UserManager;

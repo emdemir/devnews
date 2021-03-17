@@ -73,7 +73,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
      * @param password - The given password
      */
     const authenticate = async (username: string, password: string): Promise<User | null> => {
-        const user = await dataSource.getUserByUsername(username);
+        const user = await dataSource.getUserByUsername(username, {});
         if (user === null) {
             return null;
         }
@@ -110,7 +110,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
     const jwtStrategy = new passportJwt.Strategy(jwtOptions, async (jwt, done) => {
         const subject = jwt.sub;
         try {
-            const user = await dataSource.getUserByUsername(subject);
+            const user = await dataSource.getUserByUsername(subject, {});
             if (user === null)
                 return done(null, false);
 
@@ -131,7 +131,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
 
     const deserialize: DeserializeCallback = async (id, done) => {
         try {
-            const user = await dataSource.getUserByID(id);
+            const user = await dataSource.getUserByID(id, {});
             done(null, user || undefined);
         } catch (e) {
             done(e);

@@ -53,6 +53,11 @@ export class User extends Model<RepoUser, UserCreate> implements RepoUser {
     public countStories!: HasManyCountAssociationsMixin;
     public createStory!: HasManyCreateAssociationMixin<Story>;
 
+    public getComments!: HasManyGetAssociationsMixin<Comment>;
+    public hasComment!: HasManyHasAssociationMixin<Comment, number>;
+    public countComments!: HasManyCountAssociationsMixin;
+    public createComment!: HasManyCreateAssociationMixin<Comment>;
+
     public getFollowed!: HasManyGetAssociationsMixin<Story>;
     public addFollowed!: HasManyAddAssociationMixin<Story, number>;
     public removeFollowed!: HasManyRemoveAssociationMixin<Story, number>;
@@ -79,6 +84,7 @@ export class User extends Model<RepoUser, UserCreate> implements RepoUser {
 
     public static associations: {
         stories: Association<User, Story>;
+        comments: Association<User, Comment>;
         followed: Association<User, Story>;
         voted_stories: Association<User, Story>;
         voted_comments: Association<User, Comment>;

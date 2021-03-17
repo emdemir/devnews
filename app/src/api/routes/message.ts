@@ -57,7 +57,7 @@ export default function({ messageManager, userManager }: Dependencies) {
             }
 
             // Try to find the target
-            const target = await userManager.getUserByUsername(recipient);
+            const target = await userManager.getUserByUsername(recipient, {});
             if (target === null) {
                 ctx.status = 404;
                 ctx.body = {
@@ -143,8 +143,8 @@ export default function({ messageManager, userManager }: Dependencies) {
                 // sender, otherwise we created the thread so select the initial
                 // recipient.
                 const target = thread.sender_id === user.id
-                    ? await userManager.getUserByID(thread.receiver_id)
-                    : await userManager.getUserByID(thread.sender_id);
+                    ? await userManager.getUserByID(thread.receiver_id, {})
+                    : await userManager.getUserByID(thread.sender_id, {});
 
                 // Target can't be null, we got this ID from the data store.
                 const msg = await messageManager.sendMessage(user, target!, message, thread);

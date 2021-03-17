@@ -38,7 +38,7 @@ export default function({ messageManager, userManager }: Dependencies) {
         const { recipient, message } = formData;
 
         // Try to find the target
-        const target = await userManager.getUserByUsername(recipient);
+        const target = await userManager.getUserByUsername(recipient, {});
         if (target === null) {
             return await ctx.render("pages/message_list.html", {
                 error: new Error(
@@ -127,8 +127,8 @@ export default function({ messageManager, userManager }: Dependencies) {
             // If we sent the message, then we send to recipient, otherwise
             // we return to sender.
             const target = thread.sender_id === user.id
-                ? await userManager.getUserByID(thread.receiver_id)
-                : await userManager.getUserByID(thread.sender_id);
+                ? await userManager.getUserByID(thread.receiver_id, {})
+                : await userManager.getUserByID(thread.sender_id, {});
 
             // Target can't be null, we got this ID from the data store.
             await messageManager.sendMessage(user, target!, message, thread);

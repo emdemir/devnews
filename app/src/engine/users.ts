@@ -5,7 +5,7 @@ import ValidationError from "../base/validation";
 import { hashPassword } from "./auth";
 
 import type UserRepository from "../base/user_repository";
-import type { User } from "../base/user_repository";
+import type { User, UserOptions } from "../base/user_repository";
 import type UserManager from "../base/user_manager";
 
 // Regexp for e-mail validation.
@@ -80,16 +80,18 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
      * Returns a user by username if it exists, or null if it doesn't.
      *
      * @param username - The username for this user.
+     * @param options - What to fetch.
      */
-    const getUserByUsername = (username: string) =>
-        dataSource.getUserByUsername(username);
+    const getUserByUsername = (username: string, options: UserOptions) =>
+        dataSource.getUserByUsername(username, options);
     /**
      * Returns a user by ID if it exists, or null if it doesn't.
      *
      * @param id - The ID for this user.
+     * @param options - What to fetch.
      */
-    const getUserByID = (id: number) =>
-        dataSource.getUserByID(id);
+    const getUserByID = (id: number, options: UserOptions) =>
+        dataSource.getUserByID(id, options);
 
     return {
         createUser,

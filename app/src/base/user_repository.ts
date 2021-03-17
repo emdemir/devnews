@@ -12,6 +12,12 @@ export interface User {
     avatar_image: string;
     registered_at: Date;
     updated_at: Date;
+
+    // Extra fields
+    comment_count?: number;
+    story_count?: number;
+    comment_karma?: number;
+    story_karma?: number;
 };
 
 // The parameters needed to create a user.
@@ -20,6 +26,18 @@ export interface UserCreate {
     password: string;
     email: string;
     avatar_image: string;
+};
+
+// Additional things to fetch when getting a user.
+export interface UserOptions {
+    // Fetch the user's comment count.
+    commentCount?: boolean;
+    // Fetch the user's published story count.
+    storyCount?: boolean;
+    // Fetch the user's total score on their comments.
+    commentKarma?: boolean;
+    // Fetch the user's total score on their stories.
+    storyKarma?: boolean;
 };
 
 interface UserRepository {
@@ -36,14 +54,16 @@ interface UserRepository {
      * Returns a user by username if it exists in the database, or null if it doesn't.
      *
      * @param username - The username for this user.
+     * @param options - What to fetch.
      */
-    getUserByUsername(username: string): Promise<User | null>;
+    getUserByUsername(username: string, options: UserOptions): Promise<User | null>;
     /**
      * Returns a user by ID if it exists in the database, or null if it doesn't.
      *
      * @param id - The ID for this user.
+     * @param options - What to fetch.
      */
-    getUserByID(id: number): Promise<User | null>;
+    getUserByID(id: number, options: UserOptions): Promise<User | null>;
 };
 
 export default UserRepository;
