@@ -75,6 +75,13 @@ interface CommentRepository {
      * @param comment - The comment parameters
      */
     createComment(comment: CommentCreate): Promise<Comment>;
+    /**
+     * Mark the comments with the given IDs as read for the given user ID.
+     *
+     * @param userID - The ID of the user.
+     * @param commentIDs - An array of IDs of comments.
+     */
+    markCommentsAsRead(userID: number, commentIDs: number[]): Promise<void>;
 };
 
 export default CommentRepository;

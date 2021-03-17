@@ -200,10 +200,38 @@ export default function({ }): CommentRepository {
         }
     }
 
+    /**
+     * Mark the comments with the given IDs as read for the given user ID.
+     *
+     * @param userID - The ID of the user.
+     * @param commentIDs - An array of IDs of comments.
+     */
+    const markCommentsAsRead = async (
+        userID: number,
+        commentIDs: number[]
+    ): Promise<void> => {
+        // We can insert them as two parameters, but they have to be "unzipped"
+        // in this fashion.
+        const params: [number[], number[]] = [[], []];
+        commentIDs.forEach(c => {
+            params[0].push(userID);
+            params[1].push(c);
+        });
+
+        // ON CONFLICT DO NOTHING, because the user may have already read some
+        // of the comments and that isn't an error.
+        await query(
+            `INSERT INTO read_comments (user_id, comment_id)
+                SELECT user_id, comment_id FROM
+                unnest($1::integer[], $2::integer[]) AS new_read (user_id, comment_id)
+             ON CONFLICT DO NOTHING`, params);
+    }
+
     return {
         createComment,
         voteOnComment,
         getCommentByShortURL,
-        getCommentsByStory
+        getCommentsByStory,
+        markCommentsAsRead
     }
 };

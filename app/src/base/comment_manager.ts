@@ -21,8 +21,8 @@ export interface CommentCreate {
 
 interface CommentManager {
     /**
-     * Gets all comments for this story, and returns as a tree. The root comments
-     * are returned with children comments nested.
+     * Get all comments for this story, and return them as a tree. The root
+     * comments are returned with children comments nested.
      *
      * @param storyID - The ID of the story
      * @param options - Options for fetching comments
@@ -36,7 +36,7 @@ interface CommentManager {
      */
     getCommentByShortURL(short_url: string, options: CommentOptions): Promise<Comment | null>;
     /**
-     * Gives a vote on a comment by user, or retracts the vote if it already exists.
+     * Give a vote on a comment by user, or retracts the vote if it already exists.
      *
      * @param short_url - The short URL for the comment.
      * @param user - The user voting on the comment.
@@ -44,12 +44,22 @@ interface CommentManager {
      */
     voteOnComment(short_url: string, user: User): Promise<boolean>;
     /**
-     * Creates a new comment in a story.
+     * Create a new comment in a story.
      *
      * @param comment - The parameters to create the comment.
      * @return The actual comment
      */
     createComment(comment: CommentCreate): Promise<Comment>;
+    /**
+     * Mark the given comments as read by the user.
+     *
+     * @param user - The user who read the comments.
+     * @param comments - An array of comments to mark as read.
+     * @param sameUser - Whether the user the comments were pulled for and the
+     * passed user is the same. If true, then the comment's user_read value
+     * will be used to optimize the "mark read" action.
+     */
+    markCommentsAsRead(user: User, comments: Comment[], sameUser?: boolean): Promise<void>;
 };
 
 export default CommentManager;

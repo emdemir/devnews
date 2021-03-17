@@ -26,6 +26,19 @@ interface Dependencies {
     commentRepository: CommentRepository;
 };
 
+/**
+ * Visit all comments in a comment tree. This is a depth-first visit.
+ *
+ * @param comments - The list of comments.
+ * @param visitor - The visitor function.
+ */
+const visitComments = (comments: Comment[], visitor: { (c: Comment): void }) => {
+    comments.forEach(c => {
+        visitComments(c.children, visitor);
+        visitor(c);
+    })
+}
+
 export default function({ commentRepository: dataSource }: Dependencies): CommentManager {
     /**
      * Gets all comments for this story, and returns as a tree. The root comments
@@ -119,10 +132,45 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         return Object.assign(result, { children: [] });
     }
 
+    /**
+     * Mark the given comments as read by the user.
+     *
+     * @param user - The user who read the comments.
+     * @param comments - An array of comments to mark as read.
+     * @param sameUser - Whether the user the comments were pulled for and the
+     * passed user is the same. If true, then the comment's user_read value
+     * will be used to optimize the "mark read" action.
+     */
+    const markCommentsAsRead = async (
+        user: User,
+        comments: Comment[],
+        sameUser: boolean = false
+    ): Promise<void> => {
+        const commentIDs: number[] = [];
+        // Fetch all IDs from the comment tree.
+        visitComments(comments, c => {
+            // If the user isn't the same one as the user whom the comments were
+            // pulled for, or if it _was_ and the user hasn't read it, add it
+            // to the list of comments to mark as read.
+            //
+            // === false won't match user_read = undefined, so this is still safe
+            // if checkRead wasn't specified while pulling comments (just gives
+            // us some extra work)
+            if (!sameUser || c.user_read === false) {
+                commentIDs.push(c.id);
+            }
+        });
+
+        // Avoid a database roundtrip if we don't need to update any comments.
+        if (commentIDs.length > 0)
+            await dataSource.markCommentsAsRead(user.id, commentIDs);
+    }
+
     return {
         createComment,
         voteOnComment,
         getCommentByShortURL,
-        getCommentTreeByStory
+        getCommentTreeByStory,
+        markCommentsAsRead
     };
 };

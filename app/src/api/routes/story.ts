@@ -83,6 +83,13 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                     checkRead: user ? user.id : undefined,
                     checkVoter: user ? user.id : undefined
                 });
+
+                // If there is a user currently logged in, mark the comment tree as
+                // read.
+                if (user) {
+                    await commentManager.markCommentsAsRead(user, comments, true);
+                }
+
                 const tags = await tagManager.getStoryTags(story.id);
 
                 ctx.body = {

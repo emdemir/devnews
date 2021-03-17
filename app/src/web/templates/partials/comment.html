@@ -16,6 +16,11 @@
         <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
         <!-- TODO: date difference -->
         TODO hours ago
+
+        {# comment.user_read being undefined won't match. #}
+        {% if comment.user_read === false %}
+            <span class="comment-unread">(unread)</span>
+        {% endif %}
     </div>
     <div class="comment-contents">
         {{ comment.comment_html | safe }}

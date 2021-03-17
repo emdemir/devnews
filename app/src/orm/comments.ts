@@ -1,5 +1,5 @@
 import { Sequelize, Op } from "sequelize";
-import { Comment, comment_votes, User } from "./tables";
+import { Comment, comment_votes, read_comments, User } from "./tables";
 
 import type CommentRepository from "../base/comment_repository";
 import type {
@@ -245,10 +245,31 @@ export default function({ }): CommentRepository {
         return result;
     };
 
+    /**
+     * Mark the comments with the given IDs as read for the given user ID.
+     *
+     * @param userID - The ID of the user.
+     * @param commentIDs - An array of IDs of comments.
+     */
+    const markCommentsAsRead = async (
+        userID: number,
+        commentIDs: number[]
+    ): Promise<void> => {
+        await read_comments.bulkCreate(commentIDs.map(c => ({
+            user_id: userID,
+            comment_id: c
+        })), {
+            // ignoreDuplicates, because the user may have already read some
+            // of the comments and that isn't an error.
+            ignoreDuplicates: true
+        });
+    }
+
     return {
         createComment,
         getCommentByShortURL,
         voteOnComment,
-        getCommentsByStory
+        getCommentsByStory,
+        markCommentsAsRead
     }
 }
