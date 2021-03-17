@@ -92,7 +92,7 @@ const unwrapStory = (s: Story, options: StoryOptions): RepoStory => {
     }
 
     if (options.checkVoter !== undefined) {
-        story.user_voted = ss.votes.length;
+        story.user_voted = !!ss.votes.length;
     }
 
     // Clean up object
