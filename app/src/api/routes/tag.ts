@@ -4,10 +4,22 @@ import debugFactory = require("debug");
 
 import type StoryManager from "../../base/story_manager";
 import type TagManager from "../../base/tag_manager";
+import type { Tag } from "../../base/tag_repository";
 
 import { storyProject } from "./story";
 
 const debug = debugFactory("devnews:api:tag");
+
+/**
+ * Apply projection to the tag to hide fields we do not wish to display
+ * to the user.
+ *
+ * @param t - The tag
+ */
+export const tagProject = (t: Tag): Object => {
+    const { name, description } = t;
+    return { name, description };
+}
 
 interface Dependencies {
     storyManager: StoryManager;
@@ -50,6 +62,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
             const storyTags = await tagManager.getTagsForStories(storyIDs);
 
             ctx.body = {
+                "tag": tagProject(tag),
                 "stories": stories.map(story => {
                     return {
                         ...storyProject(story),
