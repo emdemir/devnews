@@ -20,7 +20,7 @@ const createGravatarHash = (email: string): string => {
  * @param email - The e-mail address of the user
  */
 export const buildGravatarURL = (email: string): string => {
-    return `https://www.gravatar.com/avatar/${createGravatarHash(email)}`;
+    return `https://www.gravatar.com/avatar/${createGravatarHash(email)}?d=identicon`;
 }
 
 // --- Random short URLs ---
