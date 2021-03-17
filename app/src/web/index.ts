@@ -5,12 +5,13 @@ import helmet = require("koa-helmet");
 import session = require("koa-generic-session");
 import passport = require("koa-passport");
 import logger = require("koa-logger");
+import CSRF = require("koa-csrf");
 // koa-redis types break koa-generic-session.
 // @ts-ignore
 import RedisStore = require("koa-redis");
 
 // Templating
-import nunjucks, { NunjucksContext } from "./render";
+import nunjucks, { NunjucksContext, NunjucksState } from "./render";
 // Authentication
 import type { Authenticator } from "passport";
 
@@ -30,7 +31,14 @@ export type PassportContext = {
     isAuthenticated(): boolean;
     isUnauthenticated(): boolean;
 }
-export type AppContext = Koa.DefaultContext & NunjucksContext & PassportContext;
+// Context for CSRF tokens.
+export interface CsrfContext {
+    csrf: string;
+}
+export type AppContext = Koa.DefaultContext
+    & NunjucksContext
+    & PassportContext
+    & CsrfContext;
 
 /// --- Initialization code ---
 
@@ -90,16 +98,33 @@ import type AuthManager from "../base/auth_manager";
 const authManager: AuthManager = container.resolve("authManager");
 authManager.initialize(passport as unknown as Authenticator, "local");
 
+// The actual type of ctx is too long to type (longer than this comment!).
+const renderError = async (ctx: any) => {
+    const renderContext = {
+        reason: ctx.state.reason || null,
+        user: ctx.state.user
+    };
+
+    switch (ctx.status) {
+        case 403:
+            return await ctx.render("pages/403.html", renderContext);
+        case 404:
+            return await ctx.render("pages/404.html", renderContext);
+        default:
+            return await ctx.render("pages/500.html", renderContext);
+    }
+}
+
 // Add middleware
 app
     // Request logging
     .use(logger())
     // Request protection
     .use(helmet({ hsts: false, contentSecurityPolicy: isDev ? false : undefined }))
-    // Request body parsing
-    .use(bodyParser())
     // Sessions with redis
     .use(session(sessionConfig))
+    // Request body parsing
+    .use(bodyParser())
     // Authentication
     .use(passport.initialize())
     .use(passport.session())
@@ -121,17 +146,27 @@ app
             // Don't do anything if the view rendered something
             if (ctx.state.rendered) return;
 
-            const status = ctx.status || 404;
-            if (status == 404) {
-                await ctx.render("pages/404.html", { user: ctx.state.user });
-            } else if (status === 403) {
-                await ctx.render("pages/403.html", { user: ctx.state.user });
-            }
+            // The re-assignment is done to flip an internal switch in Koa so that
+            // it doesn't rewrite the status code to 200 after "render" fills
+            // ctx.body because "nobody else set status".
+            ctx.status = ctx.status || 404;
         } catch (err) {
-            console.error(err);
-            await ctx.render("pages/500.html", { user: ctx.state.user });
+            ctx.status = err.status || 500;
+            // Add error message as reason so the error pages can have an idea
+            // of what happened.
+            ctx.state.reason = err.toString();
+            if (ctx.status === 500)
+                console.error(err);
         }
+        await renderError(ctx);
     })
+    // CSRF protection
+    .use(new CSRF({
+        invalidTokenStatusCode: 403,
+        excludedMethods: ["GET", "HEAD", "OPTIONS"],
+        disableQuery: false
+    }))
+    // Routing
     .use(router.routes())
     .use(router.allowedMethods());
 

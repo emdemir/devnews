@@ -25,7 +25,9 @@ export default function({ messageManager, userManager }: Dependencies) {
         const messages = await messageManager.getMessageThreadsForUser(user, {
             author: true
         });
-        return await ctx.render("pages/message_list.html", { messages, user });
+        return await ctx.render("pages/message_list.html", {
+            messages, user, csrf: ctx.csrf
+        });
     });
     router.post("/", async ctx => {
         const user = ctx.state.user;
@@ -45,6 +47,7 @@ export default function({ messageManager, userManager }: Dependencies) {
                     "Could not find that recipient. Make sure it's " +
                     "spelled correctly."),
                 formData,
+                csrf: ctx.csrf,
                 user,
             })
         }
@@ -63,6 +66,7 @@ export default function({ messageManager, userManager }: Dependencies) {
             return await ctx.render("pages/message_list.html", {
                 error: err,
                 formData,
+                csrf: ctx.csrf,
                 user
             });
         }
@@ -92,7 +96,9 @@ export default function({ messageManager, userManager }: Dependencies) {
                 })
             }
 
-            await ctx.render("pages/message_thread.html", { messages, user })
+            await ctx.render("pages/message_thread.html", {
+                messages, csrf: ctx.csrf, user
+            });
         } catch (err) {
             if (err instanceof ForbiddenError) {
                 ctx.throw(403);
@@ -141,6 +147,7 @@ export default function({ messageManager, userManager }: Dependencies) {
                 await ctx.render("pages/message_thread.html", {
                     error: err,
                     formData,
+                    csrf: ctx.csrf,
                     user
                 })
             } else {

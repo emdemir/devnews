@@ -18,6 +18,7 @@
         <h3 class="box-title">Create a Comment</h3>
 
         <form method="POST" action="/s/{{ story.short_url }}/comment">
+            {% include "partials/csrf.html" %}
             <textarea name="comment"></textarea>
             {# Show a rule reminder to users newer than 7 days old. #}
             {% if (now() - user.registered_at) < (7 * 60 * 60 * 24 * 1000) %}

@@ -27,7 +27,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
         const storyIDs = stories.map(story => story.id);
         const storyTags = await tagManager.getTagsForStories(storyIDs);
 
-        await ctx.render("pages/home.html", { stories, storyTags, user });
+        await ctx.render("pages/home.html", { stories, storyTags, user, csrf: ctx.csrf });
     });
 
     return router;

@@ -182,6 +182,13 @@
   dependencies:
     "@types/koa" "*"
 
+"@types/koa-csrf@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/koa-csrf/-/koa-csrf-3.0.1.tgz#a33761ad1d74bd48f17944300793ec7ebc3f2a2e"
+  integrity sha512-+6tJ1O69ml3vR598IYyJ7H4tLMygRwXRBbWfPGJJ0mZEtQJaF/bFtYlmuSpVwcY65teYM9O8trbawM1aukbkdA==
+  dependencies:
+    "@types/koa" "*"
+
 "@types/koa-generic-session@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@types/koa-generic-session/-/koa-generic-session-1.0.5.tgz#45776431481e3375c99c5752270c756a07630e76"
@@ -852,6 +859,15 @@ crypto-random-string@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-2.0.0.tgz#ef2a7a966ec11083388369baa02ebead229b30d5"
   integrity sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==
+
+csrf@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/csrf/-/csrf-3.1.0.tgz#ec75e9656d004d674b8ef5ba47b41fbfd6cb9c30"
+  integrity sha512-uTqEnCvWRk042asU6JtapDTcJeeailFy4ydOQS28bj1hcLnYRiqi8SsD2jS412AY1I/4qdOwWZun774iqywf9w==
+  dependencies:
+    rndm "1.2.0"
+    tsscmp "1.0.6"
+    uid-safe "2.1.5"
 
 cssom@^0.4.4:
   version "0.4.4"
@@ -1826,6 +1842,13 @@ koa-convert@^1.2.0:
     co "^4.6.0"
     koa-compose "^3.0.0"
 
+koa-csrf@^3.0.8:
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/koa-csrf/-/koa-csrf-3.0.8.tgz#028f958aa9d721a341828f6d26e0cf8a54817b4a"
+  integrity sha512-qCuFFGKEoc/6o229CwOT3638hp/2WNTUwLnKDezdXYYO/N6caS4l6isYJsjgqpZNjzjM53ZPISbLMMnlfHHv1g==
+  dependencies:
+    csrf "^3.1.0"
+
 koa-generic-session@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/koa-generic-session/-/koa-generic-session-2.1.1.tgz#0f5b34ebad9ce635dc710650fb07dcd7fdf3416b"
@@ -2754,6 +2777,11 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
+rndm@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/rndm/-/rndm-1.2.0.tgz#f33fe9cfb52bbfd520aa18323bc65db110a1b76c"
+  integrity sha1-8z/pz7Urv9UgqhgyO8ZdsRCht2w=
+
 rollup-plugin-copy@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/rollup-plugin-copy/-/rollup-plugin-copy-3.4.0.tgz#f1228a3ffb66ffad8606e2f3fb7ff23141ed3286"
@@ -3163,7 +3191,7 @@ typescript@^4.1.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.1.3.tgz#519d582bd94cba0cf8934c7d8e8467e473f53bb7"
   integrity sha512-B3ZIOf1IKeH2ixgHhj6la6xdwR9QrLC5d1VKeCSY4tvkqhF2eqd9O7txNlS0PO3GrBAFIdr3L1ndNwteUbZLYg==
 
-uid-safe@~2.1.4:
+uid-safe@2.1.5, uid-safe@~2.1.4:
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/uid-safe/-/uid-safe-2.1.5.tgz#2b3d5c7240e8fc2e58f8aa269e5ee49c0857bd3a"
   integrity sha512-KPHm4VL5dDXKz01UuEd88Df+KzynaohSL9fBh096KWAxSKZQDI2uBrVqtvRM4rwrIrRRKsdLNML/lnaaVSRioA==

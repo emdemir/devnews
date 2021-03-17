@@ -8,6 +8,7 @@
     <h3 class="box-title">Login</h3>
 
     <form method="POST">
+        {% include "partials/csrf.html" %}
         <label>Username: <input type="text" name="username" /></label>
         <label>Password: <input type="password" name="password" /></label>
         <button type="submit" class="button">Login</button>

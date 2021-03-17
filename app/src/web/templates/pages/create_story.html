@@ -11,6 +11,7 @@
         {% include "partials/errors.html" %}
 
         <form method="POST">
+            {% include "partials/csrf.html" %}
             <label>Title: <input type="text" name="title" required
                                  maxlength="100" value="{{ formData.title }}" />
             </label>

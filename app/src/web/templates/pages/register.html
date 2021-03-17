@@ -12,6 +12,7 @@
     {% include "partials/errors.html" %}
 
     <form method="POST">
+        {% include "partials/csrf.html" %}
         <label>Username: <input type="text" name="username" required
                                 maxlength="32" value="{{ formData.username }}" />
         </label>

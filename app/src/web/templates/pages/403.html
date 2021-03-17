@@ -8,8 +8,13 @@
     <div class="box">
         <h3 class="box-title">Forbidden</h3>
 
-        <p>You do not have permission to access this resource. If you believe
-            this is in error, please contact the admins.</p>
+        {% if reason and reason.includes("CSRF") %}
+            <p>The CSRF token was invalid. Perhaps refreshing the previous page
+                and re-submitting may help.</p>
+        {% else %}
+            <p>You do not have permission to access this resource. If you believe
+                this is in error, please contact the admins.</p>
+        {% endif %}
 
         <a href="/">Return to index</a> | <a href="javascript:history.go(-1)">
             Go back</a>

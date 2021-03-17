@@ -26,6 +26,7 @@
         {% include "partials/errors.html" %}
 
         <form method="POST" enctype="application/x-www-form-urlencoded">
+            {% include "partials/csrf.html" %}
             <p>
                 <label>Recipient: <input type="text" name="recipient"
                                         maxlength="32"

@@ -100,7 +100,10 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                 checkVoter: user ? user.id : undefined
             });
             const tags = await tagManager.getStoryTags(story.id);
-            await ctx.render("pages/story.html", { story, comments, tags, user });
+            await ctx.render("pages/story.html", {
+                story, comments, tags, user,
+                csrf: ctx.csrf
+            });
         }
     });
 
@@ -113,7 +116,9 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
         }
 
         const tags = await tagManager.getAllTags();
-        await ctx.render("pages/create_story.html", { tags, user });
+        await ctx.render("pages/create_story.html", {
+            tags, user, csrf: ctx.csrf
+        });
     });
     router.post("/", async ctx => {
         const user = ctx.state.user;
@@ -150,7 +155,8 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                     error: err,
                     tags: allTags,
                     formData,
-                    user
+                    user,
+                    csrf: ctx.csrf
                 });
             } else {
                 console.error(err);
@@ -158,7 +164,8 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                     error: new Error("An unknown error occurred."),
                     tags: allTags,
                     formData,
-                    user
+                    user,
+                    csrf: ctx.csrf
                 });
             }
         }

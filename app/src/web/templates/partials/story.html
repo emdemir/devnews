@@ -3,6 +3,7 @@
 
 <div class="story {% if story.url %}is-url{% else %}is-text{% endif %}">
     <form method="POST" action="/s/{{ story.short_url }}/vote">
+        {% include "partials/csrf.html" %}
         <button type="submit" class="vote-button {% if story.user_voted %}voted{% endif %}">
             {% if story.user_voted %}Unvote{% else %}Vote{% endif %}
         </button>
