@@ -22,6 +22,7 @@
     </div>
 
     <div class="comment-children">
+        {% set parent = comment %}
         {% for comment in parent.children %}
             {% include "partials/comment.html" %}
         {% endfor %}
