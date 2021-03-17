@@ -18,6 +18,11 @@ const validators = {
             errors.push(`\
 Message length is too long, please shorten to ${MAXIMUM_MESSAGE_LENGTH} characters
 or less.`);
+    },
+    source_and_target: (errors: string[], source: User, target: User) => {
+        if (source.id === target.id) {
+            errors.push("You cannot send a message to yourself.");
+        }
     }
 }
 
@@ -42,6 +47,7 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
     ): Promise<Message> => {
         const errors: string[] = [];
         validators.message(errors, content);
+        validators.source_and_target(errors, source, target);
 
         if (errors.length)
             throw new ValidationError(errors);
