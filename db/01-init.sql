@@ -125,6 +125,7 @@ CREATE TABLE messages (
        -- The message contents parsed into HTML.
        message_html text NOT NULL
 );
+CREATE INDEX messages_in_reply_to_idx ON messages (in_reply_to);
 
 -- The statistics for a story.
 CREATE VIEW story_stats AS
