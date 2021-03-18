@@ -26,6 +26,9 @@
             <span class="story-score">
                 {{ story.score }} point{% if story.score !== 1 %}s{% endif %}
             </span>
+            <span class="story-date">
+                {{ moment(story.submitted_at).fromNow() }}
+            </span>
             <span class="story-submitter">
                 {% if story.is_authored %}authored by{% else %}via{% endif %}
                 <a href="/u/{{ story.submitter_username }}">{{ story.submitter_username }}</a>

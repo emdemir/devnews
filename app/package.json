@@ -24,6 +24,7 @@
     "koa-views": "^7.0.0",
     "marked": "^1.2.9",
     "md5": "^2.3.0",
+    "moment": "^2.29.1",
     "nunjucks": "^3.2.3",
     "passport": "^0.4.1",
     "passport-jwt": "emdemir/passport-jwt",

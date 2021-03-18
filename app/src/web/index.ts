@@ -6,6 +6,7 @@ import session = require("koa-generic-session");
 import passport = require("koa-passport");
 import logger = require("koa-logger");
 import CSRF = require("koa-csrf");
+import moment = require("moment");
 // koa-redis types break koa-generic-session.
 // @ts-ignore
 import RedisStore = require("koa-redis");
@@ -137,7 +138,8 @@ app
         // Globals
         // TODO: move this to a separate "context_processors.ts"
         now: function now() { return new Date(); },
-        getDomain: function getDomain(url: string) { return (new URL(url)).hostname }
+        getDomain: function getDomain(url: string) { return (new URL(url)).hostname },
+        moment
     }))
     // Handle 403, 404, 500
     .use(async function errorHandler(ctx, next) {

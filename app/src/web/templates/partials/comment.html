@@ -12,10 +12,10 @@
         <span class="comment-score">
             {{ comment.score }} point{% if comment.score !== 1 %}s{% endif %}
         </span>
+        <a class="comment-date" href="/c/{{ comment.short_url }}">
+            {{ moment(comment.commented_at).fromNow() }}</a>
         by
         <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
-        <!-- TODO: date difference -->
-        TODO hours ago
 
         {# comment.user_read being undefined won't match. #}
         {% if comment.user_read === false %}

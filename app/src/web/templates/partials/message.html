@@ -11,8 +11,7 @@
             <a href="/u/{{ message.recipient }}">{{ message.recipient }}</a>
         </span>
 
-        {# TODO: duration #}
-        TODO hours ago
+        {{ moment(message.sent_at).fromNow() }}
 
         <a class="message-thread-id" href="#m{{ message.id }}">#{{ message.thread_id }}</a>
     </div>

@@ -13,8 +13,7 @@
                     {{ message.message | truncate(25, true, "...") }}</a>
 
                 <span class="message-stub-byline">
-                    {# TODO: date formatting #}
-                    TODO hours ago by {{ message.author }}
+                    {{ moment(message.sent_at).fromNow() }} by {{ message.author }}
                 </span>
             </div>
         {% endfor %}
