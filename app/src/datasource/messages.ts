@@ -45,18 +45,23 @@ export default function({ }): MessageRepository {
     ): Promise<Message[]> => {
         const options = Object.assign({}, defaultOptions, _options);
 
-        // TODO: order by latest reply
         const result = await query<Message>(`\
             SELECT M.*
                 ${options.author ? ", SU.username AS author" : ""}
                 ${options.recipient ? ", RU.username AS recipient" : ""}
             FROM messages M
+                LEFT OUTER JOIN (
+                    SELECT in_reply_to, MAX(sent_at) AS last_reply
+                    FROM messages
+                    WHERE in_reply_to IS NOT NULL
+                    GROUP BY in_reply_to
+                ) R ON R.in_reply_to = M.id
                 ${options.author ? "INNER JOIN users SU ON SU.id = M.sender_id" : ""}
                 ${options.recipient ? "INNER JOIN users RU ON RU.id = M.receiver_id" : ""}
             WHERE
                 (M.sender_id = $1 OR M.receiver_id = $1)
                 AND M.in_reply_to IS NULL
-            ORDER BY M.sent_at DESC, [user_id]);
+            ORDER BY COALESCE(R.last_reply, M.sent_at) DESC
             ${options.limit ? `LIMIT ${options.limit}` : ""}
             ${options.offset ? `OFFSET ${options.offset}` : ""}`, [user_id]);
 

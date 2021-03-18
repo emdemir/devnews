@@ -83,6 +83,26 @@ export default function({ }): MessageRepository {
         const options = Object.assign({}, defaultOptions, _options);
 
         const joins = collectJoins(options);
+
+        // TODO: sort by latest reply. There is no way at all in Sequelize to
+        // join on a subquery, even while using Sequelize.literal. I can't
+        // use a literal attribute because PostgreSQL does not allow you to
+        // use aliases at the same scope, and we would need to wrap the whole
+        // query in a subquery which Sequelize ALSO doesn't support without
+        // mangling the query. So this whole thing would have to be a raw SQL
+        // query which defeats the whole purpose of using an ORM in the first place.
+        //
+        // I dislike ORMs.
+        //
+        // Attribute for future reference:
+        // [
+        //     Sequelize.literal(`(
+        //         SELECT MAX(R.sent_at)
+        //         FROM messages R
+        //         WHERE R.in_reply_to = id
+        //     )`),
+        //     "last_reply"
+        // ]
         const messages = await Message.findAll({
             include: joins,
             limit: options.limit || undefined,
@@ -94,8 +114,7 @@ export default function({ }): MessageRepository {
                 },
                 in_reply_to: null
             },
-            // TODO in latest reply order
-            order: [["sent_at", "DESC"]]
+            order: [["sent_at", "DESC"]],
         });
 
         return messages.map(model => unwrapMessage(model, options));
