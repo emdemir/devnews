@@ -39,6 +39,55 @@ const visitComments = (comments: Comment[], visitor: { (c: Comment): void }) => 
     })
 }
 
+/**
+ * Return a rank value for the given comment.
+ *
+ * @param comment - The comment
+ * @return Rank value
+ */
+const commentRank = (comment: Comment): number => {
+    // A comment's rank is calculated as the log10 of the current score for
+    // this comment, plus the age of this comment. Since the rank is sorted
+    // descending, it is given a negative score (so newer comment have a
+    // higher rank).
+    //
+    // This is essentially the same algorithm as the story ranking algorithm
+    // in the database. The reason we added it here instead of the database
+    // is because of the expectation that, while there will be (tens of) thousands
+    // of stories posted over the course of the website, each story will receive
+    // 100-200 comments at most, and so this is cheaper than doing an extra
+    // database join for the comment rank.
+
+    if (comment.score === undefined)
+        throw new Error("Comment ranking requires the comment's score to be fetched.");
+
+    // Rounded to 7 decimal places.
+    return -Math.floor(
+        (
+            Math.log10(Math.max(comment.score + 1, 1))
+            + (+comment.commented_at / (1000 * 60 * 60 * 24))
+        ) * 10_000_000
+    ) / 10_000_000;
+}
+
+/**
+ * Sorts a list of comments by the "comment rank" algorithm (in-place).
+ *
+ * @param comments - The list of comments
+ */
+const sortByRank = (comments: Comment[]): void => {
+    // Sneak in a "rank" value to avoid re-calculating it.
+    comments.forEach(c => {
+        (c as any).rank = commentRank(c);
+        console.log(`Comment ${c.short_url} rank: ${(c as any).rank}`);
+    });
+
+    comments.sort((a, b) => (a as any).rank - (b as any).rank);
+
+    // Remove our sneaked in "rank" value.
+    comments.forEach(c => delete (c as any).rank);
+}
+
 export default function({ commentRepository: dataSource }: Dependencies): CommentManager {
     /**
      * Gets all comments for this story, and returns as a tree. The root comments
@@ -79,7 +128,11 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
             }
         })
 
-        // TODO: sorting the comment tree by score
+        // Sort the comment tree
+        visitComments(roots, (c) => sortByRank(c.children));
+        // The root as well
+        sortByRank(roots);
+
         return roots;
     }
 
