@@ -3,7 +3,7 @@ import { Message, User } from "./tables";
 
 import type MessageRepository from "../base/message_repository";
 import type {
-    Message as RepoMessage, MessageOptions, MessageCreate
+    Message as RepoMessage, MessageOptions, MessageCreate, MessageListOptions
 } from "../base/message_repository";
 import type { Includeable } from "sequelize";
 
@@ -78,13 +78,15 @@ export default function({ }): MessageRepository {
      */
     const getMessageThreadsForUser = async (
         user_id: number,
-        _options: MessageOptions
+        _options: MessageListOptions
     ): Promise<RepoMessage[]> => {
         const options = Object.assign({}, defaultOptions, _options);
 
         const joins = collectJoins(options);
         const messages = await Message.findAll({
             include: joins,
+            limit: options.limit || undefined,
+            offset: options.offset || undefined,
             where: {
                 [Op.or]: {
                     sender_id: user_id,

@@ -1,7 +1,9 @@
 import { query } from "./";
 
 import type MessageRepository from "../base/message_repository";
-import type { Message, MessageCreate, MessageOptions } from "../base/message_repository";
+import type {
+    Message, MessageCreate, MessageOptions, MessageListOptions
+} from "../base/message_repository";
 
 const defaultOptions: MessageOptions = {
     author: false,
@@ -39,7 +41,7 @@ export default function({ }): MessageRepository {
      */
     const getMessageThreadsForUser = async (
         user_id: number,
-        _options: MessageOptions
+        _options: MessageListOptions
     ): Promise<Message[]> => {
         const options = Object.assign({}, defaultOptions, _options);
 
@@ -54,7 +56,9 @@ export default function({ }): MessageRepository {
             WHERE
                 (M.sender_id = $1 OR M.receiver_id = $1)
                 AND M.in_reply_to IS NULL
-            ORDER BY M.sent_at DESC`, [user_id]);
+            ORDER BY M.sent_at DESC, [user_id]);
+            ${options.limit ? `LIMIT ${options.limit}` : ""}
+            ${options.offset ? `OFFSET ${options.offset}` : ""}`, [user_id]);
 
         return result.rows;
     }

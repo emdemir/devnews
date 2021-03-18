@@ -11,9 +11,11 @@
         &mdash; {{ tag.description }}
     </div>
 
-    {% for story in stories %}
+    {% for story in page.items %}
         {% set tags = storyTags[story.id] %}
         {% include "partials/story.html" %}
     {% endfor %}
+
+    {% include "partials/pagination.html" %}
 </div>
 {% endblock %}

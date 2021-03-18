@@ -33,10 +33,9 @@ export default function({ storyManager, tagManager }: Dependencies) {
         passport.authenticate("jwt", { session: false, failWithError: false }),
         async ctx => {
             const user = ctx.state.user;
-            const page = ctx.request.body.page || 1;
+            const page = +ctx.params.page || 1;
 
             debug("getting stories for tag", ctx.params.tag, "page", page);
-
 
             // Get the tag.
             const tag = await tagManager.getTagByName(ctx.params.tag);
@@ -57,18 +56,21 @@ export default function({ storyManager, tagManager }: Dependencies) {
 
                 checkVoter: user ? user.id : undefined
             });
-            const storyIDs = stories.map(story => story.id);
+            const storyIDs = stories.items.map(story => story.id);
             debug("getting the tags for each story");
             const storyTags = await tagManager.getTagsForStories(storyIDs);
 
             ctx.body = {
                 "tag": tagProject(tag),
-                "stories": stories.map(story => {
+                "stories": stories.items.map(story => {
                     return {
                         ...storyProject(story),
                         tags: storyTags[story.id].map(tag => tag.name)
                     };
-                })
+                }),
+                "page": stories.page,
+                "has_prev_page": stories.has_prev_page,
+                "has_next_page": stories.has_next_page,
             };
         });
 

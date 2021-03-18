@@ -3,6 +3,7 @@
 import type { StoryListOptions, StoryOptions, Story } from "./story_repository";
 import type { User } from "./user_repository";
 import type { Tag } from "./tag_repository";
+import type Pagination from "./pagination";
 
 /**
  * All the fields that are required for a story on the repository side.
@@ -27,7 +28,7 @@ interface StoryManager {
      * @param page - The page to return from the current ordering.
      * @param options - What to fetch.
      */
-    getStories(page: number, options: StoryListOptions): Promise<Story[]>;
+    getStories(page: number, options: StoryListOptions): Promise<Pagination<Story>>;
     /**
      * Returns a story by its short URL.
      *
@@ -64,7 +65,7 @@ interface StoryManager {
      * @param page - The page the user is viewing.
      * @param options - What/how to fetch.
      */
-    getStoriesWithTag(tag: Tag, page: number, options: StoryListOptions): Promise<Story[]>;
+    getStoriesWithTag(tag: Tag, page: number, options: StoryListOptions): Promise<Pagination<Story>>;
 };
 
 export { Story };

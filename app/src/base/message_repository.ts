@@ -49,6 +49,14 @@ export interface MessageOptions {
     recipient?: boolean;
 };
 
+// Options to fetch for lists of messages.
+export interface MessageListOptions extends MessageOptions {
+    // Amount of messages to fetch.
+    limit?: number;
+    // Offset from the start.
+    offset?: number;
+};
+
 interface MessageRepository {
     /**
      * Creates a new message with the given parameters.
@@ -62,7 +70,7 @@ interface MessageRepository {
      * @param user - The user to fetch messages for.
      * @param options - Additional things to fetch.
      */
-    getMessageThreadsForUser(user_id: number, options: MessageOptions): Promise<Message[]>;
+    getMessageThreadsForUser(user_id: number, options: MessageListOptions): Promise<Message[]>;
     /**
      * Get a single message by its ID.
      *

@@ -1,6 +1,7 @@
 /** @file The interface for a message manager. */
 import type { Message, MessageOptions } from "./message_repository";
 import type { User } from "./user_repository";
+import type Pagination from "./pagination";
 
 interface MessageManager {
     /**
@@ -13,12 +14,14 @@ interface MessageManager {
      */
     sendMessage(source: User, target: User, content: string, parent?: Message): Promise<Message>;
     /**
-     * Get all the messages for this user.
+     * Get all the messages for this user on a given page. The messages are
+     * ordered by message thread creation date.
      *
      * @param user - The user to fetch messages for.
+     * @param page - The page number.
      * @param options - Optional parameters to fetch.
      */
-    getMessageThreadsForUser(user: User, options: MessageOptions): Promise<Message[]>;
+    getMessageThreadsForUser(user: User, page: number, options: MessageOptions): Promise<Pagination<Message>>;
     /**
      * Get the current message thread.
      *

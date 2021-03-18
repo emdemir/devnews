@@ -18,13 +18,6 @@ const defaultOptions: StoryOptions = {
     commentCount: false
 };
 
-const defaultListOptions: StoryListOptions = {
-    ...defaultOptions,
-    rankOrder: false,
-    limit: 20,
-    offset: 0
-};
-
 /**
  * Look at the options given by the caller, and generate Sequelize
  * query options out of it.
@@ -115,7 +108,7 @@ export default function({ }): StoryRepository {
      * @param options The options.
      */
     const getStories = async (_options: StoryListOptions): Promise<RepoStory[]> => {
-        const options = Object.assign({}, defaultListOptions, _options);
+        const options = Object.assign({}, defaultOptions, _options);
 
         const joins = collectJoins(options);
 
@@ -129,8 +122,8 @@ export default function({ }): StoryRepository {
 
         const data = await Story.findAll({
             include: joins,
-            limit: options.limit,
-            offset: options.offset,
+            limit: options.limit || undefined,
+            offset: options.offset || undefined,
             order: options.rankOrder
                 ? [[Sequelize.col("rank.story_rank"), "ASC"]]
                 : undefined,
@@ -269,7 +262,7 @@ export default function({ }): StoryRepository {
         tagID: number,
         _options: StoryListOptions
     ): Promise<RepoStory[]> => {
-        const options = Object.assign({}, defaultListOptions, _options);
+        const options = Object.assign({}, defaultOptions, _options);
         const joins = collectJoins(options);
 
         joins.push({
@@ -288,8 +281,8 @@ export default function({ }): StoryRepository {
 
         const data = await Story.findAll({
             include: joins,
-            limit: options.limit,
-            offset: options.offset,
+            limit: options.limit || undefined,
+            offset: options.offset || undefined,
             order: options.rankOrder
                 ? [[Sequelize.col("rank.story_rank"), "ASC"]]
                 : undefined,

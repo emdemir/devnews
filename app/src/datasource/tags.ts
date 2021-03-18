@@ -29,13 +29,11 @@ export default function({ }): TagRepository {
      * @param storyIDs - The IDs of the stories to fetch tags for.
      */
     const getTagsByStories = async (storyIDs: number[]): Promise<TagWithStoryID[]> => {
-        // node-postgres is outstandingly stupid.
-        const params = storyIDs.map((_, i) => `$${i + 1}`).join(", ");
         const result = await query<TagWithStoryID>(`\
             SELECT ST.story_id, T.*
             FROM story_tags ST
             INNER JOIN tags T ON T.id = ST.tag_id
-            WHERE ST.story_id IN (${params})`, storyIDs);
+            WHERE ST.story_id = ANY($1::integer[])`, [storyIDs]);
         return result.rows;
     }
 

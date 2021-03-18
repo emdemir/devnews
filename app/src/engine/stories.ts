@@ -9,6 +9,7 @@ import type {
 import type StoryManager from "../base/story_manager";
 import type { StoryCreate } from "../base/story_manager";
 import type { Tag } from "../base/tag_repository";
+import type Pagination from "../base/pagination";
 import ValidationError from "../base/validation";
 
 import { generateShortID, markdown } from "./utils";
@@ -62,15 +63,25 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
      * @param page - The page to return from the current ordering.
      * @param options - What to fetch.
      */
-    const getStories = (
+    const getStories = async (
         page: number,
         options: StoryListOptions
-    ): Promise<Story[]> => {
+    ): Promise<Pagination<Story>> => {
         if (page < 1) page = 1;
         options.limit = STORIES_PER_PAGE;
         options.offset = (page - 1) * STORIES_PER_PAGE;
 
-        return dataSource.getStories(options);
+        const stories = await dataSource.getStories(options);
+
+        return {
+            page,
+            items: stories,
+            has_prev_page: page > 1,
+            // Can't reliably know this without an additional roundtrip, but if
+            // we have less than STORIES_PER_PAGE stories than we can say it's
+            // true. Of course this fails once in every STORIES_PER_PAGE times.
+            has_next_page: stories.length == STORIES_PER_PAGE
+        }
     }
 
     /**
@@ -151,12 +162,19 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
         tag: Tag,
         page: number,
         options: StoryListOptions
-    ) => {
+    ): Promise<Pagination<Story>> => {
         if (page < 1) page = 1;
         options.limit = STORIES_PER_PAGE;
         options.offset = (page - 1) * STORIES_PER_PAGE;
 
-        return await dataSource.getStoriesByTagID(tag.id, options);
+        const stories = await dataSource.getStoriesByTagID(tag.id, options);
+
+        return {
+            page,
+            items: stories,
+            has_prev_page: page > 1,
+            has_next_page: stories.length == STORIES_PER_PAGE
+        };
     }
 
     return {

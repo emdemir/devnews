@@ -3,11 +3,17 @@ import ForbiddenError from "../base/permissions";
 
 import type { User } from "../base/user_repository";
 import type MessageRepository from "../base/message_repository";
-import type { MessageCreate, MessageOptions } from "../base/message_repository";
+import type {
+    MessageCreate, MessageOptions, MessageListOptions
+} from "../base/message_repository";
 import type MessageManager from "../base/message_manager";
 import type { Message } from "../base/message_manager";
+import type Pagination from "../base/pagination";
 import ValidationError from "../base/validation";
 
+// Maximum amount of message threads shown in a single page.
+const MESSAGES_PER_PAGE = 20;
+// Maximum length of a single message.
 const MAXIMUM_MESSAGE_LENGTH = 2000;
 
 const validators = {
@@ -81,12 +87,35 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
         return await dataSource.createMessage(create);
     }
     /**
-     * Get all the messages for this user.
+     * Get all the messages for this user on a given page. The messages are
+     * ordered by message thread creation date.
      *
      * @param user - The user to fetch messages for.
+     * @param page - The page number.
+     * @param options - Optional parameters to fetch.
      */
-    const getMessageThreadsForUser = (user: User, options: MessageOptions) =>
-        dataSource.getMessageThreadsForUser(user.id, options);
+    const getMessageThreadsForUser = async (
+        user: User,
+        page: number,
+        options: MessageOptions
+    ): Promise<Pagination<Message>> => {
+        if (page < 1) page = 1;
+        const listOptions: MessageListOptions = {
+            ...options,
+            limit: MESSAGES_PER_PAGE,
+            offset: (page - 1) * MESSAGES_PER_PAGE
+        };
+
+        const messages = await dataSource.getMessageThreadsForUser(
+            user.id, listOptions);
+
+        return {
+            page,
+            items: messages,
+            has_prev_page: page > 1,
+            has_next_page: messages.length === MESSAGES_PER_PAGE
+        };
+    }
 
     /**
      * Get the current message thread.

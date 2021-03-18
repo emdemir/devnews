@@ -18,15 +18,15 @@ export default function({ messageManager, userManager }: Dependencies) {
 
     router.get("/", async ctx => {
         const user = ctx.state.user;
+        const page = +ctx.query.page || 1;
         if (!user) {
             return ctx.redirect("/auth/login/");
         }
 
-        const messages = await messageManager.getMessageThreadsForUser(user, {
-            author: true
-        });
+        const messages = await messageManager.getMessageThreadsForUser(
+            user, page, { author: true });
         return await ctx.render("pages/message_list.html", {
-            messages, user, csrf: ctx.csrf
+            page: messages, user, csrf: ctx.csrf
         });
     });
     router.post("/", async ctx => {

@@ -14,7 +14,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
 
     router.get("/", async ctx => {
         const user = ctx.state.user;
-        const page = ctx.query.page || 1;
+        const page = +ctx.query.page || 1;
 
         const stories = await storyManager.getStories(page, {
             submitterUsername: true,
@@ -24,10 +24,13 @@ export default function({ storyManager, tagManager }: Dependencies) {
 
             checkVoter: user ? user.id : undefined
         });
-        const storyIDs = stories.map(story => story.id);
+        const storyIDs = stories.items.map(story => story.id);
         const storyTags = await tagManager.getTagsForStories(storyIDs);
 
-        await ctx.render("pages/home.html", { stories, storyTags, user, csrf: ctx.csrf });
+        await ctx.render("pages/home.html", {
+            page: stories, storyTags, user,
+            csrf: ctx.csrf
+        });
     });
 
     return router;

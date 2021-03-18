@@ -1,0 +1,12 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+<div class="pagination">
+    {% if page.has_prev_page %}
+        <a href="?page={{ page.page - 1 }}">&lt;&lt; Prev</a>
+    {% endif %}
+    Page {{ page.page }}
+    {% if page.has_next_page %}
+        <a href="?page={{ page.page + 1 }}">Next &gt;&gt;</a>
+    {% endif %}
+</div>

@@ -31,14 +31,16 @@ export default function({ messageManager, userManager }: Dependencies) {
     router.get("/",
         passport.authenticate("jwt", { session: false }),
         async ctx => {
+            const page = +ctx.query.page || 1;
             const user = ctx.state.user;
 
-            const messages = await messageManager.getMessageThreadsForUser(user, {
-                author: true,
-                recipient: true
-            });
+            const messages = await messageManager.getMessageThreadsForUser(
+                user, page, { author: true, recipient: true });
             ctx.body = {
-                "messages": messages.map(messageProject),
+                "messages": messages.items.map(messageProject),
+                "page": messages.page,
+                "has_prev_page": messages.has_prev_page,
+                "has_next_page": messages.has_next_page,
             };
         });
     router.post("/",

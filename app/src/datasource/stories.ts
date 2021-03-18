@@ -10,13 +10,6 @@ const defaultOptions: StoryOptions = {
     commentCount: false
 };
 
-const defaultListOptions: StoryListOptions = {
-    ...defaultOptions,
-    rankOrder: false,
-    limit: 20,
-    offset: 0
-};
-
 interface QueryExtras {
     select: string;
     joins: string;
@@ -53,7 +46,7 @@ export default function({ }): StoryRepository {
      * @param _options The options.
      */
     const getStories = async (_options: StoryListOptions): Promise<Story[]> => {
-        const options = Object.assign({}, defaultListOptions, _options);
+        const options = Object.assign({}, defaultOptions, _options);
         const extras = getQueryExtras(options);
 
         const result: QueryResult<Story> = await query(`\
@@ -66,7 +59,8 @@ export default function({ }): StoryRepository {
                 ${extras.group}
                 ${options.rankOrder ? ", R.story_rank" : ""}
             ${options.rankOrder ? "ORDER BY R.story_rank ASC" : ""}
-            LIMIT ${options.limit} OFFSET ${options.offset}`, extras.params);
+            ${options.limit ? `LIMIT ${options.limit}` : ""}
+            ${options.offset ? `OFFSET ${options.offset}` : ""}`, extras.params);
 
         return result.rows;
     }
@@ -249,7 +243,7 @@ export default function({ }): StoryRepository {
         tagID: number,
         _options: StoryListOptions
     ): Promise<Story[]> => {
-        const options = Object.assign({}, defaultListOptions, _options);
+        const options = Object.assign({}, defaultOptions, _options);
         const extras = getQueryExtras(options, [tagID]);
 
         const result = await query<Story>(`\
@@ -264,7 +258,8 @@ export default function({ }): StoryRepository {
                 ${extras.group}
                 ${options.rankOrder ? ", R.story_rank" : ""}
             ${options.rankOrder ? "ORDER BY R.story_rank ASC" : ""}
-            LIMIT ${options.limit} OFFSET ${options.offset}`, extras.params);
+            ${options.limit ? `LIMIT ${options.limit}` : ""}
+            ${options.offset ? `OFFSET ${options.offset}` : ""}`, extras.params);
         return result.rows;
     }
 
