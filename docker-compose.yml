@@ -17,8 +17,8 @@ services:
       - PGUSER=devnews
       - PGPASSWORD=devnews
       - PGDATABASE=devnews
-      - USE_ORM
-      - DEBUG_QUERIES
+    env_file:
+      - app/.env
   # The app running the API presentation layer.
   api:
     build:
@@ -35,7 +35,8 @@ services:
       - PGUSER=devnews
       - PGPASSWORD=devnews
       - PGDATABASE=devnews
-      - USE_ORM
+    env_file:
+      - app/.env
   # PostgreSQL database.
   db:
     image: postgres:13-alpine

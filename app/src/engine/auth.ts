@@ -98,10 +98,13 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
         }
     });
 
+    const secretKey = process.env.SECRET_KEY;
+    if (!secretKey)
+        throw new Error("SECRET_KEY must be defined in the environment.");
+
     const jwtOptions: passportJwt.StrategyOptions = {
         jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
-        // TODO: use Docker secrets, same as web/index
-        secretOrKey: "changeme",
+        secretOrKey: secretKey,
         issuer: "accounts.devnews.org",
         // TODO: environment variables? .env file???
         audience: "devnews.org"

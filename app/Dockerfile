@@ -18,9 +18,6 @@ COPY src/ src/
 COPY tsconfig.json .
 RUN npx tsc
 
-ENV DEBUG="koa:* devnews:*"
-ENV DEBUG_COLORS=true
-
 # --- Web image ---
 FROM base AS web
 CMD ["yarn", "watch-web"]

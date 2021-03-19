@@ -81,8 +81,11 @@ const sessionConfig: session.SessionOptions = {
         signed: true,
     }
 };
-// TODO: use Docker secrets.
-app.keys = ["CHANGEME"]
+
+// Get secret key
+if (!process.env.SECRET_KEY)
+    throw new Error("SECRET_KEY must be defined in the environment.");
+app.keys = [process.env.SECRET_KEY];
 
 // Nunjucks setup
 // Get rid of /dist because Typescript doesn't copy templates.
