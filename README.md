@@ -27,6 +27,8 @@ certificates for development, run in the `nginx/` directory:
 
 - `openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365`
 
+Afterwards, copy `app/.env.example` to `app/.env` and adjust the parameters.
+
 Finally, in the project root run:
 
 - `docker-compose build`
