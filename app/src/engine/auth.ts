@@ -10,9 +10,11 @@ import jwt = require("jsonwebtoken");
 import type UserRepository from "../base/user_repository";
 import type { User } from "../base/user_repository";
 import type AuthManager from "../base/auth_manager";
+import { generateShortID } from "./utils";
 
 // The amount of hash iterations we currently do.
 const HASH_ITERATIONS = 10_000;
+
 /**
  * Creates a new password with PBKDF2 hashing. The iteration count and salt are
  * stored with the password.
@@ -105,12 +107,17 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
     const jwtOptions: passportJwt.StrategyOptions = {
         jwtFromRequest: passportJwt.ExtractJwt.fromAuthHeaderAsBearerToken(),
         secretOrKey: secretKey,
-        issuer: "accounts.devnews.org",
-        // TODO: environment variables? .env file???
-        audience: "devnews.org"
+        issuer: "https://devnews.org",
+        audience: "devnews.org",
     };
 
     const jwtStrategy = new passportJwt.Strategy(jwtOptions, async (jwt, done) => {
+        // If this is not an identity token, we fail the request.
+        // Access tokens are only allowed to fetch the identity, and refresh
+        // tokens are only allowed to re-fetch the access token.
+        if (jwt.type !== "identity")
+            return done(null, false);
+
         const subject = jwt.sub;
         try {
             const user = await dataSource.getUserByUsername(subject, {});
@@ -158,25 +165,110 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
     }
 
     /**
-     * Generate a JWT authentication token.
+     * Generate a JWT access/refresh token.
      * This function only generates a JWT and does not validate whether the
      * user was successfully authenticated.
      *
      * @param username - The username for the user
+     * @param refresh - If set to true, the type will be set to refresh,
+     * and this token may only be used to obtain a new access & refresh
+     * token.
      */
-    const generateJWT = (username: string): string => {
-        const token = jwt.sign({ sub: username }, jwtOptions.secretOrKey!, {
+    const generateAccessToken = (
+        username: string,
+        refresh: boolean = false
+    ): string => {
+        const type = refresh ? "refresh" : "access";
+        const token = jwt.sign({
+            type,
+            sub: username,
+            scope: "openid",
+            nonce: generateShortID(8)
+        }, secretKey, {
             issuer: jwtOptions.issuer!,
             audience: jwtOptions.audience!,
-            expiresIn: "7d"
+            expiresIn: getTokenExpiry(type)
         });
 
         return token;
     }
 
+    /**
+     * Generate a JWT identity token. This token contains information about the
+     * current user which can be used in third party applications. As the
+     * information is sensitive, make sure the user is properly authenticated
+     * before doing this.
+     *
+     * @param user - The user to generate a token for
+     * @param client - The client who requested this token. Must be one of the
+     * registered clients.
+     */
+    const generateIdentityToken = (user: User): string => {
+        // Currently, this is all the information we have about the user.
+        const identityData = {
+            "sub": user.username,
+            "email": user.email,
+            "avatar": user.avatar_image,
+            "type": "identity",
+            "nonce": generateShortID(8)
+        };
+
+        return jwt.sign(identityData, secretKey, {
+            issuer: jwtOptions.issuer!,
+            audience: jwtOptions.audience!,
+            expiresIn: getTokenExpiry("identity")
+        });
+    }
+
+    /**
+     * Validate the given token's signature and that it matches the given type.
+     * Returns the token's subject, or null if the token wasn't valid.
+     *
+     * @param token - The token
+     * @param tokenType - The type of the token
+     */
+    const validateToken = (token: string, tokenType: string): string | null => {
+        try {
+            const tokenObj = jwt.verify(token, secretKey, {
+                issuer: jwtOptions.issuer!
+            });
+
+            // Our tokens are always objects.
+            if (typeof tokenObj === "string") return null;
+
+            const tok = tokenObj as any;
+            // Validate token type
+            if (tok.type !== tokenType) return null;
+
+            return tok.sub;
+        } catch (e) {
+            // Malformed JWT.
+            return null;
+        }
+    }
+
+    /**
+     * Get the token expiry type for the given token type in seconds.
+     *
+     * @param type - The token's type
+     */
+    const getTokenExpiry = (type: "identity" | "access" | "refresh"): number => {
+        switch (type) {
+            case "identity":
+                return 60 * 60 * 24 * 7;
+            case "access":
+                return 60 * 60;
+            case "refresh":
+                return 60 * 60 * 24 * 30;
+        }
+    }
+
     return {
         initialize,
         authenticate,
-        generateJWT
+        generateAccessToken,
+        generateIdentityToken,
+        validateToken,
+        getTokenExpiry
     };
 };
