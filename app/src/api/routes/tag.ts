@@ -33,7 +33,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
         passport.authenticate("jwt", { session: false, failWithError: false }),
         async ctx => {
             const user = ctx.state.user;
-            const page = +ctx.params.page || 1;
+            const page = +ctx.query.page || 1;
 
             debug("getting stories for tag", ctx.params.tag, "page", page);
 
