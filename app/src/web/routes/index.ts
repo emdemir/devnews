@@ -49,6 +49,7 @@ export default function({ storyManager, tagManager }: Dependencies) {
         const storyTags = await tagManager.getTagsForStories(storyIDs);
 
         await ctx.render("pages/home.html", {
+            title: "Recent Stories",
             page: stories, storyTags, user,
             csrf: ctx.csrf
         });

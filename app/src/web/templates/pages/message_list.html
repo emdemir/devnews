@@ -1,6 +1,7 @@
 {# -*- mode: web -*- #}
 {# -*- engine: nunjucks -*- #}
 
+{% set title = "Register" %}
 {% extends "layout.html" %}
 
 {% block content %}
@@ -10,7 +11,7 @@
         {% for message in page.items %}
             <div class="message-stub">
                 <a href="/m/{{ message.id }}" class="message-stub-link">
-                    {{ message.message | truncate(25, true, "...") }}</a>
+                    {{ message.message | truncate(25, true, "…") }}</a>
 
                 <span class="message-stub-byline">
                     {{ moment(message.sent_at).fromNow() }} by {{ message.author }}

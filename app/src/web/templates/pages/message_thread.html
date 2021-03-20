@@ -1,6 +1,7 @@
 {# -*- mode: web -*- #}
 {# -*- engine: nunjucks -*- #}
 
+{% set title = messages[0].message | truncate(25, true, "…") %}
 {% extends "layout.html" %}
 
 {% block content %}
