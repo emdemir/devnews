@@ -23,6 +23,7 @@ button,
 [type="submit"],
 [type="text"],
 [type="password"],
+[type="url"],
 [type="email"],
 textarea {
   font-family: "Fira Code", "Fira Mono", "Ubuntu Mono", "Segoe UI Mono",
@@ -78,6 +79,7 @@ button:active {
 textarea,
 [type="text"],
 [type="password"],
+[type="url"],
 [type="email"] {
   background-color: #21242b;
   color: #bbc2cf;
