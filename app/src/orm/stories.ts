@@ -126,7 +126,7 @@ export default function({ }): StoryRepository {
             offset: options.offset || undefined,
             order: options.rankOrder
                 ? [[Sequelize.col("rank.story_rank"), "ASC"]]
-                : undefined,
+                : [["submitted_at", "DESC"]],
             subQuery: false
         });
 

@@ -58,7 +58,7 @@ export default function({ }): StoryRepository {
             GROUP BY S.id
                 ${extras.group}
                 ${options.rankOrder ? ", R.story_rank" : ""}
-            ${options.rankOrder ? "ORDER BY R.story_rank ASC" : ""}
+            ${options.rankOrder ? "ORDER BY R.story_rank ASC" : "ORDER BY S.submitted_at DESC"}
             ${options.limit ? `LIMIT ${options.limit}` : ""}
             ${options.offset ? `OFFSET ${options.offset}` : ""}`, extras.params);
 

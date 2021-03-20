@@ -33,5 +33,26 @@ export default function({ storyManager, tagManager }: Dependencies) {
         });
     });
 
+    router.get("/recent", async ctx => {
+        const user = ctx.state.user;
+        const page = +ctx.query.page || 1;
+
+        const stories = await storyManager.getStories(page, {
+            submitterUsername: true,
+            score: true,
+            commentCount: true,
+            rankOrder: false,
+
+            checkVoter: user ? user.id : undefined
+        });
+        const storyIDs = stories.items.map(story => story.id);
+        const storyTags = await tagManager.getTagsForStories(storyIDs);
+
+        await ctx.render("pages/home.html", {
+            page: stories, storyTags, user,
+            csrf: ctx.csrf
+        });
+    });
+
     return router;
 }
