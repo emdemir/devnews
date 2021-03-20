@@ -14,7 +14,7 @@
 
             <dl class="user-info-list">
                 <dt>Joined:</dt>
-                <dd>TODO years ago</dd>
+                <dd>{{ moment(subject.registered_at).fromNow() }}</dd>
 
                 <dt>Karma:</dt>
                 <dd>{{ subject.story_karma + subject.comment_karma }}</dd>
