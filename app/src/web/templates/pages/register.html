@@ -8,35 +8,42 @@
 <div class="register box">
     <h3 class="box-title">Register</h3>
 
-    <p>Before registering, please take a look at <a href="/auth/rules/">our rules</a>.</p>
-
     {% include "partials/errors.html" %}
 
     <form method="POST">
         {% include "partials/csrf.html" %}
-        <label>Username: <input type="text" name="username" required
-                                maxlength="32" value="{{ formData.username }}" />
-        </label>
-        <p><small>Must be unique, and 32 characters at most.</small></p>
 
-        <label>E-mail: <input type="email" name="email" required
-                              value="{{ formData.email }}" />
-        </label>
-        <p><small>We won't spam you. Used for password resets.</small></p>
+        <dl class="form-fields full-width register-fields">
+            <dt><label for="username">Username</label></dt>
+            <dd><input type="text" name="username" id="username" required
+                       maxlength="32" value="{{ formData.username }}" />
+                <p><small>Must be unique, and 32 characters at most.</small></p>
+            </dd>
 
-        <label>Password: <input type="password" name="password" required
-                                minlength="8" />
-        </label>
-        <p><small>Minimum 8 characters.
-            <a target="_blank" href="https://correcthorsebatterystaple.net/">
-                Use a memorable password.</a>
-        </small></p>
+            <dt><label for="email">E-mail</label></dt>
+            <dd><input type="email" name="email" id="email" required
+                       value="{{ formData.username }}" />
+                <p><small>We won't spam you. Used for password resets.</small></p>
+            </dd>
 
-        <label>Verify password: <input type="password" name="verify" required
-                                       minlength="8" />
-        </label>
+            <dt><label for="password">Password</label></dt>
+            <dd><input type="password" name="password" id="password" required
+                       minlength="8" autocomplete="new-password" />
+                <p><small>Minimum 8 characters.
+                    <a target="_blank" href="https://correcthorsebatterystaple.net/">
+                        Use a memorable password.</a>
+                </small></p></dd>
 
-        <button type="submit" class="button">Register</button>
+            <dt><label for="verify">Verify</label></dt>
+            <dd><input type="password" name="verify" id="verify" required
+                       minlength="8" autocomplete="new-password" /></dd>
+        </dl>
+
+        <br />
+        <p class="text-center">By registering, you agree to the
+            <a href="/auth/rules/">DevNews Rules</a>.</p>
+
+        <button type="submit" class="button submit-button">Register</button>
     </form>
 
     <p>Already have an account? <a href="/auth/login/">Login here.</a></p>
