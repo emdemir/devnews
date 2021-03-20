@@ -29,6 +29,16 @@ interface Dependencies {
 export default function({ storyManager, tagManager }: Dependencies) {
     const router = new Router();
 
+    router.get("/", async ctx => {
+        debug("getting all tags on the site");
+        const tags = await tagManager.getAllTags();
+        debug("got all tags length:", tags.length);
+
+        ctx.body = {
+            "tags": tags.map(tagProject)
+        }
+    });
+
     router.get("/:tag/",
         passport.authenticate("jwt", { session: false, failWithError: false }),
         async ctx => {
