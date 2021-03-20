@@ -99,22 +99,22 @@ export default function({ commentManager, storyManager }: Dependencies) {
                 return;
             }
 
-            let parent_id: number | null = null;
-            if (parent) {
-                const parentComment = await commentManager.getCommentByShortURL(parent, {});
-                if (parentComment === null) {
-                    ctx.status = 404;
-                    ctx.body = { "error": "The parent comment wasn't found (perhaps it's been deleted.)" };
-                    return;
-                }
-
-                parent_id = parentComment.id;
+            const parentComment = parent
+                ? await commentManager.getCommentByShortURL(parent, {})
+                : null;
+            if (parent && parentComment === null) {
+                ctx.status = 404;
+                ctx.body = {
+                    "error": "The parent comment wasn't found (perhaps it's " +
+                        "been deleted.)"
+                };
+                return;
             }
 
             try {
                 const comment = await commentManager.createComment({
                     comment: content,
-                    parent_id,
+                    parent,
                     story_id: story.id,
                     user_id: user.id
                 });

@@ -19,6 +19,11 @@ const validators = {
             errors.push(`\
 Comment length is too long, please shorten to ${MAXIMUM_COMMENT_LENGTH} characters
 or less.`);
+    },
+    parent: (errors: string[], story_id: number, parent: Comment | null) => {
+        if (parent !== null && story_id !== parent.story_id) {
+            errors.push("That comment does not exist on the story.");
+        }
     }
 };
 
@@ -165,6 +170,7 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         const errors: string[] = [];
 
         validators.comment(errors, comment.comment);
+        validators.parent(errors, comment.story_id, comment.parent);
 
         if (errors.length) {
             throw new ValidationError(errors);
@@ -174,12 +180,16 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
         const commentHTML = markdown(comment.comment);
 
         // Generate short URL for comment
-        const shortID = generateShortID(6);
+        const shortURL = generateShortID(6);
 
-        const final: RepositoryCommentCreate = Object.assign({}, comment, {
+        const final: RepositoryCommentCreate = {
+            comment: comment.comment,
             comment_html: commentHTML,
-            short_url: shortID
-        })
+            parent_id: comment.parent ? comment.parent.id : null,
+            short_url: shortURL,
+            story_id: comment.story_id,
+            user_id: comment.user_id
+        }
         const result = await dataSource.createComment(final);
 
         return Object.assign(result, { children: [] });

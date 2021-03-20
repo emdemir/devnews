@@ -1,10 +1,12 @@
 import Router = require("koa-router");
+import Koa = require("koa");
 
 import type { AppContext } from "../";
 import type StoryManager from "../../base/story_manager";
 import type { StoryCreate } from "../../base/story_manager";
 import type CommentManager from "../../base/comment_manager";
 import type TagManager from "../../base/tag_manager";
+import type { User } from "../../base/user_repository";
 import ValidationError from "../../base/validation";
 
 interface Dependencies {
@@ -15,6 +17,42 @@ interface Dependencies {
 
 export default function({ storyManager, commentManager, tagManager }: Dependencies) {
     const router = new Router<any, AppContext>();
+
+    // --- Common Pages ---
+    const renderStory = async (ctx: any, user: User | null, extras: any = {}) => {
+        const story = await storyManager.getStoryByShortURL(ctx.params.short_url, {
+            submitterUsername: true,
+            score: true,
+            commentCount: true,
+
+            checkVoter: user ? user.id : undefined
+        });
+
+        if (story === null) {
+            ctx.status = 404;
+            await ctx.render("pages/404.html", { reason: "nostory", user });
+        } else {
+            const comments = await commentManager.getCommentTreeByStory(story.id, {
+                username: true,
+                score: true,
+                checkRead: user ? user.id : undefined,
+                checkVoter: user ? user.id : undefined
+            });
+
+            // If there is a user currently logged in, mark the comment tree as
+            // read.
+            if (user) {
+                await commentManager.markCommentsAsRead(user, comments, true);
+            }
+
+            const tags = await tagManager.getStoryTags(story.id);
+            await ctx.render("pages/story.html", {
+                ...extras,
+                story, comments, tags, user,
+                csrf: ctx.csrf
+            });
+        }
+    }
 
     // --- Actions ---
 
@@ -63,24 +101,21 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
             const formData = ctx.request.body;
             const { parent, comment } = formData;
 
-            let parent_id: number | null = null;
-            if (parent) {
-                const parentComment = await commentManager.getCommentByShortURL(parent, {});
-                if (parentComment === null) {
-                    ctx.status = 404;
-                    return await ctx.render("pages/404.html", {
-                        reason: "nocomment", user: ctx.state.user
-                    });
-                }
-
-                parent_id = parentComment.id;
+            const parentComment = parent
+                ? await commentManager.getCommentByShortURL(parent, {})
+                : null;
+            if (parent && parentComment === null) {
+                ctx.status = 404;
+                return await ctx.render("pages/404.html", {
+                    reason: "nocomment", user: ctx.state.user
+                });
             }
 
             try {
                 await commentManager.createComment({
                     story_id: story.id,
                     user_id: user.id,
-                    parent_id,
+                    parent: parentComment,
                     comment
                 });
 
@@ -96,12 +131,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                     err = new Error("An unknown error occured.")
                 }
 
-                await ctx.render("pages/create_story.html", {
-                    error: new Error("An unknown error occurred."),
-                    formData,
-                    user,
-                    csrf: ctx.csrf
-                });
+                await renderStory(ctx, user, { error: err });
             }
         }
     );
@@ -111,37 +141,7 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
     router.get("/:short_url/:slug?", async ctx => {
         const user = ctx.state.user;
 
-        const story = await storyManager.getStoryByShortURL(ctx.params.short_url, {
-            submitterUsername: true,
-            score: true,
-            commentCount: true,
-
-            checkVoter: user ? user.id : undefined
-        });
-
-        if (story === null) {
-            ctx.status = 404;
-            await ctx.render("pages/404.html", { reason: "nostory", user });
-        } else {
-            const comments = await commentManager.getCommentTreeByStory(story.id, {
-                username: true,
-                score: true,
-                checkRead: user ? user.id : undefined,
-                checkVoter: user ? user.id : undefined
-            });
-
-            // If there is a user currently logged in, mark the comment tree as
-            // read.
-            if (user) {
-                await commentManager.markCommentsAsRead(user, comments, true);
-            }
-
-            const tags = await tagManager.getStoryTags(story.id);
-            await ctx.render("pages/story.html", {
-                story, comments, tags, user,
-                csrf: ctx.csrf
-            });
-        }
+        await renderStory(ctx, user);
     });
 
     // --- Create View ---

@@ -11,8 +11,8 @@ export interface Comment extends RepositoryComment {
 export interface CommentCreate {
     // The ID of the story.
     story_id: number;
-    // If this is a reply, the parent comment ID. Otherwise null.
-    parent_id: number | null;
+    // If this is a reply, the parent comment. Otherwise null.
+    parent: Comment | null;
     // The user who made the comment.
     user_id: number;
     // The contents of the comment as Markdown (user input).
