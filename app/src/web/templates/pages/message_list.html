@@ -17,9 +17,9 @@
                 </span>
             </div>
         {% endfor %}
-    </div>
 
-    {% include "partials/pagination.html" %}
+        {% include "partials/pagination.html" %}
+    </div>
 
     <div class="box" id="create-message-box">
         <h3 class="box-title">Create a new Message</h3>
@@ -28,17 +28,15 @@
 
         <form method="POST" enctype="application/x-www-form-urlencoded">
             {% include "partials/csrf.html" %}
-            <p>
-                <label>Recipient: <input type="text" name="recipient"
-                                        maxlength="32"
-                                        value="{{ formData.recipient }}" /></label>
-            </p>
 
-            <p>
-                <label>Message:<br />
-                    <textarea name="message">{{ formData.message }}</textarea>
-                </label>
-            </p>
+            <dl class="form-fields message-form-fields">
+                <dt><label for="recipient">Recipient</label></dt>
+                <dd><input type="text" name="recipient" id="recipient"
+                           maxlength="32" value="{{ formData.recipient }}" /></dd>
+
+                <dt><label for="message">Message</label></dt>
+                <dd><textarea name="message" id="message">{{ formData.message }}</textarea></dd>
+            </dl>
 
             <button type="submit" class="button">Send Message</button>
         </form>

@@ -11,6 +11,13 @@
         {% if reason == "nostory" %}
             <p>The story you're looking for can't be found. It may have been
                 deleted by the author or the moderators.</p>
+        {% elif reason == "nocomment" %}
+            <p>The comment you're looking for doesn't exist. It may have been
+                deleted by the comment author or by moderators.</p>
+        {% elif reason == "nouser" %}
+            <p>The user you're looking for couldn't be found. The account may
+                have been disabled by the user, or it may have been removed by
+                moderators.</p>
         {% elif reason == "nomessage" %}
             <p>No such message thread.</p>
         {% else %}

@@ -3,27 +3,31 @@
 
 <header>
     <div class="header-logo">
-        <div class="logo">
-            <a href="/">
-                DevNews
-            </a>
-        </div>
-        <div class="slogan">
-            The best place for technology news
-        </div>
+        <div class="logo"><a href="/">DevNews<span class="_">_</span></a></div>
+        <div class="slogan">The best place for technology news</div>
     </div>
     <nav role="navigation" class="header-nav">
-        <a class="header-nav-link" href="/">Home</a>
-        <a class="header-nav-link" href="/recent/">Recent Stories</a>
-        <a class="header-nav-link" href="/comments/">Newest Comments</a>
-        <a class="header-nav-link" href="/threads/">Your Threads</a>
-        <a class="header-nav-link submit-link" href="/s/">Submit a Story!</a>
+        <span class="header-nav-left">
+            <a class="header-nav-link" href="/">Home</a>
+            <a class="header-nav-link long" href="/recent/">Recent Stories</a>
+            <a class="header-nav-link short" href="/recent/">Recent</a>
+            <a class="header-nav-link" href="/comments/">Comments</a>
+            <a class="header-nav-link long" href="/threads/">Your Threads</a>
+            <a class="header-nav-link short" href="/threads/">Threads</a>
 
-        <a class="header-nav-link right" href="/m/">Messages</a>
-        <a class="header-nav-link right"
-           href="{% if user %}/settings/{% else %}/auth/login/{% endif %}">
-            {% if user %}{{ user.username }}{% else %}Login{% endif %}
-        </a>
+            <a class="header-nav-link long submit-link" href="/s/">Submit a Story!</a>
+            <a class="header-nav-link short submit-link" href="/s/">Submit!</a>
+        </span>
+
+        <span class="header-nav-right">
+            {% if user %}
+                <a class="header-nav-link" href="/settings/">{{ user.username }}</a>
+                <a class="header-nav-link" href="/m/">Messages</a>
+            {% else %}
+                <a class="header-nav-link" href="/auth/login/">Login</a>
+            {% endif %}
+        </span>
+
     </nav>
 </header>
     

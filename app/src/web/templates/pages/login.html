@@ -9,12 +9,20 @@
 
     <form method="POST">
         {% include "partials/csrf.html" %}
-        <label>Username: <input type="text" name="username" /></label>
-        <label>Password: <input type="password" name="password" /></label>
-        <button type="submit" class="button">Login</button>
+
+        <dl class="form-fields full-width login-form-fields">
+            <dt><label for="username">Username</label></dt>
+            <dd><input type="text" name="username" id="username"
+                       value="{{ formData.username }}" /></dd>
+
+            <dt><label for="password">Password</label></dt>
+            <dd><input type="password" name="password" id="password" /></dd>
+
+        </dl>
+
+        <button type="submit" class="button submit-button">Login</button>
     </form>
 
-    <p>Forgot your password? <a href="/auth/reset/">Reset your password here</a>.</p>
-    <p>Don't have an account? <a href="/auth/register/">Register here!</a></p>
+    <p class="text-center">Don't have an account? <a href="/auth/register/">Register here!</a></p>
 </div>
 {% endblock %}

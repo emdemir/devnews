@@ -70,6 +70,7 @@ services:
       - 8444:444
     volumes:
       - ./nginx/:/etc/nginx/conf.d:ro
+      - ./app/static/:/static:ro
 
 networks:
   app:

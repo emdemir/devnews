@@ -11,7 +11,7 @@
 
     <div class="story-lines">
         <div class="story-title">
-            <a href="{% if story.url %}{{ story.url }}{% else %}/s/{{ story.short_url }}{% endif %}">
+            <a class="story-link" href="{% if story.url %}{{ story.url }}{% else %}/s/{{ story.short_url }}{% endif %}">
                 {{ story.title }}</a>
 
             {% for tag in tags %}
