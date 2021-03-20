@@ -4,6 +4,7 @@ import ValidationError from "../../base/validation";
 import type { AppContext } from "../";
 import type MessageManager from "../../base/message_manager";
 import type UserManager from "../../base/user_manager";
+import type { User } from "../../base/user_repository";
 import ForbiddenError from "../../base/permissions";
 
 interface Dependencies {
@@ -14,10 +15,9 @@ interface Dependencies {
 export default function({ messageManager, userManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
-    // --- List View ---
+    // --- Common Views ---
 
-    router.get("/", async ctx => {
-        const user = ctx.state.user;
+    const renderMessageList = async (ctx: any, user: User, extras: any = {}) => {
         const page = +ctx.query.page || 1;
         if (!user) {
             return ctx.redirect("/auth/login/");
@@ -26,56 +26,12 @@ export default function({ messageManager, userManager }: Dependencies) {
         const messages = await messageManager.getMessageThreadsForUser(
             user, page, { author: true });
         return await ctx.render("pages/message_list.html", {
+            ...extras,
             page: messages, user, csrf: ctx.csrf
         });
-    });
-    router.post("/", async ctx => {
-        const user = ctx.state.user;
-        if (!user) {
-            return ctx.redirect("/auth/login/");
-        }
+    }
 
-        // Extract form data
-        const formData = ctx.request.body;
-        const { recipient, message } = formData;
-
-        // Try to find the target
-        const target = await userManager.getUserByUsername(recipient, {});
-        if (target === null) {
-            return await ctx.render("pages/message_list.html", {
-                error: new Error(
-                    "Could not find that recipient. Make sure it's " +
-                    "spelled correctly."),
-                formData,
-                csrf: ctx.csrf,
-                user,
-            })
-        }
-
-        try {
-            // Create the message
-            const msg = await messageManager.sendMessage(user, target, message);
-            return ctx.redirect(`/m/${msg.id}`);
-        } catch (err) {
-            // Handle error
-            if (!(err instanceof ValidationError)) {
-                console.error(err);
-                err = new Error("An unexpected error occured.");
-            }
-
-            return await ctx.render("pages/message_list.html", {
-                error: err,
-                formData,
-                csrf: ctx.csrf,
-                user
-            });
-        }
-    });
-
-    // --- Detail View ---
-
-    router.get("/:message_id", async ctx => {
-        const user = ctx.state.user;
+    const renderMessageThread = async (ctx: any, user: User, extras: any = {}) => {
         if (!user) {
             return ctx.redirect("/auth/login/");
         }
@@ -97,6 +53,7 @@ export default function({ messageManager, userManager }: Dependencies) {
             }
 
             await ctx.render("pages/message_thread.html", {
+                ...extras,
                 messages, csrf: ctx.csrf, user
             });
         } catch (err) {
@@ -106,6 +63,59 @@ export default function({ messageManager, userManager }: Dependencies) {
                 throw err;
             }
         }
+    }
+
+    // --- List View ---
+
+    router.get("/", async ctx => {
+        const user = ctx.state.user;
+        return await renderMessageList(ctx, user);
+    });
+    router.post("/", async ctx => {
+        const user = ctx.state.user;
+        if (!user) {
+            return ctx.redirect("/auth/login/");
+        }
+
+        // Extract form data
+        const formData = ctx.request.body;
+        const { recipient, message } = formData;
+
+        // Try to find the target
+        const target = await userManager.getUserByUsername(recipient, {});
+        if (target === null) {
+            return await renderMessageList(ctx, user, {
+                error: new Error(
+                    "Could not find that recipient. Make sure it's " +
+                    "spelled correctly."),
+                formData,
+            });
+        }
+
+        try {
+            // Create the message
+            const msg = await messageManager.sendMessage(user, target, message);
+            return ctx.redirect(`/m/${msg.id}`);
+        } catch (err) {
+            // Handle error
+            if (!(err instanceof ValidationError)) {
+                console.error(err);
+                err = new Error("An unexpected error occured.");
+            }
+
+            return await renderMessageList(ctx, user, {
+                error: err,
+                formData,
+            });
+        }
+    });
+
+    // --- Detail View ---
+
+    router.get("/:message_id", async ctx => {
+        const user = ctx.state.user;
+
+        return await renderMessageThread(ctx, user);
     });
 
     router.post("/:message_id", async ctx => {
@@ -144,11 +154,9 @@ export default function({ messageManager, userManager }: Dependencies) {
             if (err instanceof ForbiddenError) {
                 ctx.throw(403);
             } else if (err instanceof ValidationError) {
-                await ctx.render("pages/message_thread.html", {
+                await renderMessageThread(ctx, user, {
                     error: err,
                     formData,
-                    csrf: ctx.csrf,
-                    user
                 })
             } else {
                 throw err;
