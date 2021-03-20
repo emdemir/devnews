@@ -112,13 +112,13 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
 
             const formData = ctx.request.body;
             const { title, url, text, is_authored } = formData;
-            const tags = ((
+            const tags: string[] = (
                 "tags" in formData
                     ? (Array.isArray(formData.tags)
                         ? formData.tags
                         : [formData.tags])
                     : []
-            ) as string[]).map(tag => parseInt(tag));
+            );
 
             const data: StoryCreate = {
                 is_authored: !!is_authored,

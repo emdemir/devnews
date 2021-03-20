@@ -8,6 +8,7 @@ import type {
 } from "../base/story_repository";
 import type StoryManager from "../base/story_manager";
 import type { StoryCreate } from "../base/story_manager";
+import type TagRepository from "../base/tag_repository";
 import type { Tag } from "../base/tag_repository";
 import type Pagination from "../base/pagination";
 import ValidationError from "../base/validation";
@@ -21,6 +22,7 @@ const TEXT_MAX = 10_000;
 
 interface Dependencies {
     storyRepository: StoryRepository;
+    tagRepository: TagRepository;
 };
 
 const validators = {
@@ -48,7 +50,7 @@ your text as a comment instead.`);
         else if (!url && !text)
             errors.push("The story must contain at least one of URL or text.");
     },
-    tags: (errors: string[], tags: number[]) => {
+    tags: (errors: string[], tags: string[]) => {
         if (tags.length < 1)
             errors.push("You must select at least one tag.");
         else if (tags.length > 3)
@@ -56,7 +58,10 @@ your text as a comment instead.`);
     }
 }
 
-export default function({ storyRepository: dataSource }: Dependencies): StoryManager {
+export default function({
+    storyRepository: dataSource,
+    tagRepository
+}: Dependencies): StoryManager {
     /**
      * Returns paginated stories.
      *
@@ -140,12 +145,27 @@ export default function({ storyRepository: dataSource }: Dependencies): StoryMan
         // Render the story text, if it exists.
         const textHTML = story.text !== null ? markdown(story.text) : null;
 
+        // Get all tags, and match up tags with their IDs.
+        const allTags = await tagRepository.getAllTags();
+        const tagIDs: number[] = [];
+
+        for (const tag of story.tags) {
+            const tagObject = allTags.find(t => t.name === tag);
+            if (!tagObject) {
+                throw new ValidationError([`Non-existent tag "${tag}".`])
+            }
+            tagIDs.push(tagObject.id);
+        }
 
         const repoStory: RepositoryStoryCreate = {
-            ...story,
+            url: story.url,
+            title: story.title,
+            text: story.text,
+            text_html: textHTML,
+            tags: tagIDs,
+            is_authored: story.is_authored,
             submitter_id: user.id,
             short_url: shortID,
-            text_html: textHTML,
         }
 
         return await dataSource.createStory(repoStory);

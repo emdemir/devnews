@@ -6,7 +6,7 @@ import type { Tag } from "./tag_repository";
 import type Pagination from "./pagination";
 
 /**
- * All the fields that are required for a story on the repository side.
+ * All the fields that are required for a story on the manager side.
  */
 export interface StoryCreate {
     // Whether the story was authored by the story author.
@@ -17,8 +17,8 @@ export interface StoryCreate {
     url: string | null;
     // The text of the story (unprocessed), can be null.
     text: string | null;
-    // The tags for this story as an array of IDs.
-    tags: number[];
+    // The tags for this story as an array of tag names.
+    tags: string[];
 };
 
 interface StoryManager {
