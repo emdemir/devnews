@@ -29,7 +29,7 @@ export default function({ }): CommentRepository {
         // array which can be used for the parameter number.
         const result = await query<Comment>(`\
             SELECT C.*
-                ${options.score ? ", S.score" : ""}
+                ${options.score ? ", S.score::integer" : ""}
                 ${options.username ? ", U.username" : ""}
                 ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
                 ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}
