@@ -375,6 +375,18 @@ footer {
   grid-template-columns: 10rem auto;
 }
 
+/* --- Messages --- */
+
+.message {
+  margin: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px dashed #5b6268;
+}
+
+.message-byline {
+  color: #8a929b;
+}
+
 /* --- Pagination --- */
 
 .pagination {

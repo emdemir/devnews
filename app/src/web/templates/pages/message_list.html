@@ -22,14 +22,14 @@
     </div>
 
     <div class="box" id="create-message-box">
-        <h3 class="box-title">Create a new Message</h3>
+        <h3 class="box-title">Compose a new Message</h3>
 
         {% include "partials/errors.html" %}
 
         <form method="POST" enctype="application/x-www-form-urlencoded">
             {% include "partials/csrf.html" %}
 
-            <dl class="form-fields message-form-fields">
+            <dl class="form-fields full-width message-form-fields">
                 <dt><label for="recipient">Recipient</label></dt>
                 <dd><input type="text" name="recipient" id="recipient"
                            maxlength="32" value="{{ formData.recipient }}" /></dd>
@@ -38,7 +38,7 @@
                 <dd><textarea name="message" id="message">{{ formData.message }}</textarea></dd>
             </dl>
 
-            <button type="submit" class="button">Send Message</button>
+            <button type="submit" class="button submit-button">Send Message</button>
         </form>
     </div>
 </div>

@@ -26,13 +26,12 @@
 
         <form method="POST" enctype="application/x-www-form-urlencoded">
             {% include "partials/csrf.html" %}
-            <p>
-                <label>Message:<br />
-                    <textarea name="message">{{ formData.message }}</textarea>
-                </label>
-            </p>
+            <dl class="form-fields full-width message-reply-fields">
+                <dt><label for="message">Message</label></dt>
+                <dd><textarea name="message" id="message">{{ formData.message }}</textarea></dd>
+            </dl>
 
-            <button type="submit" class="button">Send Reply</button>
+            <button type="submit" class="button submit-button">Send Reply</button>
         </form>
     </div>
 </div>
