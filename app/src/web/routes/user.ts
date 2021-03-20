@@ -10,7 +10,7 @@ interface Dependencies {
 export default function({ userManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
-    router.get("/:username/", async ctx => {
+    router.get("/:username", async ctx => {
         const { user } = ctx.state;
         const { username } = ctx.params;
 
