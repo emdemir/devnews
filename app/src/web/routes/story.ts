@@ -46,7 +46,8 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
     router.post(
         "/:short_url/comment",
         async ctx => {
-            if (!ctx.state.user) {
+            const { user } = ctx.state;
+            if (!user) {
                 return ctx.redirect("/auth/login/");
             }
 
@@ -59,19 +60,48 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                 });
             }
 
-            await commentManager.createComment({
-                story_id: story.id,
-                user_id: ctx.state.user.id,
-                // TODO replies
-                parent_id: null,
-                comment: ctx.request.body.comment
-            });
+            const formData = ctx.request.body;
+            const { parent, comment } = formData;
 
-            // Redirect the user to their referrer, or the story if there isn't one
-            if (ctx.headers["referer"]) {
-                ctx.redirect(ctx.headers["referer"])
-            } else {
-                ctx.redirect(`/s/${ctx.params.short_url}/`)
+            let parent_id: number | null = null;
+            if (parent) {
+                const parentComment = await commentManager.getCommentByShortURL(parent, {});
+                if (parentComment === null) {
+                    ctx.status = 404;
+                    return await ctx.render("pages/404.html", {
+                        reason: "nocomment", user: ctx.state.user
+                    });
+                }
+
+                parent_id = parentComment.id;
+            }
+
+            try {
+                await commentManager.createComment({
+                    story_id: story.id,
+                    user_id: user.id,
+                    parent_id,
+                    comment
+                });
+
+                // Redirect the user to their referrer, or the story if there isn't one
+                if (ctx.headers["referer"]) {
+                    ctx.redirect(ctx.headers["referer"])
+                } else {
+                    ctx.redirect(`/s/${ctx.params.short_url}/`)
+                }
+            } catch (err) {
+                if (!(err instanceof ValidationError)) {
+                    console.error(err);
+                    err = new Error("An unknown error occured.")
+                }
+
+                await ctx.render("pages/create_story.html", {
+                    error: new Error("An unknown error occurred."),
+                    formData,
+                    user,
+                    csrf: ctx.csrf
+                });
             }
         }
     );
