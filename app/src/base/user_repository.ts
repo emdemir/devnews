@@ -26,6 +26,9 @@ export interface UserCreate {
     password: string;
     email: string;
     avatar_image: string;
+    registered_at: Date;
+    about: string;
+    about_html: string;
 };
 
 // Additional things to fetch when getting a user.

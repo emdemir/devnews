@@ -90,7 +90,10 @@ export default function({ }): UserRepository {
             username,
             password,
             email,
-            avatar_image: avatarImage
+            avatar_image: avatarImage,
+            registered_at: new Date,
+            about: "",
+            about_html: "",
         });
 
         return user.get({ plain: true });
