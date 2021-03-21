@@ -385,6 +385,9 @@ footer {
 .message {
   margin: 0.5rem;
   padding-bottom: 0.5rem;
+}
+
+.message:not(:last-child) {
   border-bottom: 2px dashed #5b6268;
 }
 
