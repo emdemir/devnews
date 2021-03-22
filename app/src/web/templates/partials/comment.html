@@ -4,7 +4,8 @@
 <div class="comment" id="c_{{ comment.short_url }}">
     <form method="POST" action="/c/{{ comment.short_url }}/vote">
         {% include "partials/csrf.html" %}
-        <button type="submit" class="vote-button {% if comment.user_voted %}voted{% endif %}">
+        <button {% if preview %} type="button" {% else %} type="submit" {% endif %}
+            class="vote-button {% if comment.user_voted %}voted{% endif %}">
             {% if comment.user_voted %}Unvote{% else %}Vote{% endif %}
         </button>
     </form>
@@ -26,10 +27,12 @@
         {{ comment.comment_html | safe }}
     </div>
 
-    <div class="comment-children">
-        {% set parent = comment %}
-        {% for comment in parent.children %}
-            {% include "partials/comment.html" %}
-        {% endfor %}
-    </div>
+    {% if not preview %}
+        <div class="comment-children">
+            {% set parent = comment %}
+            {% for comment in parent.children %}
+                {% include "partials/comment.html" %}
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>

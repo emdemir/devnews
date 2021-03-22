@@ -17,6 +17,11 @@
             <p>Are you sure you want to perform this action?</p>
         {% endif %}
 
+        {% if preview %}
+            <br />
+            {{ preview | safe }}
+        {% endif %}
+
         <form action="?confirm=1" method="POST"
               enctype="application/x-www-form-urlencoded">
             {% include "partials/csrf.html" %}
