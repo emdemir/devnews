@@ -20,6 +20,8 @@ CREATE TABLE users (
        about_html text NOT NULL,
        -- Avatar URL.
        avatar_image varchar(160) NOT NULL,
+       -- Does this user have administration permissions?
+       is_admin boolean NOT NULL,
        -- Registration date of this user.
        registered_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
        -- Last time this user's profile was updated.

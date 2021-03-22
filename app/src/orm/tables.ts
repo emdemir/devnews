@@ -44,6 +44,7 @@ export class User extends Model<RepoUser, UserCreate> implements RepoUser {
     public about!: string;
     public about_html!: string;
     public avatar_image!: string;
+    public is_admin!: boolean;
     public registered_at!: Date;
     public updated_at!: Date;
 
@@ -270,6 +271,10 @@ User.init({
     },
     avatar_image: {
         type: DataTypes.STRING(160),
+        allowNull: false
+    },
+    is_admin: {
+        type: DataTypes.BOOLEAN,
         allowNull: false
     },
     registered_at: {

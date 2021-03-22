@@ -10,6 +10,7 @@ export interface User {
     about: string;
     about_html: string;
     avatar_image: string;
+    is_admin: boolean;
     registered_at: Date;
     updated_at: Date;
 
