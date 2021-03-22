@@ -13,7 +13,18 @@
 
         {{ moment(message.sent_at).fromNow() }}
 
+        {% if not preview %}
         <a class="message-thread-id" href="#m{{ message.id }}">#{{ message.thread_id }}</a>
+        {% endif %}
+
+        {% if message.sender_id == user.id %}
+            |
+            <form class="inline-form" action="/m/{{ message.id }}/delete"
+                  method="POST">
+                {% include "partials/csrf.html" %}
+                <button class="link-button" type="submit">delete</button>
+            </form>
+        {% endif %}
     </div>
 
     <div class="message-contents">

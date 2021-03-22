@@ -177,10 +177,35 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
         return message;
     }
 
+    /**
+     * Delete a private message by its ID. The deleting user must own the message.
+     * If a thread is deleted, all its responses are deleted as well.
+     *
+     * @param user - The user who wants to delete the thread
+     * @param messageID - The ID of the message
+     */
+    const deleteMessage = async (
+        user: User,
+        messageID: number
+    ): Promise<void> => {
+        const message = await getMessageByID(user, messageID, {});
+        if (message === null)
+            throw new NotFoundError();
+
+        // Check permissions
+        if (message.sender_id !== user.id) {
+            throw new ForbiddenError();
+        }
+
+        // All good, can delete.
+        dataSource.deleteMessage(message.id);
+    }
+
     return {
         getMessageThreadsForUser,
         sendMessage,
         getMessageThread,
-        getMessageByID
+        getMessageByID,
+        deleteMessage
     }
 }

@@ -85,6 +85,12 @@ interface MessageRepository {
      * @param options - Additional things to fetch.
      */
     getRepliesByID(message_id: number, options: MessageOptions): Promise<Message[]>;
+    /**
+     * Deletes a message.
+     *
+     * @param messageID - The ID of the message to delete.
+     */
+    deleteMessage(messageID: number): Promise<void>;
 };
 
 export default MessageRepository;

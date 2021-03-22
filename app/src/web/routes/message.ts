@@ -163,5 +163,43 @@ export default function({ messageManager, userManager }: Dependencies) {
         }
     });
 
+    // --- Delete View ---
+
+    router.post("/:message_id/delete", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const { message_id } = ctx.params;
+        const { confirm } = ctx.query;
+
+        const message = await messageManager.getMessageByID(user, message_id, {
+            author: true,
+            recipient: true
+        });
+        if (message === null)
+            return ctx.throw(404);
+
+        if (!confirm) {
+            return await ctx.render("pages/confirm.html", {
+                title: "Delete Message",
+                message: "Are you sure you want to delete this message?",
+                preview: await ctx.render("partials/message.html", {
+                    message, preview: true
+                }),
+                user, csrf: ctx.csrf
+            });
+        } else {
+            await messageManager.deleteMessage(user, message_id);
+            // TODO: flash success message
+            if (message.in_reply_to === null) {
+                return ctx.redirect("/m/");
+            } else {
+                return ctx.redirect(`/m/${message.in_reply_to}`);
+            }
+        }
+    });
+
     return router;
 }

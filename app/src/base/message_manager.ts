@@ -38,6 +38,14 @@ interface MessageManager {
      * @param options - Additional stuff to fetch
      */
     getMessageByID(user: User, messageID: number, options: MessageOptions): Promise<Message | null>;
+    /**
+     * Delete a private message by its ID. The deleting user must own the message.
+     * If a thread is deleted, all its responses are deleted as well.
+     *
+     * @param user - The user who wants to delete the thread
+     * @param messageID - The ID of the message
+     */
+    deleteMessage(user: User, messageID: number): Promise<void>;
 };
 
 export { Message };

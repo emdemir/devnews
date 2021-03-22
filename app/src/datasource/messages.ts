@@ -120,10 +120,20 @@ export default function({ }): MessageRepository {
         return result.rows;
     }
 
+    /**
+     * Deletes a message.
+     *
+     * @param messageID - The ID of the message to delete.
+     */
+    const deleteMessage = async (messageID: number): Promise<void> => {
+        await query("DELETE FROM messages WHERE id = $1", [messageID]);
+    }
+
     return {
         createMessage,
         getMessageThreadsForUser,
         getMessageByID,
-        getRepliesByID
+        getRepliesByID,
+        deleteMessage
     }
 }

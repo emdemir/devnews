@@ -169,10 +169,22 @@ export default function({ }): MessageRepository {
         return messages.map(model => unwrapMessage(model, options));
     };
 
+    /**
+     * Deletes a message.
+     *
+     * @param messageID - The ID of the message to delete.
+     */
+    const deleteMessage = async (messageID: number): Promise<void> => {
+        const message = await Message.findByPk(messageID);
+        if (message !== null)
+            await message.destroy();
+    }
+
     return {
         createMessage,
         getMessageByID,
         getMessageThreadsForUser,
-        getRepliesByID
+        getRepliesByID,
+        deleteMessage
     }
 }
