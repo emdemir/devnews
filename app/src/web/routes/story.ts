@@ -144,10 +144,21 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
         const { short_url } = ctx.params;
         const { confirm } = ctx.query
 
+        const story = await storyManager.getStoryByShortURL(short_url, {
+            commentCount: true,
+            score: true,
+            submitterUsername: true
+        });
+        if (story === null)
+            return ctx.throw(404);
+
         if (!confirm) {
             return await ctx.render("pages/confirm.html", {
                 title: "Delete Story",
                 message: "Are you sure you want to delete this story?",
+                preview: await ctx.render("partials/story.html", {
+                    story, preview: true
+                }),
                 user, csrf: ctx.csrf
             })
         } else {
