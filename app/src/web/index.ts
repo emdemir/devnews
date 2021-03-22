@@ -155,6 +155,9 @@ app
             // it doesn't rewrite the status code to 200 after "render" fills
             // ctx.body because "nobody else set status".
             ctx.status = ctx.status || 404;
+            // Treat "Method Not Found" as a 404.
+            if (ctx.status === 405)
+                ctx.status = 404;
         } catch (err) {
             ctx.status = err.status || 500;
             // Add error message as reason so the error pages can have an idea
