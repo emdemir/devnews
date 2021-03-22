@@ -66,6 +66,14 @@ interface StoryManager {
      * @param options - What/how to fetch.
      */
     getStoriesWithTag(tag: Tag, page: number, options: StoryListOptions): Promise<Pagination<Story>>;
+    /**
+     * Delete the story using the given user's credentials. If the user isn't
+     * the story submitter or an admin, it is rejected.
+     *
+     * @param user - The user who wants to delete the story
+     * @param shortURL - The short URL of the story to be deleted
+     */
+    deleteStory(user: User, shortURL: string): Promise<void>;
 };
 
 export { Story };

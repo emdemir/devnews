@@ -35,12 +35,20 @@
             </span>
             |
             <a href="/s/{{ story.short_url }}">
-                {% if story.comment_count %}
+                {%- if story.comment_count -%}
                     {{ story.comment_count }} comment{% if story.comment_count !== 1 %}s{% endif %}
-                {% else %}
+                {%- else -%}
                     discuss
-                {% endif %}
+                {%- endif -%}
             </a>
+            {% if user.is_admin %}
+                |
+                <form action="/s/{{ story.short_url }}/delete" method="POST"
+                      class="inline-form">
+                    {% include "partials/csrf.html" %}
+                    <button type="submit" class="link-button">delete</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 </div>

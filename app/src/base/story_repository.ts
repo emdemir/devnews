@@ -105,6 +105,12 @@ interface StoryRepository {
      * @param options - What/how to fetch.
      */
     getStoriesByTagID(tagID: number, options: StoryListOptions): Promise<Story[]>;
+    /**
+     * Delete a story by its ID.
+     *
+     * @param id - The story ID.
+     */
+    deleteStory(id: number): Promise<void>;
 };
 
 export default StoryRepository;

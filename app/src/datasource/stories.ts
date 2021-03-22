@@ -263,6 +263,14 @@ export default function({ }): StoryRepository {
         return result.rows;
     }
 
+    /**
+     * Delete a story by its ID.
+     *
+     * @param id - The story ID.
+     */
+    const deleteStory = async (id: number): Promise<void> => {
+        await query(`DELETE FROM stories WHERE id = $1`, [id]);
+    }
 
     return {
         getStories,
@@ -270,6 +278,7 @@ export default function({ }): StoryRepository {
         getStoryByShortURL,
         getStoryByID,
         voteOnStory,
-        getStoriesByTagID
+        getStoriesByTagID,
+        deleteStory
     };
 }

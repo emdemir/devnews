@@ -11,7 +11,7 @@ import type { StoryCreate } from "base/story_manager";
 import type TagRepository from "base/tag_repository";
 import type { Tag } from "base/tag_repository";
 import type Pagination from "base/pagination";
-import { ValidationError } from "base/exceptions";
+import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
 
 import { generateShortID, markdown } from "./utils";
 
@@ -197,12 +197,34 @@ export default function({
         };
     }
 
+    /**
+     * Delete the story using the given user's credentials. If the user isn't
+     * the story submitter or an admin, it is rejected.
+     *
+     * @param user - The user who wants to delete the story
+     * @param shortURL - The short URL of the story to be deleted
+     */
+    const deleteStory = async (user: User, shortURL: string): Promise<void> => {
+        const story = await getStoryByShortURL(shortURL, {});
+        if (story === null)
+            throw new NotFoundError();
+
+        // Check permissions
+        if (!user.is_admin && story.submitter_id !== user.id) {
+            throw new ForbiddenError();
+        }
+
+        // All good, can delete. Related items will cascade.
+        dataSource.deleteStory(story.id);
+    }
+
     return {
         getStories,
         getStoryByShortURL,
         getStoryByID,
         voteOnStory,
         createStory,
-        getStoriesWithTag
+        getStoriesWithTag,
+        deleteStory
     }
 }

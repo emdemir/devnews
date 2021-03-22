@@ -135,6 +135,28 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
         }
     );
 
+    router.post("/:short_url/delete", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const { short_url } = ctx.params;
+        const { confirm } = ctx.query
+
+        if (!confirm) {
+            return await ctx.render("pages/confirm.html", {
+                title: "Delete Story",
+                message: "Are you sure you want to delete this story?",
+                user, csrf: ctx.csrf
+            })
+        } else {
+            await storyManager.deleteStory(user, short_url);
+            // TODO: flash success message
+            return ctx.redirect("/");
+        }
+    });
+
     // --- Detail View ---
 
     router.get("/:short_url/:slug?", async ctx => {

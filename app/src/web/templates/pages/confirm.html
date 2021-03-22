@@ -1,0 +1,34 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% if not title %}
+    {% set title = "Confirmation" %}
+{% endif %}
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="confirmation">
+    <div class="box">
+        <h3 class="box-title">{{ title }}</h3>
+
+        {% if message %}
+            <p>{{ message }}</p>
+        {% else %}
+            <p>Are you sure you want to perform this action?</p>
+        {% endif %}
+
+        <form action="?confirm=1" method="POST"
+              enctype="application/x-www-form-urlencoded">
+            {% include "partials/csrf.html" %}
+
+            {% if extras %}
+                {% for key, value in Object.entries(extras) %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}" />
+                {% endfor %}
+            {% endif %}
+
+            <button type="submit" class="submit-button">Confirm</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

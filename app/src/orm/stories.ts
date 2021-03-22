@@ -301,12 +301,24 @@ export default function({ }): StoryRepository {
         return result;
     };
 
+    /**
+     * Delete a story by its ID.
+     *
+     * @param id - The story ID.
+     */
+    const deleteStory = async (id: number): Promise<void> => {
+        const story = await Story.findByPk(id);
+        if (story !== null)
+            story.destroy();
+    }
+
     return {
         createStory,
         getStories,
         getStoryByShortURL,
         getStoryByID,
         voteOnStory,
-        getStoriesByTagID
+        getStoriesByTagID,
+        deleteStory
     }
 }

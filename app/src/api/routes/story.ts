@@ -5,7 +5,7 @@ import type StoryManager from "base/story_manager";
 import type { Story, StoryCreate } from "base/story_manager";
 import type CommentManager from "base/comment_manager";
 import type TagManager from "base/tag_manager";
-import { ValidationError } from "base/exceptions";
+import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
 
 import { commentProject } from "./comment";
 
@@ -143,6 +143,19 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
                 }
             }
         });
+
+    // --- Delete View ---
+
+    router.delete("/:short_url",
+        passport.authenticate("jwt", { session: false }),
+        async ctx => {
+            const { user } = ctx.state;
+            const { short_url } = ctx.params;
+
+            await storyManager.deleteStory(user, short_url);
+            ctx.status = 204;
+        }
+    );
 
     return router;
 }

@@ -42,14 +42,16 @@ body {
 
 /* --- Native Element Styles --- */
 
-a {
+a,
+.link-button {
   color: #51afef;
   font-weight: bold;
   padding: 2px;
 }
 
 /* Reverse the colors, like in IDEs when links are hovered. */
-a:hover {
+a:hover,
+.link-button:hover {
   background-color: #51afef;
   color: #282c34;
 }
@@ -74,6 +76,18 @@ button:hover {
 button:active {
   box-shadow: none;
   transform: translate(0.25rem, 0.25rem);
+}
+
+.link-button {
+  box-shadow: none;
+  border: none;
+  text-decoration: underline;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.link-button:active {
+  transform: none;
 }
 
 textarea,
@@ -278,6 +292,12 @@ footer {
 .list-empty {
   text-align: center;
   font-style: italic;
+}
+
+/* Used for putting forms next to other elements. */
+
+.inline-form {
+  display: inline-block;
 }
 
 /* --- Stories --- */
