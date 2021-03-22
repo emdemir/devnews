@@ -266,14 +266,14 @@ export default function({ }): CommentRepository {
     }
 
     /**
-     * Delete a story by its ID.
+     * Delete a comment by its ID.
      *
-     * @param id - The story ID.
+     * @param id - The comment ID.
      */
     const deleteComment = async (id: number): Promise<void> => {
         const comment = await Comment.findByPk(id);
         if (comment !== null)
-            comment.destroy();
+            await comment.destroy();
     }
 
     return {

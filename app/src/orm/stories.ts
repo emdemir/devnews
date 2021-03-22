@@ -351,7 +351,7 @@ export default function({ }): StoryRepository {
     const deleteStory = async (id: number): Promise<void> => {
         const story = await Story.findByPk(id);
         if (story !== null)
-            story.destroy();
+            await story.destroy();
     }
 
     return {
