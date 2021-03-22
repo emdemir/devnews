@@ -98,9 +98,10 @@ export default function({ }): UserRepository {
     ): Promise<User> => {
         const result = await query<User>(
             `INSERT INTO users (
-                username, password, email, about, about_html, avatar_image
+                username, password, email, about, about_html, avatar_image,
+                is_admin
             ) VALUES (
-                $1, $2, $3, '', '', $4
+                $1, $2, $3, '', '', $4, false
             ) RETURNING *`,
             [username, password, email, avatarImage]
         );

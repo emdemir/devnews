@@ -92,6 +92,7 @@ export default function({ }): UserRepository {
             email,
             avatar_image: avatarImage,
             registered_at: new Date,
+            is_admin: false,
             about: "",
             about_html: "",
         });

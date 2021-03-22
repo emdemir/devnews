@@ -30,6 +30,7 @@ export interface UserCreate {
     registered_at: Date;
     about: string;
     about_html: string;
+    is_admin: boolean;
 };
 
 // Additional things to fetch when getting a user.
