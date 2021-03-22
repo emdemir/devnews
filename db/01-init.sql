@@ -32,7 +32,7 @@ CREATE TABLE stories (
        -- The ID of the story.
        id int NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
        -- The ID of the user who submitted this story.
-       submitter_id int NOT NULL REFERENCES users,
+       submitter_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        -- Whether the submitter authored the story.
        is_authored boolean NOT NULL,
        -- The unique short URL for this post.
@@ -60,20 +60,20 @@ CREATE TABLE tags (
 );
 
 CREATE TABLE story_tags (
-       story_id int NOT NULL REFERENCES stories,
-       tag_id int NOT NULL REFERENCES tags,
+       story_id int NOT NULL REFERENCES stories ON DELETE CASCADE,
+       tag_id int NOT NULL REFERENCES tags ON DELETE CASCADE,
        PRIMARY KEY (story_id, tag_id)
 );
 
 CREATE TABLE story_votes (
-       story_id int NOT NULL REFERENCES stories,
-       user_id int NOT NULL REFERENCES users,
+       story_id int NOT NULL REFERENCES stories ON DELETE CASCADE,
+       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        PRIMARY KEY (story_id, user_id)
 );
 
 CREATE TABLE story_follows (
-       story_id int NOT NULL REFERENCES stories,
-       user_id int NOT NULL REFERENCES users,
+       story_id int NOT NULL REFERENCES stories ON DELETE CASCADE,
+       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        PRIMARY KEY (story_id, user_id)
 );
 
@@ -81,9 +81,9 @@ CREATE TABLE comments (
        -- The ID of the comment.
        id int NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
        -- The ID of the story the comment is on.
-       story_id int NOT NULL REFERENCES stories,
+       story_id int NOT NULL REFERENCES stories ON DELETE CASCADE,
        -- The ID of the user who commented.
-       user_id int NOT NULL REFERENCES users,
+       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        -- The comment this comment is replying to.
        parent_id int REFERENCES comments,
        -- Short URL for this comment.
@@ -99,14 +99,14 @@ CREATE INDEX comments_story_idx ON comments (story_id);
 CREATE INDEX comments_user_idx ON comments (user_id);
 
 CREATE TABLE comment_votes (
-       comment_id int NOT NULL REFERENCES comments,
-       user_id int NOT NULL REFERENCES users,
+       comment_id int NOT NULL REFERENCES comments ON DELETE CASCADE,
+       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        PRIMARY KEY (comment_id, user_id)
 );
 
 CREATE TABLE read_comments (
-       comment_id int NOT NULL REFERENCES comments,
-       user_id int NOT NULL REFERENCES users,
+       comment_id int NOT NULL REFERENCES comments ON DELETE CASCADE,
+       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        PRIMARY KEY (comment_id, user_id)
 );
 
@@ -114,12 +114,12 @@ CREATE TABLE messages (
        -- The ID of the message.
        id int NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
        -- Sender of the mesage.
-       sender_id int NOT NULL REFERENCES users,
+       sender_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        -- Receiver of the message
-       receiver_id int NOT NULL REFERENCES users,
+       receiver_id int NOT NULL REFERENCES users ON DELETE CASCADE,
        -- The message this message is in reply to. null if this is the start of a
        -- message thread
-       in_reply_to int REFERENCES messages,
+       in_reply_to int REFERENCES messages ON DELETE CASCADE,
        -- The date/time this message was sent.
        sent_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
        -- The message contents.
