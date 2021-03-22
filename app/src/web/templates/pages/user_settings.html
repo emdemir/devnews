@@ -17,13 +17,17 @@
 
     <div class="box">
         <h3 class="box-title">
-            Edit Profile
+            {% if is_admin %}
+                {{ title }}
+            {% else %}
+                Edit Profile
+            {% endif %}
             <small>
                 (<a href="/u/{{ subject.username }}">view</a>)
             </small>
         </h3>
 
-        <form method="POST">
+        <form action="/u/{{ subject.username }}/edit" method="POST">
             {% include "partials/csrf.html" %}
             <dl class="form-fields full-width edit-profile-fields">
                 <dt>

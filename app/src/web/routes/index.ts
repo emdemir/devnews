@@ -72,32 +72,6 @@ export default function({ userManager, storyManager, tagManager }: Dependencies)
             subject: user, formData: user, user, csrf: ctx.csrf
         })
     });
-    router.post("/settings", async ctx => {
-        const { user } = ctx.state;
-        if (!user) {
-            return ctx.redirect("/auth/login");
-        }
-
-        const formData = ctx.request.body;
-        const { email, homepage, about } = formData;
-
-        try {
-            await userManager.updateUser(user, user.username, {
-                email, homepage, about
-            });
-            // TODO: flash success message
-            return ctx.redirect("/settings");
-        } catch (err) {
-            if (!(err instanceof ValidationError)) {
-                throw err;
-            }
-
-            return await ctx.render("pages/user_settings.html", {
-                error: err,
-                subject: user, formData, user, csrf: ctx.csrf
-            })
-        }
-    });
 
     return router;
 }

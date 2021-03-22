@@ -38,6 +38,63 @@ export default function({ userManager }: Dependencies) {
         })
     });
 
+    // --- Edit View ---
+
+    router.get("/:username/edit", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const { username } = ctx.params;
+        // No need to edit yourself through here when you have /settings.
+        if (username === user.username) {
+            return ctx.redirect("/settings");
+        }
+
+        const subject = await userManager.getUserByUsername(username, {
+            checkEditableBy: user,
+        });
+
+        return await ctx.render("pages/user_settings.html", {
+            subject, formData: subject, user, csrf: ctx.csrf
+        });
+    });
+    router.post("/:username/edit", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const { username } = ctx.params;
+        const formData = ctx.request.body;
+        const { email, homepage, about } = formData;
+
+        try {
+            await userManager.updateUser(user, username, {
+                email, homepage, about
+            });
+
+            if (user.username === username) {
+                return ctx.redirect("/settings");
+            } else {
+                return ctx.redirect(`/u/${username}/edit`);
+            }
+        } catch (err) {
+            if (!(err instanceof ValidationError)) {
+                throw err;
+            }
+
+            const subject = await userManager.getUserByUsername(username, {
+                checkEditableBy: user,
+            });
+
+            return await ctx.render("pages/user_settings.html", {
+                error: err, subject, formData, user, csrf: ctx.csrf
+            })
+        }
+    });
+
     // --- Change Password View ---
     // This uses the profile settings page which it shares with edit profile,
     // so form data must be the user itself.

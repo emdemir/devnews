@@ -4,11 +4,9 @@ import { buildGravatarURL, markdown } from "./utils";
 import { hashPassword, isPasswordValid } from "./auth";
 
 import type UserRepository from "base/user_repository";
-import type {
-    User, UserOptions, UserUpdate as RepoUserUpdate
-} from "base/user_repository";
+import type { User } from "base/user_repository";
 import type UserManager from "base/user_manager";
-import type { UserUpdate } from "base/user_manager";
+import type { UserUpdate, UserOptions } from "base/user_manager";
 import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
 
 // Regexp for e-mail validation.
@@ -92,18 +90,45 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
      * Returns a user by username if it exists, or null if it doesn't.
      *
      * @param username - The username for this user.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
-    const getUserByUsername = (username: string, options: UserOptions) =>
-        dataSource.getUserByUsername(username, options);
+    const getUserByUsername = async (username: string, options: UserOptions) => {
+        const user = await dataSource.getUserByUsername(username, options);
+        if (user === null)
+            return null;
+
+        // If checkEditableBy was given, check whether the given user can
+        // edit the fetched user, and raise a ForbiddenError otherwise.
+        if (options.checkEditableBy !== undefined) {
+            const editor = options.checkEditableBy;
+            if (!editor.is_admin && editor.id !== user.id)
+                throw new ForbiddenError();
+        }
+
+        return user;
+    }
+
     /**
      * Returns a user by ID if it exists, or null if it doesn't.
      *
      * @param id - The ID for this user.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
-    const getUserByID = (id: number, options: UserOptions) =>
-        dataSource.getUserByID(id, options);
+    const getUserByID = async (id: number, options: UserOptions) => {
+        const user = await dataSource.getUserByID(id, options);
+        if (user === null)
+            return null;
+
+        // If checkEditableBy was given, check whether the given user can
+        // edit the fetched user, and raise a ForbiddenError otherwise.
+        if (options.checkEditableBy !== undefined) {
+            const editor = options.checkEditableBy;
+            if (!editor.is_admin && editor.id !== user.id)
+                throw new ForbiddenError();
+        }
+
+        return user;
+    }
 
     /**
      * Update a user's details.
@@ -180,7 +205,8 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         const errors: string[] = [];
 
         // Perform validation
-        if (!await isPasswordValid(subject.password, currentPassword)) {
+        if (!user.is_admin &&
+            !await isPasswordValid(subject.password, currentPassword)) {
             errors.push("The current password isn't correct.");
         }
         validators.password(errors, newPassword);

@@ -1,12 +1,20 @@
 /** @file The interface for a user manager. */
 
-import type { User, UserOptions } from "./user_repository";
+import type { User, UserOptions as RepoUserOptions } from "./user_repository";
 
 // Parameters that are required to update a user.
 export interface UserUpdate {
     email: string;
     homepage: string;
     about: string;
+};
+
+// What to do when fetching a user.
+//
+export interface UserOptions extends RepoUserOptions {
+    // If set, checks whether the given user can edit the user that's being
+    // fetched.
+    checkEditableBy?: User;
 };
 
 interface UserManager {
@@ -23,14 +31,14 @@ interface UserManager {
      * Returns a user by username if it exists, or null if it doesn't.
      *
      * @param username - The username for this user.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
     getUserByUsername(username: string, options: UserOptions): Promise<User | null>;
     /**
      * Returns a user by ID if it exists, or null if it doesn't.
      *
      * @param id - The ID for this user.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
     /**
@@ -60,5 +68,4 @@ interface UserManager {
     deleteUser(user: User, username: string): Promise<void>;
 };
 
-export { UserOptions };
 export default UserManager;
