@@ -5,7 +5,11 @@
     {% if page.has_prev_page %}
         <a href="?page={{ page.page - 1 }}">&lt;&lt; Prev</a>
     {% endif %}
-    Page {{ page.page }}
+
+    {% if page.page != 1 or page.has_next_page %}
+        Page {{ page.page }}
+    {% endif %}
+
     {% if page.has_next_page %}
         <a href="?page={{ page.page + 1 }}">Next &gt;&gt;</a>
     {% endif %}
