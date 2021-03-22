@@ -6,7 +6,7 @@ import { hashPassword } from "./auth";
 import type UserRepository from "base/user_repository";
 import type { User, UserOptions } from "base/user_repository";
 import type UserManager from "base/user_manager";
-import { ValidationError } from "base/exceptions";
+import { ForbiddenError, ValidationError } from "base/exceptions";
 
 // Regexp for e-mail validation.
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
@@ -93,9 +93,25 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
     const getUserByID = (id: number, options: UserOptions) =>
         dataSource.getUserByID(id, options);
 
+    /**
+     * Delete a user.
+     *
+     * @param user - The user who wishes to delete this user.
+     * @param username - The username of the user to be deleted.
+     */
+    const deleteUser = async (user: User, username: string): Promise<void> => {
+        // Check whether the user is an admin
+        if (!user.is_admin)
+            throw new ForbiddenError();
+
+        // All good, delete the user. Related objects will cascade.
+        await dataSource.deleteUser(username);
+    }
+
     return {
         createUser,
         getUserByID,
-        getUserByUsername
+        getUserByUsername,
+        deleteUser
     }
 }

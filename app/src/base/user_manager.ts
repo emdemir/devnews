@@ -26,6 +26,13 @@ interface UserManager {
      * @param options - What to fetch.
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
+    /**
+     * Delete a user.
+     *
+     * @param user - The user who wishes to delete this user.
+     * @param username - The username of the user to be deleted.
+     */
+    deleteUser(user: User, username: string): Promise<void>;
 };
 
 export { UserOptions };

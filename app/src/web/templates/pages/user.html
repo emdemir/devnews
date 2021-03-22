@@ -7,7 +7,19 @@
 {% block content %}
 <div id="user-{{ subject.username }}" class="user-page">
     <div class="user-details">
-        <h2 class="user-username">{{ subject.username }}</h2>
+        <h2 class="user-username">
+            {{ subject.username }}
+            <small><small>
+            {% if user.is_admin and subject.username !== user.username %}
+                {# The weird formatting is to avoid significant whitespace in HTML. #}
+                (<a href="/u/{{ subject.username }}/edit">edit</a
+                >|<form class="inline-form" action="/u/{{ subject.username }}/delete"
+                        method="POST">
+                    {%- include "partials/csrf.html" -%}
+                    <button class="link-button" type="submit">delete</button></form>)
+            {% endif %}
+            </small></small>
+        </h2>
 
         <div class="user-details-box box">
             <h3 class="box-title">User Information</h3>

@@ -69,6 +69,12 @@ interface UserRepository {
      * @param options - What to fetch.
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
+    /**
+     * Delete a user.
+     *
+     * @param username - The username of the user.
+     */
+    deleteUser(username: string): Promise<void>;
 };
 
 export default UserRepository;

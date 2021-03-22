@@ -136,9 +136,21 @@ export default function({ }): UserRepository {
         return await withExtras(user, options);
     }
 
+    /**
+     * Delete a user.
+     *
+     * @param username - The username of the user.
+     */
+    const deleteUser = async (username: string): Promise<void> => {
+        const user = await User.findOne({ where: { username } });
+        if (user !== null)
+            await user.destroy();
+    }
+
     return {
         createUser,
         getUserByID,
-        getUserByUsername
+        getUserByUsername,
+        deleteUser
     }
 }

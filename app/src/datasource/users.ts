@@ -162,9 +162,19 @@ export default function({ }): UserRepository {
         return result.rows[0];
     }
 
+    /**
+     * Delete a user.
+     *
+     * @param username - The username of the user.
+     */
+    const deleteUser = async (username: string): Promise<void> => {
+        await query("DELETE FROM users WHERE username = $1", [username]);
+    }
+
     return {
         createUser,
         getUserByUsername,
-        getUserByID
+        getUserByID,
+        deleteUser
     };
 }

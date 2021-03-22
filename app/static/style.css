@@ -82,7 +82,7 @@ button:active {
   box-shadow: none;
   border: none;
   text-decoration: underline;
-  font-size: 1rem;
+  font-size: inherit;
   margin: 0;
 }
 
