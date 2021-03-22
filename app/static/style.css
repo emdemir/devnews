@@ -480,6 +480,17 @@ footer {
     text-align: center;
   }
 
+  .story-domain,
+  .story-info,
+  .comment-info,
+  .message-byline {
+    font-size: 0.85rem;
+  }
+
+  .comment-children {
+    margin-left: -1.5rem;
+  }
+
   .user-username {
     grid-column: 1;
   }
