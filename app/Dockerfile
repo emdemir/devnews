@@ -18,6 +18,8 @@ COPY src/ src/
 COPY tsconfig.json .
 RUN npx tsc
 
+ENV NODE_PATH=dist/src/
+
 # --- Web image ---
 FROM base AS web
 CMD ["yarn", "watch-web"]
