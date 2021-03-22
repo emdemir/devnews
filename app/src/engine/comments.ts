@@ -82,10 +82,7 @@ const commentRank = (comment: Comment): number => {
  */
 const sortByRank = (comments: Comment[]): void => {
     // Sneak in a "rank" value to avoid re-calculating it.
-    comments.forEach(c => {
-        (c as any).rank = commentRank(c);
-        console.log(`Comment ${c.short_url} rank: ${(c as any).rank}`);
-    });
+    comments.forEach(c => (c as any).rank = commentRank(c));
 
     comments.sort((a, b) => (a as any).rank - (b as any).rank);
 
