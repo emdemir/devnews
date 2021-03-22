@@ -1,7 +1,7 @@
 import validUrl = require("valid-url");
 
 import { buildGravatarURL } from "./utils";
-import ValidationError from "../base/validation";
+import { ValidationError } from "../base/exceptions";
 import { hashPassword } from "./auth";
 
 import type UserRepository from "../base/user_repository";

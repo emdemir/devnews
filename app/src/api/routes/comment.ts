@@ -4,7 +4,7 @@ import passport = require("koa-passport");
 import type CommentManager from "../../base/comment_manager";
 import type { Comment } from "../../base/comment_manager";
 import type StoryManager from "../../base/story_manager";
-import ValidationError from "../../base/validation";
+import { ValidationError } from "../../base/exceptions";
 
 interface Dependencies {
     commentManager: CommentManager;

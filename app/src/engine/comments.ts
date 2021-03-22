@@ -7,7 +7,7 @@ import type { Comment, CommentCreate } from "../base/comment_manager";
 import type { User } from "../base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
-import ValidationError from "../base/validation";
+import { ValidationError } from "../base/exceptions";
 
 const MAXIMUM_COMMENT_LENGTH = 2000;
 

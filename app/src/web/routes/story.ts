@@ -7,7 +7,7 @@ import type { StoryCreate } from "../../base/story_manager";
 import type CommentManager from "../../base/comment_manager";
 import type TagManager from "../../base/tag_manager";
 import type { User } from "../../base/user_repository";
-import ValidationError from "../../base/validation";
+import { ValidationError, ForbiddenError } from "../../base/exceptions";
 
 interface Dependencies {
     storyManager: StoryManager;

@@ -1,5 +1,4 @@
 import { markdown } from "./utils";
-import ForbiddenError from "../base/permissions";
 
 import type { User } from "../base/user_repository";
 import type MessageRepository from "../base/message_repository";
@@ -9,7 +8,7 @@ import type {
 import type MessageManager from "../base/message_manager";
 import type { Message } from "../base/message_manager";
 import type Pagination from "../base/pagination";
-import ValidationError from "../base/validation";
+import { ValidationError, ForbiddenError } from "../base/exceptions";
 
 // Maximum amount of message threads shown in a single page.
 const MESSAGES_PER_PAGE = 20;

@@ -11,7 +11,7 @@ import type { StoryCreate } from "../base/story_manager";
 import type TagRepository from "../base/tag_repository";
 import type { Tag } from "../base/tag_repository";
 import type Pagination from "../base/pagination";
-import ValidationError from "../base/validation";
+import { ValidationError } from "../base/exceptions";
 
 import { generateShortID, markdown } from "./utils";
 

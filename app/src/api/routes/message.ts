@@ -1,11 +1,10 @@
 import Router = require("koa-router");
 import passport = require("koa-passport");
-import ValidationError from "../../base/validation";
 
 import type MessageManager from "../../base/message_manager";
 import type { Message } from "../../base/message_manager";
 import type UserManager from "../../base/user_manager";
-import ForbiddenError from "../../base/permissions";
+import { ForbiddenError, ValidationError } from "../../base/exceptions";
 
 interface Dependencies {
     messageManager: MessageManager;
