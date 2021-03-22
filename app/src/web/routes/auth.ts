@@ -12,7 +12,7 @@ interface Dependencies {
 export default function({ userManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
-    router.get("/login/", async ctx => {
+    router.get("/login", async ctx => {
         if (ctx.isAuthenticated()) {
             ctx.redirect("/");
         } else {
@@ -20,7 +20,7 @@ export default function({ userManager }: Dependencies) {
         }
     });
     router.post(
-        "/login/",
+        "/login",
         // The business logic layer is doing all the authentication logic. We
         // simply make passport call it.
         passport.authenticate("local", {
@@ -30,7 +30,7 @@ export default function({ userManager }: Dependencies) {
         })
     );
 
-    router.get("/register/", async ctx => {
+    router.get("/register", async ctx => {
         if (ctx.isAuthenticated()) {
             ctx.redirect("/");
         } else {
@@ -38,7 +38,7 @@ export default function({ userManager }: Dependencies) {
         }
     });
     router.post(
-        "/register/",
+        "/register",
         async ctx => {
             try {
                 const { username, password, verify, email } = ctx.request.body;
@@ -72,11 +72,11 @@ export default function({ userManager }: Dependencies) {
         }
     );
 
-    router.get("/rules/", async ctx => {
+    router.get("/rules", async ctx => {
         await ctx.render("pages/rules.html");
     });
 
-    router.get("/logout/", ctx => {
+    router.get("/logout", ctx => {
         ctx.logout();
         ctx.redirect("/");
     });
