@@ -142,7 +142,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
     const deserialize: DeserializeCallback = async (id, done) => {
         try {
             const user = await dataSource.getUserByID(id, {});
-            done(null, user || undefined);
+            done(null, user || false);
         } catch (e) {
             done(e);
         }
