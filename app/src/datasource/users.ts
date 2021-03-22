@@ -1,6 +1,6 @@
 import { query } from "./index";
 import type UserRepository from "base/user_repository";
-import type { User, UserOptions } from "base/user_repository";
+import type { User, UserOptions, UserUpdate } from "base/user_repository";
 
 const defaultOptions: UserOptions = {
     commentCount: false,
@@ -163,6 +163,30 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Update a user's details.
+     *
+     * @param username - The username of the user.
+     * @param params - The update parameters.
+     */
+    const updateUser = async (
+        username: string,
+        params: UserUpdate
+    ): Promise<void> => {
+        await query(`\
+            UPDATE users SET
+                avatar_image = $2, email = $3, homepage = $4, about = $5,
+                about_html = $6
+            WHERE username = $1`, [
+            username,
+            params.avatar_image,
+            params.email,
+            params.homepage,
+            params.about,
+            params.about_html
+        ]);
+    }
+
+    /**
      * Delete a user.
      *
      * @param username - The username of the user.
@@ -175,6 +199,7 @@ export default function({ }): UserRepository {
         createUser,
         getUserByUsername,
         getUserByID,
+        updateUser,
         deleteUser
     };
 }

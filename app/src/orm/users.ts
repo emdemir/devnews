@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import type UserRepository from "base/user_repository";
-import type { User as RepoUser, UserOptions } from "base/user_repository";
+import type { User as RepoUser, UserOptions, UserUpdate } from "base/user_repository";
 
 import { comment_votes, story_votes, User } from "./tables";
 
@@ -137,6 +137,21 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Update a user's details.
+     *
+     * @param username - The username of the user.
+     * @param params - The update parameters.
+     */
+    const updateUser = async (
+        username: string,
+        params: UserUpdate
+    ): Promise<void> => {
+        await User.update(params, {
+            where: { username }
+        });
+    }
+
+    /**
      * Delete a user.
      *
      * @param username - The username of the user.
@@ -151,6 +166,7 @@ export default function({ }): UserRepository {
         createUser,
         getUserByID,
         getUserByUsername,
+        updateUser,
         deleteUser
     }
 }

@@ -2,6 +2,13 @@
 
 import type { User, UserOptions } from "./user_repository";
 
+// Parameters that are required to update a user.
+export interface UserUpdate {
+    email: string;
+    homepage: string;
+    about: string;
+};
+
 interface UserManager {
     /**
      * Creates a new user with the given parameters. Fetches the avatar from
@@ -26,6 +33,14 @@ interface UserManager {
      * @param options - What to fetch.
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
+    /**
+     * Update a user's details.
+     *
+     * @param user - The user who is performing the update.
+     * @param username - The username of the user whose details are being updated.
+     * @param params - The details.
+     */
+    updateUser(user: User, username: string, params: UserUpdate): Promise<void>;
     /**
      * Delete a user.
      *

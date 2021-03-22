@@ -1,15 +1,18 @@
 import Router = require("koa-router");
 
 import type { AppContext } from "../";
+import type UserManager from "base/user_manager";
 import type StoryManager from "base/story_manager";
 import type TagManager from "base/tag_manager";
+import { ValidationError } from "base/exceptions";
 
 interface Dependencies {
+    userManager: UserManager;
     storyManager: StoryManager;
     tagManager: TagManager;
 };
 
-export default function({ storyManager, tagManager }: Dependencies) {
+export default function({ userManager, storyManager, tagManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
     router.get("/", async ctx => {
@@ -53,6 +56,47 @@ export default function({ storyManager, tagManager }: Dependencies) {
             page: stories, storyTags, user,
             csrf: ctx.csrf
         });
+    });
+
+    // --- User Settings ---
+    // This belongs to user.ts, however that is prefixed with /u/ which doesn't
+    // look as nice. So we'll just put it here for now.
+
+    router.get("/settings", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        return await ctx.render("pages/user_settings.html", {
+            subject: user, formData: user, user, csrf: ctx.csrf
+        })
+    });
+    router.post("/settings", async ctx => {
+        const { user } = ctx.state;
+        if (!user) {
+            return ctx.redirect("/auth/login");
+        }
+
+        const formData = ctx.request.body;
+        const { email, homepage, about } = formData;
+
+        try {
+            await userManager.updateUser(user, user.username, {
+                email, homepage, about
+            });
+            // TODO: flash success message
+            return ctx.redirect("/settings");
+        } catch (err) {
+            if (!(err instanceof ValidationError)) {
+                throw err;
+            }
+
+            return await ctx.render("pages/user_settings.html", {
+                error: err,
+                subject: user, formData, user, csrf: ctx.csrf
+            })
+        }
     });
 
     return router;

@@ -33,6 +33,15 @@ export interface UserCreate {
     is_admin: boolean;
 };
 
+// Parameters that are required to update a user.
+export interface UserUpdate {
+    email: string;
+    avatar_image: string;
+    about: string;
+    about_html: string;
+    homepage: string;
+};
+
 // Additional things to fetch when getting a user.
 export interface UserOptions {
     // Fetch the user's comment count.
@@ -69,6 +78,13 @@ interface UserRepository {
      * @param options - What to fetch.
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
+    /**
+     * Update a user's details.
+     *
+     * @param username - The username of the user.
+     * @param params - The update parameters.
+     */
+    updateUser(username: string, params: UserUpdate): Promise<void>;
     /**
      * Delete a user.
      *

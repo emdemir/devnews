@@ -1,15 +1,20 @@
 import validUrl = require("valid-url");
 
-import { buildGravatarURL } from "./utils";
+import { buildGravatarURL, markdown } from "./utils";
 import { hashPassword } from "./auth";
 
 import type UserRepository from "base/user_repository";
-import type { User, UserOptions } from "base/user_repository";
+import type {
+    User, UserOptions, UserUpdate as RepoUserUpdate
+} from "base/user_repository";
 import type UserManager from "base/user_manager";
-import { ForbiddenError, ValidationError } from "base/exceptions";
+import type { UserUpdate } from "base/user_manager";
+import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
 
 // Regexp for e-mail validation.
 const EMAIL_REGEX = /\S+@\S+\.\S+/;
+// Maximum length for the about box.
+const ABOUT_MAX_CHARS = 4096;
 
 // The validators for the user model.
 const validators = {
@@ -29,8 +34,15 @@ const validators = {
         }
     },
     homepage: (errors: string[], homepage: string) => {
-        if (!validUrl.isWebUri(homepage)) {
+        if (homepage && !validUrl.isWebUri(homepage)) {
             errors.push("Invalid homepage URL.");
+        }
+    },
+    about: (errors: string[], about: string) => {
+        if (about.length > ABOUT_MAX_CHARS) {
+            errors.push(`\
+You have exceeded the maximum about text limit. Please shorten it to at most \
+${ABOUT_MAX_CHARS} characters.`);
         }
     }
 };
@@ -94,6 +106,55 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         dataSource.getUserByID(id, options);
 
     /**
+     * Update a user's details.
+     *
+     * @param user - The user who is performing the update.
+     * @param username - The username of the user whose details are being updated.
+     * @param params - The details.
+     */
+    const updateUser = async (
+        user: User,
+        username: string,
+        params: UserUpdate
+    ): Promise<void> => {
+        // Find the user
+        const subject = await getUserByUsername(username, {});
+        if (subject === null)
+            throw new NotFoundError();
+
+        // Check permissions.
+        if (!user.is_admin && subject.id !== user.id) {
+            throw new ForbiddenError();
+        }
+
+        // Validate the passed parameters
+        const errors: string[] = [];
+
+        validators.email(errors, params.email);
+        validators.homepage(errors, params.homepage);
+        validators.about(errors, params.about);
+
+        if (errors.length)
+            throw new ValidationError(errors);
+
+        // All good, update the user details.
+
+        // Fetch new Gravatar for the user based on their email
+        const avatarImage = buildGravatarURL(params.email);
+
+        // Format the about text with Markdown
+        const aboutHTML = markdown(params.about);
+
+        await dataSource.updateUser(username, {
+            avatar_image: avatarImage,
+            email: params.email,
+            homepage: params.homepage,
+            about: params.about,
+            about_html: aboutHTML
+        });
+    }
+
+    /**
      * Delete a user.
      *
      * @param user - The user who wishes to delete this user.
@@ -112,6 +173,7 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         createUser,
         getUserByID,
         getUserByUsername,
+        updateUser,
         deleteUser
     }
 }

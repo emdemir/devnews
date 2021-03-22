@@ -1,0 +1,77 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{# If we got here and the current user's username doesn't match the subject user,
+   then we must have admin privileges. The view checks this. #}
+{% if subject.username !== user.username %}
+    {% set is_admin = true %}
+    {% set title = "Settings for user "+subject.username %}
+{% else %}
+    {% set title = "Profile Settings" %}
+{% endif %}
+{% extends "layout.html" %}
+
+{% block content %}
+<div id="user-{{ subject.username }}" class="user-settings-page">
+    <div class="box">
+        <h3 class="box-title">
+            Edit Profile
+            <small>
+                (<a href="/u/{{ subject.username }}">view</a>)
+            </small>
+        </h3>
+
+        <form method="POST">
+            {% include "partials/csrf.html" %}
+            <dl class="form-fields full-width edit-profile-fields">
+                <dt>
+                    <label for="email">E-mail</label>
+                    <p><small>Your <a href="https://gravatar.com/">Gravatar</a>
+                        is tied to your e-mail, which you can use to change your
+                        profile picture.</small></p>
+                </dt>
+                <dd><input type="email" id="email" name="email"
+                           value="{{ formData.email }}" /></dd>
+
+                <dt><label for="homepage">Homepage</label></dt>
+                <dd><input type="url" id="homepage" name="homepage"
+                           value="{{ formData.homepage }}" /></dd>
+
+                <dt>
+                    <label for="about">About</label>
+                    <p><small>Enter information you'd like to share, a GitHub,
+                        other details, etc.</small></p>
+                </dt>
+                <dd><textarea name="about" id="about">{{ formData.about }}</textarea></dd>
+            </dl>
+            <button class="submit-button" type="submit">Save Changes</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h3 class="box-title">Change Password</h3>
+
+        <form action="/u/{{ subject.username }}/password" method="POST">
+            {% include "partials/csrf.html" %}
+
+            <dl class="form-fields full-width change-password-fields">
+                {% if not is_admin %}
+                <dt><label for="current">Current Password</label></dt>
+                <dd><input type="password" id="current" name="current" required
+                           minlength="8" autocomplete="current-password" /></dd>
+                {% endif %}
+
+                <dt><label for="password">New Password</label></dt>
+                <dd><input type="password" id="password" name="password" required
+                           autocomplete="new-password" /></dd>
+
+                <dt><label for="verify">Verify Password</label></dt>
+                <dd><input type="password" id="verify" name="verify" required
+                           autocomplete="new-password" /></dd>
+            </dl>
+
+            <button type="submit" class="submit-button">Change Password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
