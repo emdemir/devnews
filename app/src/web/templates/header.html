@@ -23,6 +23,7 @@
             {% if user %}
                 <a class="header-nav-link" href="/settings/">{{ user.username }}</a>
                 <a class="header-nav-link" href="/m/">Messages</a>
+                <a class="header-nav-link" href="/auth/logout/">Logout</a>
             {% else %}
                 <a class="header-nav-link" href="/auth/login/">Login</a>
             {% endif %}
