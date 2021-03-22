@@ -86,6 +86,13 @@ interface UserRepository {
      */
     updateUser(username: string, params: UserUpdate): Promise<void>;
     /**
+     * Update a user's password.
+     *
+     * @param username - The username of the user.
+     * @param password - The hashed new password.
+     */
+    updatePassword(username: string, password: string): Promise<void>;
+    /**
      * Delete a user.
      *
      * @param username - The username of the user.

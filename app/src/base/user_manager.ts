@@ -42,6 +42,16 @@ interface UserManager {
      */
     updateUser(user: User, username: string, params: UserUpdate): Promise<void>;
     /**
+     * Change a user's password.
+     *
+     * @param user - The user who is performing the password change.
+     * @param username - The username of the user whose password is being changed.
+     * @param currentPassword - The current password of the user.
+     * @param newPassword - The new password of the user.
+     */
+    changePassword(user: User, username: string, currentPassword: string,
+        newPassword: string): Promise<void>;
+    /**
      * Delete a user.
      *
      * @param user - The user who wishes to delete this user.

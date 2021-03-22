@@ -1,7 +1,7 @@
 import validUrl = require("valid-url");
 
 import { buildGravatarURL, markdown } from "./utils";
-import { hashPassword } from "./auth";
+import { hashPassword, isPasswordValid } from "./auth";
 
 import type UserRepository from "base/user_repository";
 import type {
@@ -155,6 +155,44 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
     }
 
     /**
+     * Change a user's password.
+     *
+     * @param user - The user who is performing the password change.
+     * @param username - The username of the user whose password is being changed.
+     * @param currentPassword - The current password of the user.
+     * @param newPassword - The new password of the user.
+     */
+    const changePassword = async (
+        user: User,
+        username: string,
+        currentPassword: string,
+        newPassword: string
+    ): Promise<void> => {
+        // Get the subject
+        const subject = await getUserByUsername(username, {});
+        if (subject === null)
+            throw new NotFoundError();
+
+        // Check permissions
+        if (!user.is_admin && subject.id !== user.id)
+            throw new ForbiddenError();
+
+        const errors: string[] = [];
+
+        // Perform validation
+        if (!await isPasswordValid(subject.password, currentPassword)) {
+            errors.push("The current password isn't correct.");
+        }
+        validators.password(errors, newPassword);
+
+        if (errors.length)
+            throw new ValidationError(errors);
+
+        // All good, update the password
+        await dataSource.updatePassword(username, await hashPassword(newPassword));
+    }
+
+    /**
      * Delete a user.
      *
      * @param user - The user who wishes to delete this user.
@@ -174,6 +212,7 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         getUserByID,
         getUserByUsername,
         updateUser,
+        changePassword,
         deleteUser
     }
 }

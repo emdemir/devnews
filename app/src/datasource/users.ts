@@ -187,6 +187,20 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Update a user's password.
+     *
+     * @param username - The username of the user.
+     * @param password - The hashed new password.
+     */
+    const updatePassword = async (
+        username: string,
+        password: string
+    ): Promise<void> => {
+        await query("UPDATE users SET password = $2 WHERE username = $1",
+            [username, password]);
+    }
+
+    /**
      * Delete a user.
      *
      * @param username - The username of the user.
@@ -200,6 +214,7 @@ export default function({ }): UserRepository {
         getUserByUsername,
         getUserByID,
         updateUser,
+        updatePassword,
         deleteUser
     };
 }
