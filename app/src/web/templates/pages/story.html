@@ -39,6 +39,8 @@
 
         {% for comment in comments %}
             {% include "partials/comment.html" %}
+        {% else %}
+            <p class="list-empty">No comments... yet.</p>
         {% endfor %}
     </div>
 </div>

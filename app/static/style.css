@@ -273,6 +273,13 @@ footer {
   margin: 1rem auto;
 }
 
+/* Displayed when there are no items in an item list. */
+
+.list-empty {
+  text-align: center;
+  font-style: italic;
+}
+
 /* --- Stories --- */
 
 .story {

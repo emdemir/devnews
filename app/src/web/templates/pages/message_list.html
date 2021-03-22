@@ -17,6 +17,8 @@
                     {{ moment(message.sent_at).fromNow() }} by {{ message.author }}
                 </span>
             </div>
+        {% else %}
+            <p class="list-empty">You have no messages.</p>
         {% endfor %}
 
         {% include "partials/pagination.html" %}
