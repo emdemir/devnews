@@ -8,7 +8,7 @@ import type {
 import type MessageManager from "base/message_manager";
 import type { Message } from "base/message_manager";
 import type Pagination from "base/pagination";
-import { ValidationError, ForbiddenError } from "base/exceptions";
+import { ValidationError, ForbiddenError, NotFoundError } from "base/exceptions";
 
 // Maximum amount of message threads shown in a single page.
 const MESSAGES_PER_PAGE = 20;
@@ -119,13 +119,13 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
     /**
      * Get the current message thread.
      *
-     * @param message_id - The ID of the first message in the thread
      * @param user - The user who requested the thread
+     * @param messageID - The ID of the first message in the thread
      * @param options - Additional stuff to fetch
      */
     const getMessageThread = async (
-        message_id: number,
         user: User,
+        messageID: number,
         options: MessageOptions
     ): Promise<Message[] | null> => {
         // This is broken down into three parts:
@@ -133,7 +133,7 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
         // - Permission check, if it fails we throw.
         // - Get the replies to the message (because the permission check passed).
 
-        const first_message = await dataSource.getMessageByID(message_id, options);
+        const first_message = await dataSource.getMessageByID(messageID, options);
         // We also don't want to display messages that are replies as a page.
         if (first_message === null || first_message.in_reply_to !== null) {
             return null;
@@ -144,7 +144,7 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
         }
 
         // The failure mode of Message[] is [] so this is safe.
-        const replies = await dataSource.getRepliesByID(message_id, options);
+        const replies = await dataSource.getRepliesByID(messageID, options);
 
         return [first_message].concat(replies).map((m, i) => {
             m.thread_id = i + 1;
@@ -155,17 +155,17 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
     /**
      * Get a single message by ID.
      *
-     * @param message_id - The ID of the first message in the thread
-     * @param user - The user who requested the thread
+     * @param user - The user who requested the message
+     * @param messageID - The ID of the message
      * @param options - Additional stuff to fetch
      */
     const getMessageByID = async (
-        message_id: number,
         user: User,
+        messageID: number,
         options: MessageOptions
     ): Promise<Message | null> => {
         // Similar to above.
-        const message = await dataSource.getMessageByID(message_id, options);
+        const message = await dataSource.getMessageByID(messageID, options);
         if (message === null) {
             return null;
         }

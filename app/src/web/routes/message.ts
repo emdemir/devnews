@@ -38,7 +38,7 @@ export default function({ messageManager, userManager }: Dependencies) {
         const { message_id } = ctx.params;
 
         try {
-            const messages = await messageManager.getMessageThread(message_id, user, {
+            const messages = await messageManager.getMessageThread(user, message_id, {
                 author: true,
                 recipient: true
             });
@@ -130,7 +130,7 @@ export default function({ messageManager, userManager }: Dependencies) {
 
         try {
             // Try to find the thread
-            const thread = await messageManager.getMessageByID(+message_id, user, {});
+            const thread = await messageManager.getMessageByID(user, +message_id, {});
 
             if (thread === null || thread.in_reply_to !== null) {
                 ctx.status = 404;

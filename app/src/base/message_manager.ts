@@ -25,19 +25,19 @@ interface MessageManager {
     /**
      * Get the current message thread.
      *
-     * @param message_id - The ID of the first message in the thread
      * @param user - The user who requested the thread
+     * @param message_id - The ID of the first message in the thread
      * @param options - Additional stuff to fetch
      */
-    getMessageThread(message_id: number, user: User, options: MessageOptions): Promise<Message[] | null>;
+    getMessageThread(user: User, messageID: number, options: MessageOptions): Promise<Message[] | null>;
     /**
      * Get a single message by ID.
      *
-     * @param message_id - The ID of the first message in the thread
-     * @param user - The user who requested the thread
+     * @param user - The user who requested the message
+     * @param messageID - The ID of the message
      * @param options - Additional stuff to fetch
      */
-    getMessageByID(message_id: number, user: User, options: MessageOptions): Promise<Message | null>;
+    getMessageByID(user: User, messageID: number, options: MessageOptions): Promise<Message | null>;
 };
 
 export { Message };
