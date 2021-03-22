@@ -303,13 +303,17 @@ footer {
 /* --- Stories --- */
 
 .story {
+  position: relative;
   display: block;
   clear: both;
+
   margin-bottom: 0.75rem;
+  margin-left: 2.25rem;
 }
 
 .story > form {
-  float: left;
+  position: absolute;
+  left: -2.25rem;
   margin: 0 0.5rem;
 }
 
@@ -329,6 +333,12 @@ footer {
   background-color: #c678dd;
 }
 
+.story-content {
+  margin: 1rem 2.25rem;
+  padding: 0.5rem;
+  border: 2px dashed #5b6268;
+}
+
 .story-create-comment textarea {
   width: 20rem;
   height: 10rem;
@@ -338,13 +348,17 @@ footer {
 /* --- Comments --- */
 
 .comment {
+  position: relative;
   display: block;
   clear: both;
+
   margin-bottom: 0.5rem;
+  margin-left: 2.5rem;
 }
 
-.comment > form {
-  float: left;
+.comment > form:first-child {
+  position: absolute;
+  left: -2.5rem;
   margin: 0 0.5rem;
 }
 
@@ -353,11 +367,7 @@ footer {
 }
 
 .comment-contents {
-  padding: 0.5rem 2.5rem;
-}
-
-.comment-children {
-  margin-left: 2rem;
+  padding: 0.5rem;
 }
 
 .comment-children:not(:empty) {
