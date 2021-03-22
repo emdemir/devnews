@@ -1,6 +1,8 @@
 /** @file The interface for a story manager. */
 
-import type { StoryListOptions, StoryOptions, Story } from "./story_repository";
+import type {
+    StoryListOptions, StoryOptions as RepoStoryOptions, Story
+} from "./story_repository";
 import type { User } from "./user_repository";
 import type { Tag } from "./tag_repository";
 import type Pagination from "./pagination";
@@ -21,6 +23,15 @@ export interface StoryCreate {
     tags: string[];
 };
 
+/**
+ * Extra options when fetching a story.
+ */
+export interface StoryOptions extends RepoStoryOptions {
+    // If passed, checks whether the given user can edit the story, and raises
+    // ForbiddenError if he can't.
+    checkEditableBy?: User;
+}
+
 interface StoryManager {
     /**
      * Returns paginated stories.
@@ -33,14 +44,14 @@ interface StoryManager {
      * Returns a story by its short URL.
      *
      * @param url - The short URL.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
     getStoryByShortURL(url: string, options: StoryOptions): Promise<Story | null>;
     /**
      * Returns a story by ID.
      *
      * @param id - The story ID.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
     getStoryByID(id: number, options: StoryOptions): Promise<Story | null>;
     /**
@@ -66,6 +77,15 @@ interface StoryManager {
      * @param options - What/how to fetch.
      */
     getStoriesWithTag(tag: Tag, page: number, options: StoryListOptions): Promise<Pagination<Story>>;
+    /**
+     * Update an existing story with new parameters. Only admins or the submitter
+     * can update a story.
+     *
+     * @param user - The user who wants to update the story
+     * @param short_url - The short URL of the story
+     * @param params - The new story attributes
+     */
+    updateStory(user: User, shortURL: string, params: StoryCreate): Promise<void>;
     /**
      * Delete the story using the given user's credentials. If the user isn't
      * the story submitter or an admin, it is rejected.

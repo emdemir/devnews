@@ -2,7 +2,9 @@ import type { QueryResult } from "pg";
 import { getClient, query } from "./index";
 
 import StoryRepository from "base/story_repository";
-import { Story, StoryOptions, StoryListOptions, StoryCreate } from "base/story_repository";
+import {
+    Story, StoryOptions, StoryListOptions, StoryCreate, StoryUpdate
+} from "base/story_repository";
 
 const defaultOptions: StoryOptions = {
     submitterUsername: false,
@@ -264,6 +266,65 @@ export default function({ }): StoryRepository {
     }
 
     /**
+     * Update a story using the given parameters.
+     *
+     * @param id - The story ID.
+     * @param params - The new story parameters.
+     */
+    const updateStory = async (
+        id: number,
+        params: StoryUpdate
+    ): Promise<void> => {
+        const client = await getClient();
+
+        // Since we're also changing the story's tags, we need to first remove
+        // all the tags and then re-add them, which is much easier than diffing.
+        try {
+            await client.query("BEGIN");
+
+            // Update the story itself
+            await client.query(`\
+                UPDATE stories SET
+                    title = $2, url = $3, text = $4, text_html = $5,
+                    is_authored = $6
+                WHERE id = $1`, [
+                id,
+                params.title,
+                params.url,
+                params.text,
+                params.text_html,
+                params.is_authored
+            ]);
+
+            // Remove all the tags from this story
+            await client.query("DELETE FROM story_tags WHERE story_id = $1", [id]);
+
+            // Insert new tags back
+            // We need to "unzip" the arguments like this, see comments.ts
+            // markCommentsAsRead for an explanation.
+            const queryParams: [number[], number[]] = [[], []];
+            params.tags.forEach(tagID => {
+                queryParams[0].push(id);
+                queryParams[1].push(tagID);
+            });
+
+            await query(
+                `INSERT INTO story_tags (story_id, tag_id)
+                    SELECT story_id, tag_id FROM
+                    unnest($1::integer[], $2::integer[])
+                    AS new_tags (story_id, tag_id)`, queryParams);
+
+            await client.query("COMMIT");
+        } catch (e) {
+            await client.query("ROLLBACK");
+            throw e;
+        } finally {
+            client.release();
+        }
+
+    }
+
+    /**
      * Delete a story by its ID.
      *
      * @param id - The story ID.
@@ -279,6 +340,7 @@ export default function({ }): StoryRepository {
         getStoryByID,
         voteOnStory,
         getStoriesByTagID,
+        updateStory,
         deleteStory
     };
 }

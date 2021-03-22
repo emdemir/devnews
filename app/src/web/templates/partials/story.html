@@ -42,7 +42,9 @@
                     discuss
                 {%- endif -%}
             </a>
-            {% if user.is_admin %}
+            {% if user.is_admin or story.submitter_id === user.id %}
+                |
+                <a href="/s/{{ story.short_url }}/edit">edit</a>
                 |
                 <form action="/s/{{ story.short_url }}/delete" method="POST"
                       class="inline-form">

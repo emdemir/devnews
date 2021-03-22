@@ -63,6 +63,24 @@ export interface StoryCreate {
     tags: number[];
 };
 
+/**
+ * All the fields that are required to update a story.
+ */
+export interface StoryUpdate {
+    // The story's title.
+    title: string;
+    // The URL of the story, can be null.
+    url: string | null;
+    // The text of the story (unprocessed), can be null.
+    text: string | null;
+    // The text of the story (processed into HTML), can be null.
+    text_html: string | null;
+    // The tags for this story as an array of IDs.
+    tags: number[];
+    // Whether the story was authored by the story author.
+    is_authored: boolean;
+};
+
 interface StoryRepository {
     /**
      * Returns a list of stories with the specified options.
@@ -105,6 +123,13 @@ interface StoryRepository {
      * @param options - What/how to fetch.
      */
     getStoriesByTagID(tagID: number, options: StoryListOptions): Promise<Story[]>;
+    /**
+     * Update a story using the given parameters.
+     *
+     * @param id - The story ID.
+     * @param params - The new story parameters.
+     */
+    updateStory(id: number, params: StoryUpdate): Promise<void>;
     /**
      * Delete a story by its ID.
      *

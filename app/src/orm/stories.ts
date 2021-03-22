@@ -3,11 +3,12 @@ import sequelize from "./";
 
 import type StoryRepository from "base/story_repository";
 import type {
-    Story as RepoStory, StoryCreate, StoryOptions, StoryListOptions
+    Story as RepoStory, StoryCreate, StoryOptions, StoryListOptions,
+    StoryUpdate
 } from "base/story_repository";
 
 import {
-    User, Story, story_rank, story_stats, Tag
+    User, Story, story_rank, story_stats, Tag, story_tags
 } from "./tables";
 
 // --- Helpers and Defaults ----
@@ -302,6 +303,47 @@ export default function({ }): StoryRepository {
     };
 
     /**
+     * Update a story using the given parameters.
+     *
+     * @param id - The story ID.
+     * @param params - The new story parameters.
+     */
+    const updateStory = async (
+        id: number,
+        params: StoryUpdate
+    ): Promise<void> => {
+        console.log("Got here!", params);
+        await sequelize.transaction(async (t) => {
+            // Update the story
+            await Story.update({
+                url: params.url,
+                title: params.title,
+                text: params.text,
+                text_html: params.text_html,
+                is_authored: params.is_authored
+            }, {
+                where: { id },
+                returning: false,
+                transaction: t
+            });
+
+            // Remove all tags
+            await story_tags.destroy({
+                where: {
+                    story_id: id
+                },
+                transaction: t
+            });
+
+            // Re-insert tags
+            await story_tags.bulkCreate(params.tags.map(tag => ({
+                story_id: id,
+                tag_id: tag
+            })), { transaction: t });
+        });
+    }
+
+    /**
      * Delete a story by its ID.
      *
      * @param id - The story ID.
@@ -319,6 +361,7 @@ export default function({ }): StoryRepository {
         getStoryByID,
         voteOnStory,
         getStoriesByTagID,
+        updateStory,
         deleteStory
     }
 }

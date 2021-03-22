@@ -3,11 +3,11 @@ import validUrl = require("valid-url");
 import type { User } from "base/user_repository";
 import type StoryRepository from "base/story_repository";
 import type {
-    Story, StoryOptions, StoryListOptions,
-    StoryCreate as RepositoryStoryCreate
+    Story, StoryListOptions, StoryCreate as RepositoryStoryCreate,
+    StoryUpdate
 } from "base/story_repository";
 import type StoryManager from "base/story_manager";
-import type { StoryCreate } from "base/story_manager";
+import type { StoryOptions, StoryCreate } from "base/story_manager";
 import type TagRepository from "base/tag_repository";
 import type { Tag } from "base/tag_repository";
 import type Pagination from "base/pagination";
@@ -92,21 +92,50 @@ export default function({
     /**
      * Returns a story by its short URL.
      *
-     * @param options - What to fetch.
+     * @param url - The short URL for the story.
+     * @param options - What/how to fetch.
      */
-    const getStoryByShortURL = (
+    const getStoryByShortURL = async (
         url: string,
         options: StoryOptions
-    ) => dataSource.getStoryByShortURL(url, options);
+    ): Promise<Story | null> => {
+        const story = await dataSource.getStoryByShortURL(url, options);
+        if (story === null)
+            return null;
+
+        // If passed, check whether the user can edit this story
+        if (options.checkEditableBy !== undefined) {
+            const user = options.checkEditableBy;
+            if (!user.is_admin && story.submitter_id !== user.id)
+                throw new ForbiddenError();
+        }
+
+        return story;
+    }
 
     /**
      * Returns a story by ID.
      *
      * @param id - The story ID.
-     * @param options - What to fetch.
+     * @param options - What/how to fetch.
      */
-    const getStoryByID = (id: number, options: StoryOptions) =>
-        dataSource.getStoryByID(id, options);
+    const getStoryByID = async (
+        id: number,
+        options: StoryOptions
+    ): Promise<Story | null> => {
+        const story = await dataSource.getStoryByID(id, options);
+        if (story === null)
+            return null;
+
+        // If passed, check whether the user can edit this story
+        if (options.checkEditableBy !== undefined) {
+            const user = options.checkEditableBy;
+            if (!user.is_admin && story.submitter_id !== user.id)
+                throw new ForbiddenError();
+        }
+
+        return story;
+    }
 
     /**
      * Gives a vote on a story by user, or retracts the vote if it already exists.
@@ -198,6 +227,69 @@ export default function({
     }
 
     /**
+     * Update an existing story with new parameters. Only admins or the submitter
+     * can update a story.
+     *
+     * @param user - The user who wants to update the story
+     * @param shortURL - The short URL of the story
+     * @param params - The new story attributes
+     */
+    const updateStory = async (
+        user: User,
+        shortURL: string,
+        params: StoryCreate
+    ): Promise<void> => {
+        // First, get the story and check if we have permission.
+        const story = await getStoryByShortURL(shortURL, {});
+        if (story === null)
+            throw new NotFoundError();
+
+        if (!user.is_admin && story.submitter_id !== user.id)
+            throw new ForbiddenError();
+
+        // Validate the story data.
+        const errors: string[] = [];
+
+        validators.title(errors, params.title);
+        if (params.url)
+            validators.url(errors, params.url);
+        if (params.text)
+            validators.text(errors, params.text);
+        validators.tags(errors, params.tags);
+        validators.url_or_text(errors, params.url, params.text);
+
+        if (errors.length)
+            throw new ValidationError(errors);
+
+        // Render the story text, if it exists.
+        const textHTML = params.text !== null ? markdown(params.text) : null;
+
+        // Get all tags, and match up tags with their IDs.
+        const allTags = await tagRepository.getAllTags();
+        const tagIDs: number[] = [];
+
+        for (const tag of params.tags) {
+            const tagObject = allTags.find(t => t.name === tag);
+            if (!tagObject) {
+                throw new ValidationError([`Non-existent tag "${tag}".`])
+            }
+            tagIDs.push(tagObject.id);
+        }
+
+        const repoStory: StoryUpdate = {
+            url: params.url,
+            title: params.title,
+            text: params.text,
+            text_html: textHTML,
+            tags: tagIDs,
+            is_authored: params.is_authored,
+        };
+
+        // Update the story.
+        await dataSource.updateStory(story.id, repoStory);
+    }
+
+    /**
      * Delete the story using the given user's credentials. If the user isn't
      * the story submitter or an admin, it is rejected.
      *
@@ -225,6 +317,7 @@ export default function({
         voteOnStory,
         createStory,
         getStoriesWithTag,
+        updateStory,
         deleteStory
     }
 }

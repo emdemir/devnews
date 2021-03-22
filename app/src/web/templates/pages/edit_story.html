@@ -1,0 +1,22 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% set title = "Edit Story" %}
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="edit-story-page">
+    <div class="box">
+        <h3 class="box-title">Edit Story</h3>
+
+        {% include "partials/errors.html" %}
+
+        <form method="POST">
+            {% include "partials/csrf.html" %}
+            {% include "partials/story_form.html" %}
+
+            <button type="submit" class="button submit-button">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

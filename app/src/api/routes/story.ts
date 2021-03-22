@@ -144,6 +144,39 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
             }
         });
 
+    // --- Edit View ---
+
+    router.put("/:short_url",
+        passport.authenticate("jwt", { session: false }),
+        async ctx => {
+            const { user } = ctx.state;
+            const { short_url } = ctx.params;
+
+            const formData = ctx.request.body;
+            const { title, url, text, is_authored } = formData;
+            const tags: string[] = (
+                "tags" in formData
+                    ? (Array.isArray(formData.tags)
+                        ? formData.tags
+                        : [formData.tags])
+                    : []
+            );
+
+            if (!title) {
+                ctx.throw(400);
+            }
+
+            await storyManager.updateStory(user, short_url, {
+                tags,
+                is_authored: !!is_authored,
+                text: text || null,
+                title: title,
+                url: url || null
+            });
+            ctx.status = 204;
+        }
+    );
+
     // --- Delete View ---
 
     router.delete("/:short_url",
