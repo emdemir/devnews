@@ -18,6 +18,15 @@
         by
         <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
 
+        {% if user.is_admin %}
+            |
+            <form action="/c/{{ comment.short_url }}/delete" method="POST"
+                    class="inline-form">
+                {% include "partials/csrf.html" %}
+                <button type="submit" class="link-button">delete</button>
+            </form>
+        {% endif %}
+
         {# comment.user_read being undefined won't match. #}
         {% if comment.user_read === false %}
             <span class="comment-unread">(unread)</span>

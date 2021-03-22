@@ -29,6 +29,44 @@ export default function({ commentManager, storyManager }: Dependencies) {
         }
     });
 
+    router.post("/:short_url/delete", async ctx => {
+        const user = ctx.state.user;
+        if (!user) {
+            return ctx.redirect("/auth/login/");
+        }
+
+        const { short_url } = ctx.params;
+        const { confirm } = ctx.query;
+
+        // Need to redirect to the story the comment belongs to, so fetch
+        // the comment before deletion.
+        const comment = await commentManager.getCommentByShortURL(short_url, {
+            score: true,
+            username: true
+        });
+        if (comment === null) {
+            return ctx.throw(404);
+        }
+
+        if (!confirm) {
+            return await ctx.render("pages/confirm.html", {
+                title: "Delete Comment",
+                message: "Are you sure you want to delete this comment?",
+                preview: await ctx.render("partials/comment.html", {
+                    comment, preview: true
+                }),
+                user, csrf: ctx.csrf
+            });
+        } else {
+            await commentManager.deleteComment(user, short_url);
+
+            // Need to fetch story for its short URL
+            // TODO: flash success
+            const story = await storyManager.getStoryByID(comment.story_id, {});
+            ctx.redirect(`/s/${story!.short_url}`);
+        }
+    });
+
     // --- Detail View ---
 
     // This view just redirects the user to the correct place in the

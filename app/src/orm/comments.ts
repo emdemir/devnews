@@ -265,11 +265,23 @@ export default function({ }): CommentRepository {
         });
     }
 
+    /**
+     * Delete a story by its ID.
+     *
+     * @param id - The story ID.
+     */
+    const deleteComment = async (id: number): Promise<void> => {
+        const comment = await Comment.findByPk(id);
+        if (comment !== null)
+            comment.destroy();
+    }
+
     return {
         createComment,
         getCommentByShortURL,
         voteOnComment,
         getCommentsByStory,
-        markCommentsAsRead
+        markCommentsAsRead,
+        deleteComment
     }
 }

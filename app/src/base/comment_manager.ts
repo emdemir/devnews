@@ -60,6 +60,15 @@ interface CommentManager {
      * will be used to optimize the "mark read" action.
      */
     markCommentsAsRead(user: User, comments: Comment[], sameUser?: boolean): Promise<void>;
+    /**
+     * Delete the given comment by its short URL.
+     * If the user isn't the commenter and isn't an admin, he's not allowed to
+     * delete it.
+     *
+     * @param user - The user who wants to delete the comment
+     * @param shortURL - The short URL of the comment
+     */
+    deleteComment(user: User, shortURL: string): Promise<void>;
 };
 
 export default CommentManager;

@@ -137,5 +137,18 @@ export default function({ commentManager, storyManager }: Dependencies) {
             }
         });
 
+    // --- Delete View ---
+
+    router.delete("/:short_url",
+        passport.authenticate("jwt", { session: false }),
+        async ctx => {
+            const { user } = ctx.state;
+            const { short_url } = ctx.params;
+
+            await commentManager.deleteComment(user, short_url);
+            ctx.status = 204;
+        }
+    );
+
     return router;
 }

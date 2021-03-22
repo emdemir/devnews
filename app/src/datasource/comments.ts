@@ -227,11 +227,21 @@ export default function({ }): CommentRepository {
              ON CONFLICT DO NOTHING`, params);
     }
 
+    /**
+     * Delete a comment by its ID.
+     *
+     * @param id - The comment ID.
+     */
+    const deleteComment = async (id: number): Promise<void> => {
+        await query(`DELETE FROM comments WHERE id = $1`, [id]);
+    }
+
     return {
         createComment,
         voteOnComment,
         getCommentByShortURL,
         getCommentsByStory,
-        markCommentsAsRead
+        markCommentsAsRead,
+        deleteComment
     }
 };

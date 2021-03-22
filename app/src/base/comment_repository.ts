@@ -82,6 +82,12 @@ interface CommentRepository {
      * @param commentIDs - An array of IDs of comments.
      */
     markCommentsAsRead(userID: number, commentIDs: number[]): Promise<void>;
+    /**
+     * Delete a comment by its ID.
+     *
+     * @param id - The comment ID.
+     */
+    deleteComment(id: number): Promise<void>;
 };
 
 export default CommentRepository;

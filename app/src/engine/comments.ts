@@ -7,7 +7,7 @@ import type { Comment, CommentCreate } from "base/comment_manager";
 import type { User } from "base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
-import { ValidationError } from "base/exceptions";
+import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
 
 const MAXIMUM_COMMENT_LENGTH = 2000;
 
@@ -229,11 +229,34 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
             await dataSource.markCommentsAsRead(user.id, commentIDs);
     }
 
+    /**
+     * Delete the given comment by its short URL.
+     * If the user isn't the commenter and isn't an admin, he's not allowed to
+     * delete it.
+     *
+     * @param user - The user who wants to delete the comment
+     * @param shortURL - The short URL of the comment
+     */
+    const deleteComment = async (user: User, shortURL: string): Promise<void> => {
+        const comment = await getCommentByShortURL(shortURL, {});
+        if (comment === null)
+            throw new NotFoundError();
+
+        // Check permissions
+        if (!user.is_admin && comment.user_id !== user.id) {
+            throw new ForbiddenError();
+        }
+
+        // All good, can delete. Related items will cascade.
+        dataSource.deleteComment(comment.id);
+    }
+
     return {
         createComment,
         voteOnComment,
         getCommentByShortURL,
         getCommentTreeByStory,
-        markCommentsAsRead
+        markCommentsAsRead,
+        deleteComment
     };
 };
