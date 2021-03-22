@@ -1,12 +1,12 @@
 import validUrl = require("valid-url");
 
 import { buildGravatarURL } from "./utils";
-import { ValidationError } from "../base/exceptions";
+import { ValidationError } from "base/exceptions";
 import { hashPassword } from "./auth";
 
-import type UserRepository from "../base/user_repository";
-import type { User, UserOptions } from "../base/user_repository";
-import type UserManager from "../base/user_manager";
+import type UserRepository from "base/user_repository";
+import type { User, UserOptions } from "base/user_repository";
+import type UserManager from "base/user_manager";
 
 // Regexp for e-mail validation.
 const EMAIL_REGEX = /\S+@\S+\.\S+/;

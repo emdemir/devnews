@@ -7,9 +7,9 @@ import passportJwt = require("passport-jwt");
 import crypto = require("crypto");
 import jwt = require("jsonwebtoken");
 
-import type UserRepository from "../base/user_repository";
-import type { User } from "../base/user_repository";
-import type AuthManager from "../base/auth_manager";
+import type UserRepository from "base/user_repository";
+import type { User } from "base/user_repository";
+import type AuthManager from "base/auth_manager";
 import { generateShortID } from "./utils";
 
 // The amount of hash iterations we currently do.

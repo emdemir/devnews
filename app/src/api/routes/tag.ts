@@ -2,9 +2,9 @@ import Router = require("koa-router");
 import passport = require("koa-passport");
 import debugFactory = require("debug");
 
-import type StoryManager from "../../base/story_manager";
-import type TagManager from "../../base/tag_manager";
-import type { Tag } from "../../base/tag_repository";
+import type StoryManager from "base/story_manager";
+import type TagManager from "base/tag_manager";
+import type { Tag } from "base/tag_repository";
 
 import { storyProject } from "./story";
 

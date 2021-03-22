@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import type UserRepository from "../base/user_repository";
-import type { User as RepoUser, UserOptions } from "../base/user_repository";
+import type UserRepository from "base/user_repository";
+import type { User as RepoUser, UserOptions } from "base/user_repository";
 
 import { comment_votes, story_votes, User } from "./tables";
 

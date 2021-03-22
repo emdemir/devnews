@@ -1,6 +1,6 @@
 import { query } from "./";
-import type TagRepository from "../base/tag_repository";
-import type { Tag, TagWithStoryID } from "../base/tag_repository";
+import type TagRepository from "base/tag_repository";
+import type { Tag, TagWithStoryID } from "base/tag_repository";
 
 export default function({ }): TagRepository {
     const getAllTags = async (): Promise<Tag[]> => {

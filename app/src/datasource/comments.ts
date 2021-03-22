@@ -1,6 +1,6 @@
 import { query, getClient } from "./index";
-import type CommentRepository from "../base/comment_repository";
-import type { Comment, CommentOptions, CommentCreate } from "../base/comment_repository";
+import type CommentRepository from "base/comment_repository";
+import type { Comment, CommentOptions, CommentCreate } from "base/comment_repository";
 
 const defaultOptions: CommentOptions = {
     username: false,

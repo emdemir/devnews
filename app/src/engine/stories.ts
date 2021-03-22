@@ -1,17 +1,17 @@
 import validUrl = require("valid-url");
 
-import type { User } from "../base/user_repository";
-import type StoryRepository from "../base/story_repository";
+import type { User } from "base/user_repository";
+import type StoryRepository from "base/story_repository";
 import type {
     Story, StoryOptions, StoryListOptions,
     StoryCreate as RepositoryStoryCreate
-} from "../base/story_repository";
-import type StoryManager from "../base/story_manager";
-import type { StoryCreate } from "../base/story_manager";
-import type TagRepository from "../base/tag_repository";
-import type { Tag } from "../base/tag_repository";
-import type Pagination from "../base/pagination";
-import { ValidationError } from "../base/exceptions";
+} from "base/story_repository";
+import type StoryManager from "base/story_manager";
+import type { StoryCreate } from "base/story_manager";
+import type TagRepository from "base/tag_repository";
+import type { Tag } from "base/tag_repository";
+import type Pagination from "base/pagination";
+import { ValidationError } from "base/exceptions";
 
 import { generateShortID, markdown } from "./utils";
 

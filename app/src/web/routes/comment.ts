@@ -1,8 +1,8 @@
 import Router = require("koa-router");
 
 import type { AppContext } from "../";
-import type CommentManager from "../../base/comment_manager";
-import type StoryManager from "../../base/story_manager";
+import type CommentManager from "base/comment_manager";
+import type StoryManager from "base/story_manager";
 
 interface Dependencies {
     commentManager: CommentManager;

@@ -1,13 +1,13 @@
-import type CommentRepository from "../base/comment_repository";
+import type CommentRepository from "base/comment_repository";
 import type {
     CommentOptions, CommentCreate as RepositoryCommentCreate
-} from "../base/comment_repository";
-import type CommentManager from "../base/comment_manager";
-import type { Comment, CommentCreate } from "../base/comment_manager";
-import type { User } from "../base/user_repository";
+} from "base/comment_repository";
+import type CommentManager from "base/comment_manager";
+import type { Comment, CommentCreate } from "base/comment_manager";
+import type { User } from "base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
-import { ValidationError } from "../base/exceptions";
+import { ValidationError } from "base/exceptions";
 
 const MAXIMUM_COMMENT_LENGTH = 2000;
 

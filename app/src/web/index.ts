@@ -98,7 +98,7 @@ const tmplPath = __dirname.replace("/dist", "") + "/templates/";
 // so we have to do the `as unknown' shenanigans here.
 //
 // Typescript needs to improve.
-import type AuthManager from "../base/auth_manager";
+import type AuthManager from "base/auth_manager";
 const authManager: AuthManager = container.resolve("authManager");
 authManager.initialize(passport as unknown as Authenticator, "local");
 

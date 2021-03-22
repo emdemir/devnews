@@ -1,13 +1,12 @@
 import Router = require("koa-router");
-import Koa = require("koa");
 
 import type { AppContext } from "../";
-import type StoryManager from "../../base/story_manager";
-import type { StoryCreate } from "../../base/story_manager";
-import type CommentManager from "../../base/comment_manager";
-import type TagManager from "../../base/tag_manager";
-import type { User } from "../../base/user_repository";
-import { ValidationError, ForbiddenError } from "../../base/exceptions";
+import type StoryManager from "base/story_manager";
+import type { StoryCreate } from "base/story_manager";
+import type CommentManager from "base/comment_manager";
+import type TagManager from "base/tag_manager";
+import type { User } from "base/user_repository";
+import { ValidationError, ForbiddenError } from "base/exceptions";
 
 interface Dependencies {
     storyManager: StoryManager;

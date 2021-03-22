@@ -1,8 +1,8 @@
 import type { QueryResult } from "pg";
 import { getClient, query } from "./index";
 
-import StoryRepository from "../base/story_repository";
-import { Story, StoryOptions, StoryListOptions, StoryCreate } from "../base/story_repository";
+import StoryRepository from "base/story_repository";
+import { Story, StoryOptions, StoryListOptions, StoryCreate } from "base/story_repository";
 
 const defaultOptions: StoryOptions = {
     submitterUsername: false,

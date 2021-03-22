@@ -1,12 +1,12 @@
 import { Sequelize, Op } from "sequelize";
 import { Comment, comment_votes, read_comments, User } from "./tables";
 
-import type CommentRepository from "../base/comment_repository";
+import type CommentRepository from "base/comment_repository";
 import type {
     Comment as RepoComment,
     CommentOptions,
     CommentCreate
-} from "../base/comment_repository";
+} from "base/comment_repository";
 import type { Includeable } from "sequelize";
 import sequelize from "./";
 

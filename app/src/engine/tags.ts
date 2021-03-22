@@ -1,6 +1,6 @@
-import type TagRepository from "../base/tag_repository";
-import type TagManager from "../base/tag_manager";
-import type { StoryTagMapping } from "../base/tag_manager";
+import type TagRepository from "base/tag_repository";
+import type TagManager from "base/tag_manager";
+import type { StoryTagMapping } from "base/tag_manager";
 
 interface Dependencies {
     tagRepository: TagRepository;

@@ -1,10 +1,10 @@
 import { Op } from "sequelize";
 import { Message, User } from "./tables";
 
-import type MessageRepository from "../base/message_repository";
+import type MessageRepository from "base/message_repository";
 import type {
     Message as RepoMessage, MessageOptions, MessageCreate, MessageListOptions
-} from "../base/message_repository";
+} from "base/message_repository";
 import type { Includeable } from "sequelize";
 
 const defaultOptions: MessageOptions = {

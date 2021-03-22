@@ -1,6 +1,6 @@
 import { query } from "./index";
-import type UserRepository from "../base/user_repository";
-import type { User, UserOptions } from "../base/user_repository";
+import type UserRepository from "base/user_repository";
+import type { User, UserOptions } from "base/user_repository";
 
 const defaultOptions: UserOptions = {
     commentCount: false,

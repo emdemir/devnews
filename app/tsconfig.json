@@ -1,22 +1,23 @@
 {
-    "include": ["src/**/*"],
+  "include": ["./src/**/*"],
 
-    "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
 
-        "outDir": "dist",
-        "baseUrl": "src",
+    "outDir": "dist",
+    "baseUrl": "./src/",
+    "rootDir": ".",
 
-        "target": "ES2018",
-        "declarationMap": true,
-        "sourceMap": true,
-        "composite": true,
-        "allowJs": false,
-        "strict": true,
+    "target": "ES2018",
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "allowJs": false,
+    "strict": true,
 
-        "paths": {
-            "*": ["node_modules/*", "src/types/*"]
-        }
+    "paths": {
+      "*": ["*", "../node_modules/*"]
     }
+  }
 }

@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 import { Tag, story_tags } from "./tables";
 
-import type TagRepository from "../base/tag_repository";
-import type { Tag as RepoTag, TagWithStoryID } from "../base/tag_repository";
-import type StoryRepository from "../base/story_repository";
+import type TagRepository from "base/tag_repository";
+import type { Tag as RepoTag, TagWithStoryID } from "base/tag_repository";
+import type StoryRepository from "base/story_repository";
 
 interface Dependencies {
     storyRepository: StoryRepository;

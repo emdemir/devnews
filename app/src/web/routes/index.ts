@@ -1,8 +1,8 @@
 import Router = require("koa-router");
 
 import type { AppContext } from "../";
-import type StoryManager from "../../base/story_manager";
-import type TagManager from "../../base/tag_manager";
+import type StoryManager from "base/story_manager";
+import type TagManager from "base/tag_manager";
 
 interface Dependencies {
     storyManager: StoryManager;

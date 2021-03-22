@@ -1,7 +1,7 @@
 import Router = require("koa-router");
 
 import type { AppContext } from "../";
-import type UserManager from "../../base/user_manager";
+import type UserManager from "base/user_manager";
 
 interface Dependencies {
     userManager: UserManager;

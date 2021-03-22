@@ -1,9 +1,9 @@
 import Router = require("koa-router");
 import passport = require("koa-passport");
 
-import type UserManager from "../../base/user_manager";
-import type { User } from "../../base/user_repository";
-import type AuthManager from "../../base/auth_manager";
+import type UserManager from "base/user_manager";
+import type { User } from "base/user_repository";
+import type AuthManager from "base/auth_manager";
 
 interface Dependencies {
     userManager: UserManager;

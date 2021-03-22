@@ -1,11 +1,11 @@
 import Router = require("koa-router");
 import passport = require("koa-passport");
 
-import type StoryManager from "../../base/story_manager";
-import type { Story, StoryCreate } from "../../base/story_manager";
-import type CommentManager from "../../base/comment_manager";
-import type TagManager from "../../base/tag_manager";
-import { ValidationError } from "../../base/exceptions";
+import type StoryManager from "base/story_manager";
+import type { Story, StoryCreate } from "base/story_manager";
+import type CommentManager from "base/comment_manager";
+import type TagManager from "base/tag_manager";
+import { ValidationError } from "base/exceptions";
 
 import { commentProject } from "./comment";
 

@@ -1,9 +1,9 @@
 import Router = require("koa-router");
 import passport = require("koa-passport");
-import { ValidationError } from "../../base/exceptions";
+import { ValidationError } from "base/exceptions";
 
 import type { AppContext } from "../";
-import type UserManager from "../../base/user_manager";
+import type UserManager from "base/user_manager";
 
 interface Dependencies {
     userManager: UserManager;

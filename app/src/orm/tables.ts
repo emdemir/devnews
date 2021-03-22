@@ -27,11 +27,11 @@ import type {
 import sequelize from "./";
 
 // Interface imports
-import type { User as RepoUser, UserCreate } from "../base/user_repository";
-import type { Story as RepoStory, StoryCreate } from "../base/story_repository";
-import type { Comment as RepoComment, CommentCreate } from "../base/comment_repository";
-import type { Tag as RepoTag } from "../base/tag_repository";
-import type { Message as RepoMessage, MessageCreate } from "../base/message_repository";
+import type { User as RepoUser, UserCreate } from "base/user_repository";
+import type { Story as RepoStory, StoryCreate } from "base/story_repository";
+import type { Comment as RepoComment, CommentCreate } from "base/comment_repository";
+import type { Tag as RepoTag } from "base/tag_repository";
+import type { Message as RepoMessage, MessageCreate } from "base/message_repository";
 
 // --- Type definitions ---
 

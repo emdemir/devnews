@@ -1,10 +1,10 @@
 import { Sequelize, Includeable, Op, Model } from "sequelize";
 import sequelize from "./";
 
-import type StoryRepository from "../base/story_repository";
+import type StoryRepository from "base/story_repository";
 import type {
     Story as RepoStory, StoryCreate, StoryOptions, StoryListOptions
-} from "../base/story_repository";
+} from "base/story_repository";
 
 import {
     User, Story, story_rank, story_stats, Tag

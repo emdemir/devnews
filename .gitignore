@@ -3,3 +3,4 @@ app/dist/
 **/yarn-error.log
 /nginx/*.pem
 /app/.env
+*.tsbuildinfo

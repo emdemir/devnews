@@ -2,8 +2,8 @@ import Router = require("koa-router");
 import debugFactory = require("debug");
 
 import type { AppContext } from "../";
-import type StoryManager from "../../base/story_manager";
-import type TagManager from "../../base/tag_manager";
+import type StoryManager from "base/story_manager";
+import type TagManager from "base/tag_manager";
 
 const debug = debugFactory("devnews:web:tag");
 

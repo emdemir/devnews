@@ -1,9 +1,9 @@
 import { query } from "./";
 
-import type MessageRepository from "../base/message_repository";
+import type MessageRepository from "base/message_repository";
 import type {
     Message, MessageCreate, MessageOptions, MessageListOptions
-} from "../base/message_repository";
+} from "base/message_repository";
 
 const defaultOptions: MessageOptions = {
     author: false,
