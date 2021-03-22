@@ -4,7 +4,7 @@
 export interface Story {
     id: number;
     submitter_id: number;
-    is_authored: number;
+    is_authored: boolean;
     short_url: string;
     title: string;
     url: string | null;

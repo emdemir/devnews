@@ -96,7 +96,7 @@ export class User extends Model<RepoUser, UserCreate> implements RepoUser {
 export class Story extends Model<RepoStory, StoryCreate> implements RepoStory {
     public id!: number;
     public submitter_id!: number;
-    public is_authored!: number;
+    public is_authored!: boolean;
     public short_url!: string;
     public title!: string;
     public url!: string | null;
