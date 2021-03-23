@@ -370,6 +370,12 @@ footer {
   padding: 0.5rem;
 }
 
+.comment-contents pre {
+  margin: 0.25rem;
+  padding: 0.25rem;
+  background-color: #21242b;
+}
+
 .comment-children:not(:empty) {
   margin-top: 0.5rem;
 }
