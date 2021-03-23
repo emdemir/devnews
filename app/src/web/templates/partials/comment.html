@@ -18,7 +18,7 @@
         by
         <a href="/u/{{ comment.username }}">{{ comment.username }}</a>
 
-        {% if user.is_admin %}
+        {% if user.is_admin or comment.username == user.username %}
             |
             <form action="/c/{{ comment.short_url }}/delete" method="POST"
                     class="inline-form">
