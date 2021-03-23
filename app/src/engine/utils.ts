@@ -3,6 +3,7 @@ import crypto = require("crypto");
 import { JSDOM } from "jsdom";
 import createDOMPurify = require("dompurify");
 import marked = require("marked");
+import highlight = require("highlight.js");
 
 // --- Gravatar ---
 
@@ -51,6 +52,14 @@ export const generateShortID = (length: number): string => {
 // The DOMPurify instance for generating markdown.
 const window = new JSDOM("").window;
 const domPurify = createDOMPurify(window as unknown as Window);
+
+// Set Marked options
+marked.setOptions({
+    highlight: function(code, language) {
+        const validLanguage = highlight.getLanguage(language) ? language : "plaintext";
+        return highlight.highlight(validLanguage, code).value;
+    }
+})
 
 /**
  * Renders the given content using markdown. It is also sanitized using DOMPurify.
