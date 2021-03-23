@@ -74,5 +74,5 @@ export const markdown = (content: string) => {
                 ALLOWED_TAGS: []
             }
         )
-    );
+    ).replace(/&amp;lt;/g, "&lt;");
 }
