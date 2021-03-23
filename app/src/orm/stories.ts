@@ -312,7 +312,6 @@ export default function({ }): StoryRepository {
         id: number,
         params: StoryUpdate
     ): Promise<void> => {
-        console.log("Got here!", params);
         await sequelize.transaction(async (t) => {
             // Update the story
             await Story.update({

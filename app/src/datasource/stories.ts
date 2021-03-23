@@ -308,11 +308,11 @@ export default function({ }): StoryRepository {
                 queryParams[1].push(tagID);
             });
 
-            await query(
+            await client.query(
                 `INSERT INTO story_tags (story_id, tag_id)
                     SELECT story_id, tag_id FROM
                     unnest($1::integer[], $2::integer[])
-                    AS new_tags (story_id, tag_id)`, queryParams);
+                    AS new_tags (story_id, tag_id);`, queryParams);
 
             await client.query("COMMIT");
         } catch (e) {
@@ -321,7 +321,6 @@ export default function({ }): StoryRepository {
         } finally {
             client.release();
         }
-
     }
 
     /**
