@@ -5,6 +5,7 @@ import type CommentRepository from "base/comment_repository";
 import type {
     Comment as RepoComment,
     CommentOptions,
+    CommentListOptions,
     CommentCreate
 } from "base/comment_repository";
 import type { Includeable } from "sequelize";
@@ -128,6 +129,36 @@ const unwrapComment = (
 }
 
 export default function({ }): CommentRepository {
+    /**
+     * Get the latest comments across the site.
+     *
+     * @param _options - What/how to fetch.
+     */
+    const getLatestComments = async (
+        _options: CommentListOptions
+    ): Promise<RepoComment[]> => {
+        const options = Object.assign({}, defaultOptions, _options);
+
+        const { joins, group } = collectExtras(options);
+
+        const comments = await Comment.findAll({
+            include: joins,
+            order: [["commented_at", "DESC"]],
+            group: ["Comment.id"].concat(group),
+            limit: options.limit || undefined,
+            offset: options.offset || undefined,
+        });
+
+        // Because we already used the "votes" alias once, we can't use it again
+        // and I couldn't find any way to get an SQL alias of a sequelize alias.
+        // So this is a separate query because Sequelize is inadequate.
+        const votedComments = options.checkVoter !== undefined
+            ? await fetchUserVotes(options.checkVoter, comments.map(m => m.id))
+            : [];
+
+        return comments.map(model => unwrapComment(model, options, votedComments));
+    }
+
     /**
      * Return all comments for the given story ID.
      *
@@ -277,6 +308,7 @@ export default function({ }): CommentRepository {
     }
 
     return {
+        getLatestComments,
         createComment,
         getCommentByShortURL,
         voteOnComment,

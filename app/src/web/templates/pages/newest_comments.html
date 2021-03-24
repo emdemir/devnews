@@ -1,0 +1,15 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% set title = "Newest Comments" %}
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="comments">
+    {% for comment in page.items %}
+        {% include "partials/comment.html" %}
+    {% endfor %}
+
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

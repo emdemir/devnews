@@ -30,6 +30,12 @@ export interface CommentOptions {
     checkVoter?: number;
 };
 
+// Optional fetches for a list of comments.
+export interface CommentListOptions extends CommentOptions {
+    limit?: number;
+    offset?: number;
+}
+
 // The parameters required to create a comment.
 export interface CommentCreate {
     // The ID of the story.
@@ -47,6 +53,12 @@ export interface CommentCreate {
 };
 
 interface CommentRepository {
+    /**
+     * Get the latest comments across the site.
+     *
+     * @param options - What/how to fetch.
+     */
+    getLatestComments(options: CommentListOptions): Promise<Comment[]>;
     /**
      * Return all comments for the given story ID.
      *

@@ -1,18 +1,17 @@
 import Router = require("koa-router");
 
 import type { AppContext } from "../";
-import type UserManager from "base/user_manager";
 import type StoryManager from "base/story_manager";
 import type TagManager from "base/tag_manager";
-import { ValidationError } from "base/exceptions";
+import type CommentManager from "base/comment_manager";
 
 interface Dependencies {
-    userManager: UserManager;
     storyManager: StoryManager;
+    commentManager: CommentManager;
     tagManager: TagManager;
 };
 
-export default function({ userManager, storyManager, tagManager }: Dependencies) {
+export default function({ storyManager, commentManager, tagManager }: Dependencies) {
     const router = new Router<any, AppContext>();
 
     router.get("/", async ctx => {
@@ -55,6 +54,24 @@ export default function({ userManager, storyManager, tagManager }: Dependencies)
             title: "Recent Stories",
             page: stories, storyTags, user,
             csrf: ctx.csrf
+        });
+    });
+
+    router.get("/comments", async ctx => {
+        const user = ctx.state.user;
+        const page = +ctx.query.page || 1;
+
+        const comments = await commentManager.getLatestComments(page, {
+            score: true,
+            username: true,
+
+            checkVoter: user ? user.id : undefined
+            // checkRead is not done because that's specific to story details
+            // pages.
+        });
+
+        await ctx.render("pages/newest_comments.html", {
+            page: comments, user, csrf: ctx.csrf
         });
     });
 

@@ -1,13 +1,74 @@
 import { query, getClient } from "./index";
 import type CommentRepository from "base/comment_repository";
-import type { Comment, CommentOptions, CommentCreate } from "base/comment_repository";
+import type {
+    Comment, CommentOptions, CommentListOptions, CommentCreate
+} from "base/comment_repository";
 
 const defaultOptions: CommentOptions = {
     username: false,
     score: false
 };
 
+interface QueryExtras {
+    select: string;
+    joins: string;
+    group: string;
+    params: any[];
+}
+
+const getQueryExtras = (options: CommentOptions, params: any[] = []): QueryExtras => {
+    return {
+        select: `\
+        ${options.score ? ", S.score::integer" : ""}
+        ${options.username ? ", U.username" : ""}
+        ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
+        ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}`,
+
+        // This is a dumb but working way of getting the positional parameters'
+        // positions always right. PostgreSQL sadly does not support named
+        // parameters in queries. I also didn't want to introduce _yet another_
+        // library. Fortunately, Array.prototype.push returns the length of the new
+        // array which can be used for the parameter number.
+        joins: `\
+        ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
+        ${options.score ? "INNER JOIN comment_score S ON S.id = C.id" : ""}
+        ${options.checkRead !== undefined
+                ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
+                : ""}
+        ${options.checkVoter !== undefined
+                ? `LEFT OUTER JOIN comment_votes V ON V.comment_id = C.id AND V.user_id = $${params.push(options.checkVoter)}`
+                : ""}`,
+        group: `\
+        ${options.username ? ", U.username" : ""}
+        ${options.score ? ", S.score" : ""}`,
+        params
+    };
+}
+
 export default function({ }): CommentRepository {
+    /**
+     * Get the latest comments across the site.
+     *
+     * @param _options - What/how to fetch.
+     */
+    const getLatestComments = async (_options: CommentListOptions): Promise<Comment[]> => {
+        const options = Object.assign({}, defaultOptions, _options);
+        const extras = getQueryExtras(options, []);
+
+        const result = await query<Comment>(`\
+            SELECT C.*
+                ${extras.select}
+            FROM comments C
+                ${extras.joins}
+            GROUP BY C.id
+                ${extras.group}
+            ORDER BY C.commented_at DESC
+            ${options.limit ? `LIMIT ${options.limit}` : ""}
+            ${options.offset ? `OFFSET ${options.offset}` : ""}`, extras.params);
+
+        return result.rows;
+    }
+
     /**
      * Return all comments for the given story ID.
      *
@@ -19,37 +80,17 @@ export default function({ }): CommentRepository {
         _options: CommentOptions
     ): Promise<Comment[]> => {
         const options = Object.assign({}, defaultOptions, _options);
+        const extras = getQueryExtras(options, [storyID]);
 
-        const params: any[] = [storyID];
-
-        // This is a dumb but working way of getting the positional parameters'
-        // positions always right. PostgreSQL sadly does not support named
-        // parameters in queries. I also didn't want to introduce _yet another_
-        // library. Fortunately, Array.prototype.push returns the length of the new
-        // array which can be used for the parameter number.
         const result = await query<Comment>(`\
             SELECT C.*
-                ${options.score ? ", S.score::integer" : ""}
-                ${options.username ? ", U.username" : ""}
-                ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
-                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}
+                ${extras.select}
             FROM comments C
-                ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
-                ${options.score ? "INNER JOIN comment_score S ON S.id = C.id" : ""}
-                ${options.checkRead !== undefined
-                ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
-                : ""}
-                ${options.checkVoter !== undefined
-                ? `LEFT OUTER JOIN comment_votes V ON V.comment_id = C.id AND V.user_id = $${params.push(options.checkVoter)}`
-                : ""}
+                ${extras.joins}
             WHERE C.story_id = $1
             GROUP BY C.id
-                ${options.username ? ", U.username" : ""}
-                ${options.score ? ", S.score" : ""}`, params);
+                ${extras.group}`, extras.params);
 
-        // TODO: comment rank for client-side sorting. As far as I can tell I can't
-        // sort the comments as a tree by ranks and I don't want to
-        // get into recursive CTEs.
         return result.rows;
     };
 
@@ -64,28 +105,16 @@ export default function({ }): CommentRepository {
         _options: CommentOptions
     ): Promise<Comment | null> => {
         const options = Object.assign({}, defaultOptions, _options);
-
-        const params: any[] = [short_url];
+        const extras = getQueryExtras(options, [short_url]);
 
         const result = await query<Comment>(`\
             SELECT C.*
-                ${options.score ? ", S.score" : ""}
-                ${options.username ? ", U.username" : ""}
-                ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
-                ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}
+                ${extras.select}
             FROM comments C
-                ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
-                ${options.score ? "INNER JOIN comment_score S ON S.id = C.id" : ""}
-                ${options.checkRead !== undefined
-                ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
-                : ""}
-                ${options.checkVoter !== undefined
-                ? `LEFT OUTER JOIN comment_votes V ON V.comment_id = C.id AND V.user_id = $${params.push(options.checkVoter)}`
-                : ""}
+                ${extras.joins}
             WHERE C.short_url = $1
             GROUP BY C.id
-                ${options.username ? ", U.username" : ""}
-                ${options.score ? ", S.score" : ""}`, params);
+                ${extras.group}`, extras.params);
 
         if (result.rowCount === 0)
             return null;
@@ -237,6 +266,7 @@ export default function({ }): CommentRepository {
     }
 
     return {
+        getLatestComments,
         createComment,
         voteOnComment,
         getCommentByShortURL,

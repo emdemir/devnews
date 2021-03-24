@@ -2,6 +2,7 @@
 
 import type { Comment as RepositoryComment, CommentOptions } from "./comment_repository";
 import type { User } from "./user_repository";
+import type Pagination from "./pagination";
 
 export interface Comment extends RepositoryComment {
     children: Comment[];
@@ -20,6 +21,13 @@ export interface CommentCreate {
 };
 
 interface CommentManager {
+    /**
+     * Get the latest comments across the site for the given page.
+     *
+     * @param page - The page number.
+     * @param options - What/how to fetch.
+     */
+    getLatestComments(page: number, options: CommentOptions): Promise<Pagination<Comment>>;
     /**
      * Get all comments for this story, and return them as a tree. The root
      * comments are returned with children comments nested.

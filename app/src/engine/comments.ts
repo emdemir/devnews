@@ -1,6 +1,7 @@
 import type CommentRepository from "base/comment_repository";
 import type {
-    CommentOptions, CommentCreate as RepositoryCommentCreate
+    CommentOptions, CommentCreate as RepositoryCommentCreate,
+    CommentListOptions
 } from "base/comment_repository";
 import type CommentManager from "base/comment_manager";
 import type { Comment, CommentCreate } from "base/comment_manager";
@@ -8,8 +9,12 @@ import type { User } from "base/user_repository";
 
 import { generateShortID, markdown } from "./utils";
 import { ForbiddenError, NotFoundError, ValidationError } from "base/exceptions";
+import Pagination from "base/pagination";
 
+// Maximum length of comments.
 const MAXIMUM_COMMENT_LENGTH = 2000;
+// Maximum amount of comments on a page.
+const COMMENTS_PER_PAGE = 20;
 
 const validators = {
     comment: (errors: string[], comment: string) => {
@@ -91,6 +96,31 @@ const sortByRank = (comments: Comment[]): void => {
 }
 
 export default function({ commentRepository: dataSource }: Dependencies): CommentManager {
+    /**
+     * Get the latest comments across the site for the given page.
+     *
+     * @param page - The page number.
+     * @param options - What/how to fetch.
+     */
+    const getLatestComments = async (
+        page: number,
+        options: CommentOptions
+    ): Promise<Pagination<Comment>> => {
+        const listOptions: CommentListOptions = options;
+        if (page < 1) page = 1;
+        listOptions.limit = COMMENTS_PER_PAGE;
+        listOptions.offset = (page - 1) * COMMENTS_PER_PAGE;
+
+        const comments = await dataSource.getLatestComments(listOptions);
+
+        return {
+            page,
+            items: comments.map(c => ({ ...c, children: [] })),
+            has_prev_page: page > 1,
+            has_next_page: comments.length === COMMENTS_PER_PAGE
+        };
+    };
+
     /**
      * Gets all comments for this story, and returns as a tree. The root comments
      * are returned with children comments nested.
@@ -249,6 +279,7 @@ export default function({ commentRepository: dataSource }: Dependencies): Commen
     }
 
     return {
+        getLatestComments,
         createComment,
         voteOnComment,
         getCommentByShortURL,
