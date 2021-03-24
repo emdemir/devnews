@@ -9,7 +9,9 @@ CREATE TABLE users (
        -- The unique username.
        username varchar(32) NOT NULL UNIQUE,
        -- The password of the user. Stored as 10000$SALT$HASHED_PW.
-       password varchar(96) NOT NULL,
+       -- If the user is logged in via a third party provider, this will be
+       -- NULL.
+       password varchar(96),
        -- E-mail of the user.
        email varchar(80) NOT NULL UNIQUE,
        -- Homepage of the user listed in the about page.
@@ -22,6 +24,9 @@ CREATE TABLE users (
        avatar_image varchar(160) NOT NULL,
        -- Does this user have administration permissions?
        is_admin boolean NOT NULL,
+       -- If this user is connected to DevNews via Google, this is their user
+       -- ID.
+       google_id varchar(24),
        -- Registration date of this user.
        registered_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
        -- Last time this user's profile was updated.

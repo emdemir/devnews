@@ -1,0 +1,37 @@
+{# -*- mode: web -*- #}
+{# -*- engine: nunjucks -*- #}
+
+{% set title = "Select Username" %}
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="select-username">
+    <div class="box">
+        <h3 class="box-title">{{ title }}</h3>
+
+        <p>Please select a username to use on DevNews. Your current username is:
+            <strong>{{ user.username }}</strong></p>
+        <p>If you want to use this username, then simply navigate to another page.
+            Keep in mind that you will not be able to change your username after
+            this page without contacting a moderator.</p>
+
+        <br />
+
+        {% include "partials/errors.html" %}
+
+        <br />
+
+        <form method="POST">
+            {% include "partials/csrf.html" %}
+
+            <dl class="form-fields full-width select-username-fields">
+                <dt><label for="username">Username</label></dt>
+                <dd><input type="text" name="username" id="username" required
+                           maxlength="32" value="{{ formData.username }}" /></dd>
+            </dl>
+
+            <button type="submit" class="submit-button">Confirm Username</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

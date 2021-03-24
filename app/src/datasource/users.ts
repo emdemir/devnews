@@ -1,4 +1,4 @@
-import { query } from "./index";
+import { getClient, query } from "./index";
 import type UserRepository from "base/user_repository";
 import type { User, UserOptions, UserUpdate } from "base/user_repository";
 
@@ -109,6 +109,54 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Either gets or creates a user by their Google User ID.
+     * If created, the given values are used to fill in the user fields.
+     * If the user already exists, the values are untouched.
+     *
+     * @param id - The Google user ID.
+     * @param username - The unique username of the user.
+     * @param email - The e-mail address of the user.
+     * @param avatarImage - The URL for the user's avatar image.
+     */
+    const getOrCreateUserByGoogleID = async (
+        id: string,
+        username: string,
+        email: string,
+        avatarImage: string
+    ): Promise<[User, boolean]> => {
+        const client = await getClient();
+
+        try {
+            await client.query("BEGIN");
+
+            let created = false;
+            let userResults = await client.query<User>(
+                `SELECT * FROM users WHERE google_id = $1`, [id]);
+
+            if (userResults.rowCount === 0) {
+                userResults = await client.query<User>(
+                    `INSERT INTO users (
+                        username, email, about, about_html, avatar_image,
+                        is_admin, google_id
+                    ) VALUES (
+                        $1, $2, '', '', $3, false, $4
+                    ) RETURNING *`,
+                    [username, email, avatarImage, id]
+                );
+                created = true;
+            }
+
+            await client.query("COMMIT");
+            return [userResults.rows[0], created];
+        } catch (e) {
+            await client.query("ROLLBACK");
+            throw e;
+        } finally {
+            client.release();
+        }
+    }
+
+    /**
      * Returns a user by username if it exists in the database, or null if it doesn't.
      *
      * @param username - The username for this user.
@@ -187,6 +235,20 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Update a user's username.
+     *
+     * @param oldUsername - The old username of the user.
+     * @param newUsername - The new username of the user.
+     */
+    const updateUsername = async (
+        oldUsername: string,
+        newUsername: string
+    ): Promise<void> => {
+        await query("UPDATE users SET username = $2 WHERE username = $1",
+            [oldUsername, newUsername]);
+    }
+
+    /**
      * Update a user's password.
      *
      * @param username - The username of the user.
@@ -211,9 +273,11 @@ export default function({ }): UserRepository {
 
     return {
         createUser,
+        getOrCreateUserByGoogleID,
         getUserByUsername,
         getUserByID,
         updateUser,
+        updateUsername,
         updatePassword,
         deleteUser
     };

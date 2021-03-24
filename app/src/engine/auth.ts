@@ -6,6 +6,7 @@ import local = require("passport-local");
 import passportJwt = require("passport-jwt");
 import crypto = require("crypto");
 import jwt = require("jsonwebtoken");
+import passportGoogle = require("passport-google-oauth20");
 
 import type UserRepository from "base/user_repository";
 import type { User } from "base/user_repository";
@@ -80,7 +81,12 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
             return null;
         }
 
-        const valid = await isPasswordValid(user!.password, password);
+        // User is signed in via Google, so they can't login via username and
+        // password.
+        if (user.password === null)
+            return null;
+
+        const valid = await isPasswordValid(user.password, password);
         if (!valid) {
             return null;
         }
@@ -130,6 +136,41 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
         }
     });
 
+    const clientID = process.env.OAUTH_CLIENT_ID;
+    const clientSecret = process.env.OAUTH_CLIENT_SECRET;
+    if (!clientID || !clientSecret)
+        throw new Error("OAuth2.0 parameters must be defined in the environment.");
+
+    const googleOptions: passportGoogle.StrategyOptions = {
+        clientID,
+        clientSecret,
+        scope: ["profile", "email"],
+    };
+
+    const googleStrategy = new passportGoogle.Strategy(googleOptions,
+        async (_accessToken, _refreshToken, profile, cb) => {
+            // Try to give the user a unique (but readable) username, until
+            // they change their own username in the next page.
+            const username = profile.displayName.toLowerCase().replace(/\W/g, "")
+                + Math.floor(Math.random() * 100);
+
+            try {
+                const [user, created] = await dataSource.getOrCreateUserByGoogleID(
+                    profile.id,
+                    username,
+                    profile.emails![0].value,
+                    profile.photos![0].value
+                );
+                // Sneak in some extra stuff to let the presentation layer know
+                // this is first auth, if it is.
+                (user as any).firstAuth = created;
+
+                cb(null, user);
+            } catch (err) {
+                cb(err);
+            }
+        });
+
     /// --- Serialization ---
 
     type SerializeCallback = (user: Express.User, done: (err: any, id?: number) => void) => void;
@@ -159,6 +200,7 @@ export default function({ userRepository: dataSource }: Dependencies): AuthManag
             passport.use("local", localStrategy);
         else
             passport.use("jwt", jwtStrategy);
+        passport.use("google", googleStrategy);
         // Register the callbacks with passport.
         passport.serializeUser(serialize);
         passport.deserializeUser(deserialize);

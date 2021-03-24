@@ -72,6 +72,59 @@ export default function({ userManager }: Dependencies) {
         }
     );
 
+    router.get("/google", passport.authenticate("google", {
+        callbackURL: "/auth/google/callback"
+    }));
+    router.get("/google/callback", passport.authenticate("google", {
+        failureRedirect: "/auth/login",
+        callbackURL: "/auth/google/callback"
+    }), async ctx => {
+        const { user } = ctx.state;
+
+        if (user.firstAuth) {
+            // Pass first auth to session
+            ctx.session.firstAuth = true;
+            ctx.redirect("/auth/username");
+        } else {
+            ctx.redirect("/");
+        }
+    });
+
+    // A route for first time third-party authenticated users to select their
+    // username on the site.
+    router.get("/username", async ctx => {
+        const { user } = ctx.state;
+        if (!user || !ctx.session.firstAuth) {
+            return ctx.throw(403);
+        }
+
+        return await ctx.render("pages/select_username.html", {
+            user, csrf: ctx.csrf
+        })
+    });
+    router.post("/username", async ctx => {
+        const { user } = ctx.state;
+        if (!user || !ctx.session.firstAuth) {
+            return ctx.throw(403);
+        }
+
+        const { username } = ctx.request.body;
+
+        try {
+            await userManager.setUsername(user, username);
+            // First auth chance is now "used up".
+            ctx.session.firstAuth = null;
+            ctx.redirect("/");
+        } catch (err) {
+            if (!(err instanceof ValidationError))
+                throw err;
+
+            return await ctx.render("pages/select_username.html", {
+                error: err, user, csrf: ctx.csrf
+            });
+        }
+    });
+
     router.get("/rules", async ctx => {
         await ctx.render("pages/rules.html");
     });

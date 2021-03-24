@@ -444,6 +444,24 @@ footer {
   margin: 0.5rem;
 }
 
+/* --- Google & Other 3rd Party Sign-in --- */
+
+.third-party-button {
+  box-sizing: content-box;
+  display: inline-block;
+  height: 32px;
+  line-height: 32px;
+  text-decoration: none;
+}
+
+.third-party-button img {
+  vertical-align: middle;
+}
+
+.third-party-button span {
+  text-decoration: underline;
+}
+
 /* --- Mobile Layout/Responsive Design --- */
 
 @media screen and (max-width: 720px) {

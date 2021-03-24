@@ -101,6 +101,40 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Either gets or creates a user by their Google User ID.
+     * If created, the given values are used to fill in the user fields.
+     * If the user already exists, the values are untouched.
+     *
+     * @param id - The Google user ID.
+     * @param username - The unique username of the user.
+     * @param email - The e-mail address of the user.
+     * @param avatarImage - The URL for the user's avatar image.
+     */
+    const getOrCreateUserByGoogleID = async (
+        id: string,
+        username: string,
+        email: string,
+        avatarImage: string
+    ): Promise<[User, boolean]> => {
+        const [user, created] = await User.findOrCreate({
+            where: {
+                google_id: id
+            },
+            defaults: {
+                username,
+                email,
+                avatar_image: avatarImage,
+                about: "",
+                about_html: "",
+                is_admin: false,
+                registered_at: new Date()
+            }
+        });
+
+        return [user, created];
+    }
+
+    /**
      * Returns a user by username if it exists in the database, or null if it doesn't.
      *
      * @param username - The username for this user.
@@ -152,6 +186,21 @@ export default function({ }): UserRepository {
     }
 
     /**
+     * Update a user's username.
+     *
+     * @param oldUsername - The old username of the user.
+     * @param newUsername - The new username of the user.
+     */
+    const updateUsername = async (
+        oldUsername: string,
+        newUsername: string
+    ): Promise<void> => {
+        await User.update({ username: newUsername }, {
+            where: { username: oldUsername }
+        });
+    }
+
+    /**
      * Update a user's password.
      *
      * @param username - The username of the user.
@@ -177,9 +226,11 @@ export default function({ }): UserRepository {
 
     return {
         createUser,
+        getOrCreateUserByGoogleID,
         getUserByID,
         getUserByUsername,
         updateUser,
+        updateUsername,
         updatePassword,
         deleteUser
     }

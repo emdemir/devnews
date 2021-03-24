@@ -42,6 +42,13 @@ interface UserManager {
      */
     getUserByID(id: number, options: UserOptions): Promise<User | null>;
     /**
+     * Sets the user's username.
+     *
+     * @param user - The user whose username is being set.
+     * @param username - The new username of the user.
+     */
+    setUsername(user: User, username: string): Promise<void>;
+    /**
      * Update a user's details.
      *
      * @param user - The user who is performing the update.

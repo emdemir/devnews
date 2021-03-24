@@ -17,8 +17,13 @@ const ABOUT_MAX_CHARS = 4096;
 // The validators for the user model.
 const validators = {
     username: (errors: string[], username: string) => {
-        if (username.length > 32) {
+        if (!username) {
+            errors.push("You must provide a username.");
+        } else if (username.length > 32) {
             errors.push("Username cannot be longer than 32 characters.");
+        } else if (!/^[a-zA-Z0-9.-_]+$/.test(username)) {
+            errors.push("Username may only contain alphanumeric characters, " +
+                "dot, dash or underscore.");
         }
     },
     password: (errors: string[], password: string) => {
@@ -80,8 +85,7 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
                 throw new ValidationError(["This username is taken."]);
             } else {
                 // Another error we're not aware of.
-                console.error(err);
-                throw new Error("An unknown error occurred. Please try again later.");
+                throw err;
             }
         }
     }
@@ -131,6 +135,36 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
     }
 
     /**
+     * Sets the user's username.
+     *
+     * @param user - The user whose username is being set.
+     * @param username - The new username of the user.
+     */
+    const setUsername = async (user: User, username: string): Promise<void> => {
+        // Validate the new username
+        const errors: string[] = [];
+        validators.username(errors, username);
+        if (errors.length)
+            throw new ValidationError(errors);
+
+        // All good, try setting the username
+        try {
+            await dataSource.updateUsername(user.username, username);
+        } catch (err) {
+            if (!(err instanceof Error))
+                throw err;
+
+            if (err.message.includes("username")) {
+                // Username already exists.
+                throw new ValidationError(["This username is taken."]);
+            } else {
+                // Another error we're not aware of.
+                throw err;
+            }
+        }
+    }
+
+    /**
      * Update a user's details.
      *
      * @param user - The user who is performing the update.
@@ -164,8 +198,12 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
 
         // All good, update the user details.
 
-        // Fetch new Gravatar for the user based on their email
-        const avatarImage = buildGravatarURL(params.email);
+        // Fetch new Gravatar for the user based on their email, unless they're
+        // logged in via a 3rd party service.
+        // Add more IDs as necessary.
+        const avatarImage = user.google_id
+            ? user.avatar_image
+            : buildGravatarURL(params.email);
 
         // Format the about text with Markdown
         const aboutHTML = markdown(params.about);
@@ -206,7 +244,8 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
 
         // Perform validation
         if (!user.is_admin &&
-            !await isPasswordValid(subject.password, currentPassword)) {
+            (subject.password === null ||
+                !await isPasswordValid(subject.password, currentPassword))) {
             errors.push("The current password isn't correct.");
         }
         validators.password(errors, newPassword);
@@ -238,6 +277,7 @@ export default function({ userRepository: dataSource }: Dependencies): UserManag
         getUserByID,
         getUserByUsername,
         updateUser,
+        setUsername,
         changePassword,
         deleteUser
     }

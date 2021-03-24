@@ -4,13 +4,14 @@
 export interface User {
     id: number;
     username: string;
-    password: string;
+    password: string | null;
     email: string;
     homepage: string | null;
     about: string;
     about_html: string;
     avatar_image: string;
     is_admin: boolean;
+    google_id: string | null;
     registered_at: Date;
     updated_at: Date;
 
@@ -24,13 +25,14 @@ export interface User {
 // The parameters needed to create a user.
 export interface UserCreate {
     username: string;
-    password: string;
+    password?: string;
     email: string;
     avatar_image: string;
     registered_at: Date;
     about: string;
     about_html: string;
     is_admin: boolean;
+    google_id?: string;
 };
 
 // Parameters that are required to update a user.
@@ -63,7 +65,20 @@ interface UserRepository {
      * @param email - The e-mail address of the user.
      * @param avatarImage - The URL for the user's avatar image.
      */
-    createUser(username: string, password: string, email: string, avatarImage: string): Promise<User>;
+    createUser(username: string, password: string, email: string,
+        avatarImage: string): Promise<User>;
+    /**
+     * Either gets or creates a user by their Google User ID.
+     * If created, the given values are used to fill in the user fields.
+     * If the user already exists, the values are untouched.
+     *
+     * @param id - The Google user ID.
+     * @param username - The unique username of the user.
+     * @param email - The e-mail address of the user.
+     * @param avatarImage - The URL for the user's avatar image.
+     */
+    getOrCreateUserByGoogleID(id: string, username: string, email: string,
+        avatarImage: string): Promise<[User, boolean]>;
     /**
      * Returns a user by username if it exists in the database, or null if it doesn't.
      *
@@ -85,6 +100,13 @@ interface UserRepository {
      * @param params - The update parameters.
      */
     updateUser(username: string, params: UserUpdate): Promise<void>;
+    /**
+     * Update a user's username.
+     *
+     * @param oldUsername - The old username of the user.
+     * @param newUsername - The new username of the user.
+     */
+    updateUsername(oldUsername: string, newUsername: string): Promise<void>;
     /**
      * Update a user's password.
      *
