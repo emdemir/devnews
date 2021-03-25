@@ -4,6 +4,7 @@ import passport = require("koa-passport");
 import type UserManager from "base/user_manager";
 import type { User } from "base/user_repository";
 import type AuthManager from "base/auth_manager";
+import { ValidationError } from "base/exceptions";
 
 interface Dependencies {
     userManager: UserManager;
@@ -202,6 +203,33 @@ export default function({ userManager, authManager }: Dependencies) {
             "expires_in": authManager.getTokenExpiry("identity")
         };
     });
+
+    // The route used to register a new user locally.
+    router.post("/register", async ctx => {
+        const { username, email, password } = ctx.request.body;
+
+        try {
+            const user = await userManager.createUser(username, password, email);
+
+            // Generate new tokens and return them
+            const accessToken = authManager.generateAccessToken(user.username, false);
+            const refreshToken = authManager.generateAccessToken(user.username, true);
+            ctx.status = 200;
+            ctx.body = {
+                "access_token": accessToken,
+                "refresh_token": refreshToken,
+                "expires_in": authManager.getTokenExpiry("access"),
+            };
+        } catch (err) {
+            if (!(err instanceof ValidationError))
+                throw err;
+
+            ctx.status = 400;
+            ctx.body = {
+                "errors": err.errors
+            };
+        }
+    })
 
     return router;
 }
