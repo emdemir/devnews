@@ -17,7 +17,7 @@ export default function({ userManager, authManager }: Dependencies) {
         // The client will use this endpoint to get a new access token. Using
         // this access token, the client can then obtain an identity token.
 
-        const { response_type, redirect_uri, scope } = ctx.request.query;
+        const { response_type, redirect_uri, scope, source } = ctx.request.query;
 
         // For now, we only allow the "openid" scope.
         if (scope !== "openid") {
@@ -36,21 +36,67 @@ export default function({ userManager, authManager }: Dependencies) {
                 return;
         }
 
-        // Check the username and password.
-        const { username, password } = ctx.request.body;
-        if (!username || !password) {
+        // Check the authenticator source, and use the correct method to authenticate
+        // the user.
+        let user: User;
+        if (source === "devnews") {
+            // Check the username and password.
+            const { username, password } = ctx.request.body;
+            if (!username || !password) {
+                ctx.status = 400;
+                ctx.body = { "error": "Both username and password must be supplied." };
+                return;
+            }
+
+            // Try to authenticate the user.
+            const u = await authManager.authenticate(username, password);
+            if (u === null) {
+                ctx.status = 403;
+                ctx.body = { "error": "Invalid username/password." };
+                return;
+            }
+            user = u;
+        } else if (source === "google") {
+            const { password: code } = ctx.request.body;
+
+            // HACK: This is a little hack to make passport authenticate the user
+            // for us. All the logic for communicating with the backend is already
+            // set up as a strategy in the Business Logic Layer, however Passport
+            // expects to receive the auth code as a query parameter in the
+            // callback request so it doesn't expose a function you can call to
+            // say "please contact Google and fetch profile details for me".
+            //
+            // We can "fake" a request by calling the middleware function that
+            // Passport gives us.
+
+            // Add in our "fake" request parameters for the auth code that the
+            // client obtained for us.
+            //
+            // I got these parameters from the callback that Google sends us.
+            ctx.query.code = code;
+            ctx.query.scope = "email profile";
+            const middleware = passport.authenticate("google", {
+                callbackURL: "http://localhost:8081/auth/login"
+            });
+
+            // Call the middleware
+            const u = await middleware(ctx, async () => {
+                return ctx.state.user;
+            });
+
+            if (u === null) {
+                ctx.status = 400;
+                ctx.body = { "error": "Google authentication failed." };
+                return;
+            }
+
+            user = u;
+        } else {
             ctx.status = 400;
-            ctx.body = { "error": "Both username and password must be supplied." };
+            ctx.body = { "error": "You must specify a valid authentication source." };
             return;
         }
 
-        // Try to authenticate the user.
-        const user = await authManager.authenticate(username, password);
-        if (user === null) {
-            ctx.status = 403;
-            ctx.body = { "error": "Invalid username/password." };
-            return;
-        }
 
         // From this point on, the user is valid, so either redirect with the
         // access token (if redirect_uri is defined) or pass it back.
