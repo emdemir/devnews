@@ -105,7 +105,6 @@ export default function({ }): MessageRepository {
     ): Promise<Message[]> => {
         const options = Object.assign({}, defaultOptions, _options);
 
-        // TODO: order by latest reply
         const result = await query<Message>(`\
             SELECT M.*
                 ${options.author ? ", SU.username AS author" : ""}

@@ -70,7 +70,7 @@ app
     .use(helmet({ hsts: false, contentSecurityPolicy: isDev ? false : undefined }))
     // Request body parsing
     .use(bodyParser({ enableTypes: ["json"], strict: true }))
-    // Authentication TODO
+    // Authentication
     .use(passport.initialize())
     // Handle 403, 404, 500
     .use(async function errorHandler(ctx, next) {

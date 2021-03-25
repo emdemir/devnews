@@ -295,7 +295,6 @@ export default function({ storyManager, commentManager, tagManager }: Dependenci
             })
         } else {
             await storyManager.deleteStory(user, short_url);
-            // TODO: flash success message
             return ctx.redirect("/");
         }
     });

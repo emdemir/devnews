@@ -61,7 +61,6 @@ export default function({ commentManager, storyManager }: Dependencies) {
             await commentManager.deleteComment(user, short_url);
 
             // Need to fetch story for its short URL
-            // TODO: flash success
             const story = await storyManager.getStoryByID(comment.story_id, {});
             ctx.redirect(`/s/${story!.short_url}`);
         }

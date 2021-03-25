@@ -192,7 +192,6 @@ export default function({ messageManager, userManager }: Dependencies) {
             });
         } else {
             await messageManager.deleteMessage(user, message_id);
-            // TODO: flash success message
             if (message.in_reply_to === null) {
                 return ctx.redirect("/m/");
             } else {

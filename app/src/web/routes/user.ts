@@ -119,7 +119,6 @@ export default function({ userManager }: Dependencies) {
             // Update the user's password.
             await userManager.changePassword(user, username, current, password);
 
-            // TODO: success flash
             if (user.username === username) {
                 return ctx.redirect("/settings");
             } else {
@@ -161,7 +160,6 @@ export default function({ userManager }: Dependencies) {
             })
         } else {
             await userManager.deleteUser(user, username);
-            // TODO: flash success message
             return ctx.redirect("/");
         }
     });

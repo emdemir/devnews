@@ -139,7 +139,6 @@ app
         watch: isDev
     }, {
         // Globals
-        // TODO: move this to a separate "context_processors.ts"
         now: function now() { return new Date(); },
         getDomain: function getDomain(url: string) { return (new URL(url)).hostname },
         moment

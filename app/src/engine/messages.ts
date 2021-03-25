@@ -59,8 +59,6 @@ export default function({ messageRepository: dataSource }: Dependencies): Messag
 
         const messageHTML = markdown(content);
 
-        // TODO: user block checks.
-
         // If this is a reply, then check if this user is actually a participant.
         // Otherwise anyone would be able to barge into other threads' replies.
         if (parent !== undefined) {
