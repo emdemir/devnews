@@ -16,7 +16,20 @@ export default function({ userManager }: Dependencies) {
         if (ctx.isAuthenticated()) {
             ctx.redirect("/");
         } else {
-            await ctx.render("pages/login.html", { csrf: ctx.csrf });
+            const { messages } = ctx.session;
+            const hasErrors = messages && messages.length;
+
+            // Clear the messages
+            if (hasErrors)
+                ctx.session.messages = undefined;
+
+            ctx.status = hasErrors ? 400 : 200;
+            await ctx.render("pages/login.html", {
+                error: hasErrors
+                    ? new ValidationError(messages)
+                    : null,
+                csrf: ctx.csrf
+            });
         }
     });
     router.post(
@@ -26,9 +39,8 @@ export default function({ userManager }: Dependencies) {
         passport.authenticate("local", {
             successReturnToOrRedirect: "/",
             failureRedirect: "/auth/login/",
-            failureFlash: true
-        })
-    );
+            failureMessage: true
+        }));
 
     router.get("/register", async ctx => {
         if (ctx.isAuthenticated()) {
