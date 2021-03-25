@@ -114,7 +114,7 @@ export default function({ commentManager, storyManager }: Dependencies) {
             try {
                 const comment = await commentManager.createComment({
                     comment: content,
-                    parent,
+                    parent: parentComment,
                     story_id: story.id,
                     user_id: user.id
                 });
@@ -127,7 +127,6 @@ export default function({ commentManager, storyManager }: Dependencies) {
                 ctx.status = 201;
                 ctx.body = commentProject(comment);
             } catch (err) {
-                console.log("got here", err);
                 if (err instanceof ValidationError) {
                     ctx.status = 400;
                     ctx.body = { "errors": err.errors };
