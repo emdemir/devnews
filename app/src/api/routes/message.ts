@@ -96,7 +96,7 @@ export default function({ messageManager, userManager }: Dependencies) {
             const { message_id } = ctx.params;
 
             try {
-                const messages = await messageManager.getMessageThread(message_id, user, {
+                const messages = await messageManager.getMessageThread(user, +message_id, {
                     author: true,
                     recipient: true
                 });
