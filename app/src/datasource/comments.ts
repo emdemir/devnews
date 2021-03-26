@@ -32,7 +32,7 @@ const getQueryExtras = (options: CommentOptions, params: any[] = []): QueryExtra
         // array which can be used for the parameter number.
         joins: `\
         ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
-        ${options.score ? "INNER JOIN comment_score CS ON S.id = C.id" : ""}
+        ${options.score ? "INNER JOIN comment_score CS ON CS.id = C.id" : ""}
         ${options.storyShortURL ? "INNER JOIN stories S on S.id = C.story_id" : ""}
         ${options.checkRead !== undefined
                 ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
