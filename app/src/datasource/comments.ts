@@ -19,8 +19,9 @@ interface QueryExtras {
 const getQueryExtras = (options: CommentOptions, params: any[] = []): QueryExtras => {
     return {
         select: `\
-        ${options.score ? ", S.score::integer" : ""}
+        ${options.score ? ", CS.score::integer" : ""}
         ${options.username ? ", U.username" : ""}
+        ${options.storyShortURL ? ", S.short_url AS story_url" : ""}
         ${options.checkRead !== undefined ? ", COUNT(R.*)::integer::boolean as user_read" : ""}
         ${options.checkVoter !== undefined ? ", COUNT(V.*)::integer::boolean as user_voted" : ""}`,
 
@@ -31,7 +32,8 @@ const getQueryExtras = (options: CommentOptions, params: any[] = []): QueryExtra
         // array which can be used for the parameter number.
         joins: `\
         ${options.username ? "INNER JOIN users U on U.id = C.user_id" : ""}
-        ${options.score ? "INNER JOIN comment_score S ON S.id = C.id" : ""}
+        ${options.score ? "INNER JOIN comment_score CS ON S.id = C.id" : ""}
+        ${options.storyShortURL ? "INNER JOIN stories S on S.id = C.story_id" : ""}
         ${options.checkRead !== undefined
                 ? `LEFT OUTER JOIN read_comments R ON R.comment_id = C.id AND R.user_id = $${params.push(options.checkRead)}`
                 : ""}
@@ -40,7 +42,8 @@ const getQueryExtras = (options: CommentOptions, params: any[] = []): QueryExtra
                 : ""}`,
         group: `\
         ${options.username ? ", U.username" : ""}
-        ${options.score ? ", S.score" : ""}`,
+        ${options.score ? ", CS.score" : ""}
+        ${options.storyShortURL ? ", S.short_url" : ""}`,
         params
     };
 }

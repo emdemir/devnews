@@ -1,5 +1,5 @@
 import { Sequelize, Op } from "sequelize";
-import { Comment, comment_votes, read_comments, User } from "./tables";
+import { Story, Comment, comment_votes, read_comments, User } from "./tables";
 
 import type CommentRepository from "base/comment_repository";
 import type {
@@ -13,7 +13,8 @@ import sequelize from "./";
 
 const defaultOptions: CommentOptions = {
     username: false,
-    score: false
+    score: false,
+    storyShortURL: false
 };
 
 interface QueryExtras {
@@ -49,6 +50,16 @@ const collectExtras = (options: CommentOptions): QueryExtras => {
         group.push("votes.id");
         group.push("votes->comment_votes.comment_id");
         group.push("votes->comment_votes.user_id");
+    }
+
+    if (options.storyShortURL) {
+        joins.push({
+            model: Story as any,
+            as: "story",
+            attributes: ["short_url"],
+            required: true
+        });
+        group.push("story.id");
     }
 
     if (options.checkRead !== undefined) {
@@ -112,6 +123,8 @@ const unwrapComment = (
         comment.username = cc.user.username;
     if (options.score)
         comment.score = cc.votes.length;
+    if (options.storyShortURL)
+        comment.story_url = cc.story.short_url;
     if (options.checkRead !== undefined)
         comment.user_read = !!cc.viewers.length;
     if (options.checkVoter !== undefined)
@@ -122,6 +135,8 @@ const unwrapComment = (
         delete cc.user;
     if (options.score)
         delete cc.votes;
+    if (options.storyShortURL)
+        delete cc.story;
     if (options.checkRead !== undefined)
         delete cc.viewers;
 
@@ -147,6 +162,7 @@ export default function({ }): CommentRepository {
             group: ["Comment.id"].concat(group),
             limit: options.limit || undefined,
             offset: options.offset || undefined,
+            subQuery: false,
         });
 
         // Because we already used the "votes" alias once, we can't use it again
@@ -178,7 +194,8 @@ export default function({ }): CommentRepository {
             where: {
                 story_id: storyID
             },
-            group: ["Comment.id"].concat(group)
+            group: ["Comment.id"].concat(group),
+            subQuery: false,
         });
 
         // Because we already used the "votes" alias once, we can't use it again
@@ -208,7 +225,8 @@ export default function({ }): CommentRepository {
         const comment = await Comment.findOne({
             include: joins,
             where: { short_url },
-            group: ["Comment.id"].concat(group)
+            group: ["Comment.id"].concat(group),
+            subQuery: false,
         });
         if (comment === null)
             return null;

@@ -11,11 +11,12 @@ export interface Comment {
     comment: string;
     comment_html: string;
 
-    // Aggregated fields
+    // Aggregated/optional fields
     score?: number;
     user_voted?: boolean;
     user_read?: boolean;
     username?: string;
+    story_url?: string;
 };
 
 // Optional fetches during the query.
@@ -24,6 +25,8 @@ export interface CommentOptions {
     username?: boolean;
     // Fetch the score of this comment.
     score?: boolean;
+    // Fetch the short URL of the story as well.
+    storyShortURL?: boolean;
     // If not undefined, fetch whether the user with the given ID read the comment.
     checkRead?: number;
     // If not undefined, fetch whether the user with the given ID voted on the comment.

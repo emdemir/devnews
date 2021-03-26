@@ -151,6 +151,7 @@ export class Comment extends Model<RepoComment, CommentCreate> implements RepoCo
     public user_voted?: boolean;
     public read?: boolean;
     public username?: string;
+    public story_url?: string;
 
     // Association definitions
     public getUser!: BelongsToGetAssociationMixin<User>;

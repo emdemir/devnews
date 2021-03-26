@@ -20,12 +20,12 @@ interface Dependencies {
 export const commentProject = (c: Comment): Object => {
     const {
         short_url, commented_at, comment, comment_html, username, score,
-        user_voted, user_read, children
+        user_voted, user_read, story_url, children
     } = c;
 
     return {
         short_url, commented_at, comment, comment_html, username, score,
-        user_voted, user_read,
+        user_voted, user_read, story_url,
         children: children.map(commentProject)
     };
 };
@@ -65,7 +65,8 @@ export default function({ commentManager, storyManager }: Dependencies) {
                 checkRead: user ? user.id : undefined,
                 checkVoter: user ? user.id : undefined,
                 score: true,
-                username: true
+                username: true,
+                storyShortURL: true
             });
             if (comment === null) {
                 return ctx.throw(404);
