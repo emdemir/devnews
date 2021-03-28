@@ -76,12 +76,6 @@ CREATE TABLE story_votes (
        PRIMARY KEY (story_id, user_id)
 );
 
-CREATE TABLE story_follows (
-       story_id int NOT NULL REFERENCES stories ON DELETE CASCADE,
-       user_id int NOT NULL REFERENCES users ON DELETE CASCADE,
-       PRIMARY KEY (story_id, user_id)
-);
-
 CREATE TABLE comments (
        -- The ID of the comment.
        id int NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
