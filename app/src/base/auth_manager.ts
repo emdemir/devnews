@@ -8,6 +8,7 @@ interface AuthManager {
      * Initialize the authentication layer.
      *
      * @param passport - The passport authenticator instance.
+     * @param strategy - Which strategy to use.
      */
     initialize(passport: Authenticator, strategy: "local" | "jwt"): void;
     /**
