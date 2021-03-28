@@ -54,6 +54,7 @@
         </form>
     </div>
 
+    {% if user.password %}
     <div class="box">
         <h3 class="box-title">Change Password</h3>
 
@@ -79,5 +80,6 @@
             <button type="submit" class="submit-button">Change Password</button>
         </form>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
