@@ -252,7 +252,7 @@ User.init({
     },
     password: {
         type: DataTypes.STRING(32),
-        allowNull: false
+        allowNull: true
     },
     email: {
         type: DataTypes.STRING(80),
